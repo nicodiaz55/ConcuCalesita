@@ -9,22 +9,21 @@
 #define LOGMESSAGE_HPP_
 
 #include <string>
+#include "Info.hpp"
 
 using namespace std;
 
 class LogMessage {
 	private:
-		int level;
 		string message;
 		string formattedMessage;
 	public:
-		LogMessage(string message, int level);
+		LogMessage(string message, Info* info);
 		virtual ~LogMessage();
-		int getLevel();
 		string getMessage();
 		string toString();
 	private:
-		//string formatMessage(CallerInfo* info);
+		string formatMessage(Info* info);
 };
 
 

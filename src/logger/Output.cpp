@@ -25,6 +25,9 @@ Output::~Output() {
 	}
 }
 
+/**
+ * Inicializa la salida (la crea, la deja lista para escribir)
+ */
 bool Output::init() {
 	file = open(output.c_str(), O_CREAT | O_WRONLY, 0777);
 	if (file == -1) {
@@ -36,6 +39,11 @@ bool Output::init() {
 	return true;
 }
 
+/**
+ * Loggea un mensaje en la salida.
+ *
+ * TODO: manejar acceso entre procesos con un... Lock
+ */
 void Output::log(LogMessage* message) {
 	if (lseek(file,0,SEEK_END) == -1) {
 		// string err = "No se pudo escribir en el archivo: " + string(strerror(errno));

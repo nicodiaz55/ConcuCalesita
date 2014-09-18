@@ -11,22 +11,20 @@
 using namespace std;
 
 #include "Output.hpp"
+#include "Info.hpp"
 
 class Logger {
 	private:
-		int level;
+		bool canLog;
 		Output* output;
 
 	public:
 		Logger();
 		virtual ~Logger();
-		void setOutput(Output* output);
-		void setLevel(int level);
-		void log(string message, int level);
-
-	private:
-		bool isPublishable(LogMessage* message);
-		LogMessage* createLogMessage(string message, int level);
+		void setOutput(string output);
+		void init();
+		void stop();
+		void log(string message, Info* info);
 };
 
 

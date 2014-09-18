@@ -6,34 +6,34 @@
  */
 
 #include "LogMessage.hpp"
-#include <time.h>
 
-LogMessage::LogMessage(string message, int level) {
-	this->level = level;
+LogMessage::LogMessage(string message, Info* info) {
 	this->message = message;
-	this->formattedMessage = message + "\n";
-	//this->formattedMessage = formatMessage(info);
-	//delete info;
+	this->formattedMessage = formatMessage(info);
 }
 
 LogMessage::~LogMessage() {
-	level = -1;
 	message = "";
 	formattedMessage = "";
 }
 
-int LogMessage::getLevel() {
-	return level;
-}
-
+/**
+ * Devuelve el mensaje que se loggea
+ */
 string LogMessage::getMessage() {
 	return message;
 }
 
+/**
+ * Salida con formato, lo que se loggea
+ */
 string LogMessage::toString() {
 	return formattedMessage;
 }
 
-/*string LogMessage::formatMessage(CallerInfo* info) {
-	return info->getTime() + " | " + info->getProcessName() + " ("+ info->getPID() + ") | " + message;
-}*/
+/**
+ * Da formato al mensaje que se va a loggear
+ */
+string LogMessage::formatMessage(Info* info) {
+	return info->calculateTime() + " | " + info->name + " (" + info->pid + ") | " + message + "\n";
+}

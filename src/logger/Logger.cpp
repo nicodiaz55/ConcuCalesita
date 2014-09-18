@@ -8,39 +8,45 @@
 #include "Logger.hpp"
 
 Logger::Logger() {
-	level = -1;
+	canLog = false;
 	output = 0;
 }
 
-void Logger::setLevel(int level) {
-	this->level = level;
+void Logger::init() {
+	if (output != 0)
+		this->canLog = true;
 }
 
-void Logger::setOutput(Output* output) {
-	if (output->init())
-		this->output = output;
+void Logger::stop() {
+	this->canLog = false;
 }
 
-void Logger::log(string message, int level) {
-	LogMessage* m = createLogMessage(message, level);
-	if (isPublishable(m) && output) {
+/**
+ * Especifica la salida donde se loggea
+ */
+void Logger::setOutput(string output) {
+	this->output = new Output(output);
+	if (!this->output->init()) {
+		this->output = 0;
+		canLog = false;
+	}
+}
+
+/**
+ * Loggea un mensaje
+ */
+void Logger::log(string message, Info* info) {
+	LogMessage* m = new LogMessage(message, info);
+	if (output != 0 && canLog) {
 		output->log(m);
 	}
 	delete m;
 }
 
 Logger::~Logger() {
-	level = -1;
+	canLog = false;
 	if (output) {
 		delete output;
 		output = 0;
 	}
-}
-
-LogMessage* Logger::createLogMessage(string message, int level) {
-	return new LogMessage(message, level);
-}
-
-bool Logger::isPublishable(LogMessage* message) {
-	return message->getLevel() >= level; // TODO: revisar desigualdad
 }
