@@ -7,9 +7,20 @@
 
 #include "Logger.hpp"
 
+bool Logger::instanceFlag = false;
+Logger* Logger::logger = NULL;
+
 Logger::Logger() {
 	canLog = false;
 	output = 0;
+}
+
+Logger* Logger::getLogger() {
+	if (!instanceFlag) {
+		logger = new Logger();
+		instanceFlag = true;
+	}
+	return logger;
 }
 
 void Logger::init() {
@@ -44,9 +55,11 @@ void Logger::log(string message, Info* info) {
 }
 
 Logger::~Logger() {
-	canLog = false;
-	if (output) {
-		delete output;
-		output = 0;
+	instanceFlag = false;
+	logger->canLog = false;
+	if (logger->output) {
+		delete logger->output;
+		logger->output = 0;
 	}
+	logger = NULL;
 }

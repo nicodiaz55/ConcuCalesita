@@ -35,5 +35,7 @@ string LogMessage::toString() {
  * Da formato al mensaje que se va a loggear
  */
 string LogMessage::formatMessage(Info* info) {
+	if (info == NULL)
+		return "";
 	return info->calculateTime() + " | " + info->name + " (" + info->pid + ") | " + message + "\n";
 }

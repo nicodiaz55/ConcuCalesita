@@ -10,23 +10,26 @@
 
 using namespace std;
 
+#include <iostream>
 #include "Output.hpp"
 #include "Info.hpp"
 
 class Logger {
 	private:
+		static bool instanceFlag;
+		static Logger* logger;
 		bool canLog;
 		Output* output;
+	private:
+		Logger();
 
 	public:
-		Logger();
-		virtual ~Logger();
+		static Logger* getLogger();
+		~Logger();
 		void setOutput(string output);
 		void init();
 		void stop();
 		void log(string message, Info* info);
 };
-
-
 
 #endif /* LOGGER_HPP_ */
