@@ -5,6 +5,7 @@
  *      Author: juan
  */
 
+
 #ifdef LANZADOR
 
 #include<iostream>
@@ -115,11 +116,19 @@ int main ( int argc, char** argv){
 	//inicializa memoria compartida.
 	int keyShM = ftok("arch",33);
 	int shMId = shmget( keyShM, sizeof(int), IPC_CREAT|0666); //Memoria compartida para aumentar cantidad de chicos
-	void* shMp = shmat(shMId, NULL, 0);
+	void* shMpN = shmat(shMId, NULL, 0);
 
-	int* kidsInPark = static_cast<int*> (shMp);
+	int* kidsInPark = static_cast<int*> (shMpN);
 
 	(*kidsInPark) = 0;
+
+	keyShM = ftok("arch",44);
+	shMId = shmget( keyShM, sizeof(int), IPC_CREAT|0666); //Memoria compartida para aumentar cantidad de chicos
+	void* shMp = shmat(shMId,NULL,0);
+
+	int* caja = static_cast<int*> (shMp);
+
+	(*caja) = 0;
 
 //LANZAR NIÑOS Y PUERTAS
 
@@ -152,22 +161,43 @@ int main ( int argc, char** argv){
 	}
 
 //se desattachea despues de crear los hijos, asi siempre hay alguien usandola
-	shmdt (shMp);
+	shmdt (shMpN);
+
+//pipe de la puerta al recaudador
+	pipe(fd);
+	int fdWrRecaudador, fdRdRecaudador;
+	fdWrRecaudador = fd[1];
+	fdRdRecaudador = fd[0];
 
 //lanza las puertas
 	pid_t pidPuerta1 = fork();
 
 	if (pidPuerta1 == 0){
 		cout<< "Recibe Read: "<< fdRdPuerta2 <<endl;
-		execl("Puerta", "Puerta2", toString(fdRdPuerta2).c_str(),(char*)0);
+		execl("Puerta", "Puerta2", toString(fdRdPuerta2).c_str(), toString(fdWrRecaudador).c_str(),(char*)0);
 	}
 
 	pid_t pidPuerta2 = fork();
 
 	if (pidPuerta2 == 0){
 		cout<< "Recibe Read: "<< fdRdPuerta1 <<" Write: "<<fd[1]<<endl;
-		execl("Puerta", "Puerta1", toString(fdRdPuerta1).c_str(),(char*)0);
+		execl("Puerta", "Puerta1", toString(fdRdPuerta1).c_str(), toString(fdWrRecaudador).c_str(),(char*)0);
 	}
+
+	pid_t pidRec = fork();
+
+	if (pidRec == 0){
+		cout<< "Recibe Read: "<< fdRdPuerta1 <<" Write: "<<fd[1]<<endl;
+		execl("Recaudador", "Recaudador", toString(fdRdRecaudador).c_str(),(char*)0);
+	}
+
+	pid_t pidAdmin = fork();
+
+	if (pidAdmin == 0){
+		execl("Administrador", "Administrador",(char*)0);
+	}
+
+	shmdt(shMp);
 
 //LANZAR CALESITA
 
@@ -211,7 +241,7 @@ cout<< "les digo que mueran" << endl;
 
 	//espera a las puertas
 	//todo cambiar por waitpid
-	int aux = 3;
+	int aux = -1;
 	write(fdWrPuerta1,&aux,sizeof(int));
 	write(fdWrPuerta2,&aux,sizeof(int));
 
@@ -228,6 +258,10 @@ cout<< "les digo que mueran" << endl;
 
 	semop(semId, operacion, 1 );
 
+	wait(&status);
+
+	//espera al recaudador y admin
+	wait(&status);
 	wait(&status);
 
 	//mato el semaforo

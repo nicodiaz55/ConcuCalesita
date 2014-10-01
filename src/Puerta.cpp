@@ -49,7 +49,7 @@ int main ( int argc, char** argv){
 	sigaction(SIGUSR1,&sa,0);
 
 	//recibe pipes
-	int fdRead;
+	int fdRead, fdWrRecaudador;
 
 	stringstream ss;
 	ss.str("");
@@ -59,19 +59,33 @@ int main ( int argc, char** argv){
 
 	cout << "Soy puerta y leo del: "<< fdRead << endl;
 
+	ss;
+	ss.str("");
+	ss.clear();
+	ss << argv[2];
+	ss >> fdWrRecaudador;
 
-	//todo cambiar a señal
+	cout << "Puerta le escribe al: "<< fdWrRecaudador << endl;
+
 	while (seguir){
 		int fdWr;
 		cout<<"LEooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"<<endl;
 		read(fdRead, &fdWr, sizeof(int));
-
+//todo ver que pasaba si se llena un pipe
 		cout << "Puerta leyo: "<< fdWr<< endl;
-
+//le dice al chico que pase
 		string strAux = "pasa";
 		write(fdWr, strAux.c_str(), 5);
+//le avisa al recaudador que pago un chico
+		if (fdWr != -1) { //-1 llega para que muera la puerta con la señal (sino queda bloqueada en el read)
+			int pago = 1;
+			write(fdWrRecaudador, &pago, sizeof(int));
+		}
 
 	}
+	//para que muera el recaudador
+	int pago = 2;
+	write(fdWrRecaudador, &pago, sizeof(int));
 
 
 return 0;
