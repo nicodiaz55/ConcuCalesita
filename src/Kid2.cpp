@@ -10,20 +10,23 @@
 #include<iostream>
 #include <stdio.h>
 
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
-#include <sys/wait.h>
-# include <fcntl.h>
 
-#include <unistd.h>
+#include <sys/sem.h>
+
+#include "Memoria_Compartida/MemoriaCompartida.h"
+#include "Pipes_y_Fifos/Pipe.h"
+#include "Pipes_y_Fifos/FifoLectura.h"
+#include "Locks/LockWrite.hpp"
+#include "Locks/LockRead.hpp"
+
 #include <stdlib.h>
 #include <errno.h>
 #include "string.h"
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
+
+
  /*
   * Kid
   *
@@ -37,13 +40,6 @@ using namespace std;
 
 //todo Control de errores!!
 
-bool numeroAtt(int Id){
-
-	shmid_ds estado;
-	shmctl ( Id,IPC_STAT,&estado );
-	return estado.shm_nattch;
-
-}
 
 
 int main ( int argc, char** argv){
@@ -51,13 +47,13 @@ int main ( int argc, char** argv){
 	srand(time(NULL));
 
 	//recibe pipes
-	int fdRead,fdWrite,fdWrPuerta1,fdWrPuerta2;
+	int fdRdPuerta1,fdWrPuerta1,fdRdPuerta2,fdWrPuerta2;
 
 	stringstream ss;
 	ss.str("");
 	ss.clear();
 	ss << argv[1];
-	ss >> fdRead;
+	ss >> fdRdPuerta1;
 
 	ss.str("");
 	ss.clear();
@@ -67,86 +63,94 @@ int main ( int argc, char** argv){
 	ss.str("");
 	ss.clear();
 	ss << argv[3];
-	ss >> fdWrPuerta2;
+	ss >> fdRdPuerta2;
 
 	ss.str("");
 	ss.clear();
 	ss << argv[4];
-	ss >> fdWrite;
+	ss >> fdWrPuerta2;
 
-	int keyS = ftok("arch",22);
-perror("0 ");
+	Pipe pipePuerta1(fdRdPuerta1,fdWrPuerta1);
+	Pipe pipePuerta2(fdRdPuerta2,fdWrPuerta2);
+
+	pipePuerta1.setearModo(Pipe::ESCRITURA);
+	pipePuerta2.setearModo(Pipe::ESCRITURA);
+
+	string ruta = "Cola" + toString(getpid());
+	FifoLectura cola(ruta);
+
 	//para hacer operaciones del semaforo
 	struct sembuf operations[1];
-perror("1 ");
+
 	//para la memoria compartida
-	int keyShM = ftok("arch",33);
-perror("2 ");
+	MemoriaCompartida<int> kidsInPark;
+	kidsInPark.crear("arch",33); //todo permisos!
+
+
 //todo considerar permisos, hacerlos restrictivos
-	int semId = semget( keyS, 2, IPC_CREAT|0666); //2 semaforos, cola de ninios y lugares calecita
-	perror("3 ");
+	int key = ftok("arch",22);
+	int key2 = ftok("arch",23);
 
-	int shMId = shmget( keyShM, sizeof(int), IPC_CREAT|0666); //Memoria compartida para aumentar cantidad de chicos
-	void* shMp = shmat(shMId,NULL,0);
-
-	int* kidsInPark = static_cast<int*> (shMp);
-
+	int semId = semget( key, 1, IPC_CREAT|0666);
+	int semId2 = semget( key2, 1, IPC_CREAT|0666);
 
 	//prepara lock de kidsInPark
-	struct flock fl;
-
-	fl . l_type = F_WRLCK ;
-	fl . l_whence = SEEK_SET ;
-	fl . l_start = 0;
-	fl . l_len = 0;
-	fl . l_pid = getpid () ;
-	int fd = open ( "arch" , O_CREAT|O_WRONLY ,0777);
+	LockFile* lockW = new LockWrite("archLockKids");
 
 	//y aca arranca
 	bool otraVuelta=true;
 
 	while (otraVuelta) {
 		//aca consideramos que entro al parque
-		fl . l_type = F_WRLCK ;
-		fcntl ( fd , F_SETLKW ,&fl );
+		lockW->tomarLock();
 
-		(*kidsInPark)++;
-cout<< "Cant niños kid:" << (*kidsInPark) << endl;
-		fl . l_type = F_UNLCK ;
-		fcntl ( fd , F_SETLK ,&fl );
+		kidsInPark.escribir(kidsInPark.leer()+1);
+	cout<< "Cant niños kid:" << kidsInPark.leer() << endl;
 
+		lockW->liberarLock();
 		//se mete en la cola de boletos
 
 		cout<< "Me encole! "<< getpid() << endl;
 //Meterse es pasarle a la puerta por donde le tiene que escribir para desbloquearlo
-		write(fdWrPuerta1, &fdWrite, sizeof(int));
-cout<< "Le escribi a la puerta " << fdWrite << endl;
+		int pid = getpid();
+		pipePuerta1.escribir( &pid, sizeof(int) );
+
+cout<< "Le escribi a la puerta " << ruta << endl;
 
 //Espera que la puerta le escriba "pasa"
 		char buf[5];
-		int leidos = read(fdRead, buf, 5);
+		cola.leer(buf, 5);
 
 //todo sacar numeros magicos
 
 		cout<< "Termine la cola! "<< getpid() << endl;
 
-
-		/*
-		 *
-		 * TODO hace lo que haga despues de sacar boleto y antes de subir a calesita
-		 *
-		 *
-		 */
-
-
 		//intenta subir a la calecita
 
-		operations[0].sem_num = 1;
+		operations[0].sem_num = 0;
 		operations[0].sem_op = -1;
-		operations[0].sem_flg = SEM_UNDO;
+		operations[0].sem_flg = 0;
 
 		cout<< "Quiero calesita! "<< getpid() << endl;
-		semop(semId, operations, 1);
+
+		/************DEBUG***********************/
+		ushort arreglo2[2];
+
+		union semnum {
+			int val;
+			struct semid_ds* buf;
+			ushort* array;
+		};
+
+		semnum init2;
+		init2.array=arreglo2;
+		semctl(semId2,0,GETPID,init2);
+		cout << semctl(semId2,0,GETALL,init2)<<endl;
+		cout<< "Semaf calesita lugares libres: " << init2.array[0] << "Tocado por: " << init2.val << endl;
+
+		/************************************************************/
+
+		semop(semId2, operations, 1);
 
 
 		cout<< "Subí a la calesita! "<< getpid() << endl;
@@ -154,7 +158,19 @@ cout<< "Le escribi a la puerta " << fdWrite << endl;
 		//espera que la calesita gire
 		operations[0].sem_num = 0;
 		operations[0].sem_op = -1;
-		operations[0].sem_flg = SEM_UNDO;
+		operations[0].sem_flg = 0;
+
+		/************DEBUG***********************/
+		ushort arreglo[2];
+
+
+		semnum init;
+		init.array=arreglo;
+		semctl(semId,0,GETALL,init);
+		cout<< "Avisos calesita girando: " << init.array[0] << endl;
+
+
+		/************************************************************/
 
 		semop(semId, operations, 1);
 
@@ -170,22 +186,16 @@ cout<< "Le escribi a la puerta " << fdWrite << endl;
 	}
 
 	//libero memoria compartida
- 	int res = shmdt (shMp);
+	kidsInPark.liberar();
 
-  	if (res == -1)
-  		perror("error");
+  	//cierro pipes a las puertas y fifo de la cola
+	pipePuerta1.cerrar();
+	pipePuerta2.cerrar();
 
-  	if (numeroAtt(shMId) == 0){
-  		res = shmctl(shMId, IPC_RMID, NULL);
+	cola.cerrar();
+	cola.eliminar();
 
-  		if (res == -1)
-  			perror("error");
-	}
-
-
-  	close (fd) ;
-
-  	close (fdRead); close(fdWrite);
+	delete lockW;
 
   	return 0;
 

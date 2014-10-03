@@ -1,4 +1,5 @@
 /*
+ /*
  * Recaudador.cpp
  *
  *  Created on: Sep 30, 2014
@@ -7,21 +8,16 @@
 
 #ifdef RECAUDADOR
 
-#include<iostream>
-#include <stdio.h>
 
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <signal.h>
-#include <memory.h>
-# include <fcntl.h>
-#include <sys/shm.h>
-
-#include <unistd.h>
-#include <stdlib.h>
+#include "Memoria_Compartida/MemoriaCompartida.h"
+#include "Pipes_y_Fifos/FifoLectura.h"
+#include "Locks/LockWrite.hpp"
+#include "Locks/LockRead.hpp"
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
+
+
  /*
   * Registra en la caja el cobro de boletos
   */
@@ -31,89 +27,50 @@ using namespace std;
 
 //todo Control de errores!!
 
-bool numeroAtt(int Id){
-
-	shmid_ds estado;
-	shmctl ( Id,IPC_STAT,&estado );
-	return estado.shm_nattch;
-
-}
 
 //todo cambiar a pasado por parametro
-static const double precio = 2.5;
+static const int precio = 2;
 
 int main ( int argc, char** argv){
 
-	//recibe pipes
-	int fdRead;
+	FifoLectura fifo("FifoRecaudador");
+	fifo.abrir();
 
-	stringstream ss;
-	ss.str("");
-	ss.clear();
-	ss << argv[1];
-	ss >> fdRead;
-
-	cout << "Soy recaudador y leo del: "<< fdRead << endl;
 
 	//pide memoria comp. para caja
-
-	int keyShM = ftok("arch",44);
-	int shMId = shmget( keyShM, sizeof(int), IPC_CREAT|0666); //por ahora memoria compartida para la caja
-	void* shMp = shmat(shMId,NULL,0);
-
-	int* caja = static_cast<int*> (shMp);
+	MemoriaCompartida<int> caja;
+	caja.crear("arch",44);
 
 	//prepara lock de caja recaudacion
-	struct flock fl;
-
-	fl . l_type = F_WRLCK ;
-	fl . l_whence = SEEK_SET ;
-	fl . l_start = 0;
-	fl . l_len = 0;
-	fl . l_pid = getpid () ;
-	int fd = open ( "arch2" , O_CREAT|O_WRONLY ,0777);
+	LockFile* lockW = new LockWrite("archLockCaja");
 
 	while (true){
 
-		int AvisoPago;
-		read(fdRead, &AvisoPago, sizeof(int));
+		int avisoPago;
+		fifo.leer(&avisoPago , sizeof(int));
 
-	cout << "Recaud. leyo: "<< AvisoPago << endl;
-		if (AvisoPago == 2) {break;}
+		if (avisoPago == 2) {break;}
+		cout << "Aviso pago" << avisoPago << endl;
+		lockW->tomarLock();
 
+		caja.escribir (caja.leer() + precio);
 
-		fl . l_type = F_WRLCK ;
-		fcntl ( fd , F_SETLKW ,&fl );
-
-		(*caja)+=precio;
-		cout<<"En caja hay: " << (*caja) << endl;
-
-		fl . l_type = F_UNLCK ;
-		fcntl ( fd , F_SETLK ,&fl );
+		lockW->liberarLock();
 
 	}
 
 	//para que muera el administrador
-	fl . l_type = F_WRLCK ;
-	fcntl ( fd , F_SETLKW ,&fl );
-	(*caja)=-1;
-	fl . l_type = F_UNLCK ;
-	fcntl ( fd , F_SETLK ,&fl );
+	lockW->tomarLock();
+	caja.escribir(-1);
+	lockW->liberarLock();
 
 	//libero memoria compartida
- 	int res = shmdt (shMp);
+ 	caja.liberar();
 
-  	if (res == -1)
-  		perror("error");
+ 	delete lockW;
 
-  	if (numeroAtt(shMId) == 0){
-  		res = shmctl(shMId, IPC_RMID, NULL);
-
-  		if (res == -1)
-  			perror("error");
-	}
-
-	close(fd);
+	fifo.cerrar();
+	fifo.eliminar();
 
 
 return 0;
@@ -121,5 +78,3 @@ return 0;
 }
 
 #endif
-
-

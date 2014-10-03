@@ -5,25 +5,24 @@
  *      Author: juan
  */
 
-
 #ifdef LANZADOR
 
 #include<iostream>
 #include <stdio.h>
 
-#include <sys/types.h>
-#include <sys/ipc.h>
 #include <sys/sem.h>
-#include <sys/shm.h>
+#include "Memoria_Compartida/MemoriaCompartida.h"
+#include "Pipes_y_Fifos/Pipe.h"
 #include <sys/wait.h>
 #include <signal.h>
 #include <memory.h>
 
-#include <unistd.h>
 #include <stdlib.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
+
+
  /*
   * Lanza chicos (Procesos Kid) con fork y exec
   * Lanza calesita, administrador y recaudador
@@ -31,12 +30,23 @@
   * Inicializa semaforos y shMem antes de que haya otros procesos para prevenir competencias.
   */
 
+//todo 1) Sacar arch y arch2 pasarlo a /dev y /etc o lo que sea
+//todo 2) Limpiar includes de cosas innecesarias
+
 using namespace std;
 
 static const int CANTPARAM = -1;
 //todo Control de errores!!
 
 int main ( int argc, char** argv){
+
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("test.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Lanzador");
+
+	logger->log("Park is open", info);
 
 	int cantNinios = 0;
 	int lugaresCalesita = 0;
@@ -87,9 +97,11 @@ int main ( int argc, char** argv){
 		}
 
 //INICIALIZAR IPC mechanisms
-	int key = ftok("arch",22);
+	int key1 = ftok("arch",22);
+	int key2 = ftok("arch",23);
 
-	int semId = semget( key, 2, IPC_CREAT|0666); //2 semaforos, calecita girando y lugares calecita
+	int semId = semget( key1, 1, IPC_CREAT|0666); //calecita girando
+	int semId2 = semget( key2, 1, IPC_CREAT|0666); //lugares calecita
 
 	union semnum {
 		int val;
@@ -111,84 +123,27 @@ int main ( int argc, char** argv){
 
 	int lugaresCalesitaUsados = init.val;
 
-	semctl (semId, 1, SETVAL, init );
+	semctl (semId2, 0, SETVAL, init );
 
 	//inicializa memoria compartida.
-	int keyShM = ftok("arch",33);
-	int shMId = shmget( keyShM, sizeof(int), IPC_CREAT|0666); //Memoria compartida para aumentar cantidad de chicos
-	void* shMpN = shmat(shMId, NULL, 0);
 
-	int* kidsInPark = static_cast<int*> (shMpN);
 
-	(*kidsInPark) = 0;
+	MemoriaCompartida<int> kidsInPark;
+	kidsInPark.crear("arch",33); //todo cambiar permisos (que los tome por param)
+	//Memoria compartida de cantidad de chicos en parque
+	kidsInPark.escribir(0);
 
-	keyShM = ftok("arch",44);
-	shMId = shmget( keyShM, sizeof(int), IPC_CREAT|0666); //Memoria compartida para aumentar cantidad de chicos
-	void* shMp = shmat(shMId,NULL,0);
+	MemoriaCompartida<int> caja;
+	caja.crear("arch",44); //todo cambiar permisos (que los tome por param)
+	//Memoria compartida para la caja
+	caja.escribir(0);
 
-	int* caja = static_cast<int*> (shMp);
-
-	(*caja) = 0;
-
-//LANZAR NIÑOS Y PUERTAS
-
-	int fd[2];
-//crea los pipes que van de los niños a las puertas
-	pipe(fd);
-	int fdRdPuerta1 = fd [0];
-	int fdWrPuerta1 = fd[1]; //para escribirle a la puerta 1
-
-	pipe(fd);
-	int fdRdPuerta2 = fd [0];
-	int fdWrPuerta2 = fd[1]; //para escribirle a la puerta 2
-	//todo niños cerrar el de lectura, puerta cerrar el de escritura
-
-	int fdRdNinio = 0;
-	int fdWrNinio = 0;
-	for (int i = 0; i<cantNinios ; i++){
-
-		pipe(fd); //pipes de las puertas a los niños
-		fdRdNinio = fd[0];
-		fdWrNinio = fd [1];
-		//todo niño debe cerrar el fd de escritura
-
-		pid_t pid = fork();
-
-		if (pid == 0){
-			cout<< "Recibe Read: " << fdRdNinio << " Write: "<<fdWrPuerta1 << " Y " << fdWrPuerta2 << endl;
-			execl("Kid", "Kid", toString(fdRdNinio).c_str() , toString(fdWrPuerta1).c_str(), toString(fdWrPuerta2).c_str(), toString(fdWrNinio).c_str(),(char*)0);
-		}
-	}
-
-//se desattachea despues de crear los hijos, asi siempre hay alguien usandola
-	shmdt (shMpN);
-
-//pipe de la puerta al recaudador
-	pipe(fd);
-	int fdWrRecaudador, fdRdRecaudador;
-	fdWrRecaudador = fd[1];
-	fdRdRecaudador = fd[0];
-
-//lanza las puertas
-	pid_t pidPuerta1 = fork();
-
-	if (pidPuerta1 == 0){
-		cout<< "Recibe Read: "<< fdRdPuerta2 <<endl;
-		execl("Puerta", "Puerta2", toString(fdRdPuerta2).c_str(), toString(fdWrRecaudador).c_str(),(char*)0);
-	}
-
-	pid_t pidPuerta2 = fork();
-
-	if (pidPuerta2 == 0){
-		cout<< "Recibe Read: "<< fdRdPuerta1 <<" Write: "<<fd[1]<<endl;
-		execl("Puerta", "Puerta1", toString(fdRdPuerta1).c_str(), toString(fdWrRecaudador).c_str(),(char*)0);
-	}
+//LANZAR RECAUDADOR Y ADMINISTRADOR
 
 	pid_t pidRec = fork();
 
 	if (pidRec == 0){
-		cout<< "Recibe Read: "<< fdRdPuerta1 <<" Write: "<<fd[1]<<endl;
-		execl("Recaudador", "Recaudador", toString(fdRdRecaudador).c_str(),(char*)0);
+		execl("Recaudador", "Recaudador", (char*)0);
 	}
 
 	pid_t pidAdmin = fork();
@@ -196,8 +151,8 @@ int main ( int argc, char** argv){
 	if (pidAdmin == 0){
 		execl("Administrador", "Administrador",(char*)0);
 	}
-
-	shmdt(shMp);
+//desattachea de la caja una vez que la tienen Recaud. y Admin.
+	caja.liberar();
 
 //LANZAR CALESITA
 
@@ -223,16 +178,51 @@ int main ( int argc, char** argv){
 		execl("Calesita", "Calesita", ss1.str().c_str(), ss2.str().c_str(), ss3.str().c_str(), (char*)0);
 	}
 
+	//LANZAR NIÑOS Y PUERTAS
+
+	//crea los pipes que van de los niños a las puertas y lanza puertas
+		Pipe pipe1;
+		int fdRdPuerta1 = pipe1.getFdLectura();
+		int fdWrPuerta1 = pipe1.getFdEscritura(); //para escribirle a la puerta 1
+
+		pid_t pidPuerta1 = fork();
+
+		if (pidPuerta1 == 0){
+			execl("Puerta", "Puerta1", toString(fdRdPuerta1).c_str(), toString(fdWrPuerta1).c_str(), (char*)0);
+		}
+
+		Pipe pipe2;
+		int fdRdPuerta2 = pipe2.getFdLectura();
+		int fdWrPuerta2 = pipe2.getFdEscritura(); //para escribirle a la puerta 2
+
+	//todo REVISAR RECEPCION PARAMETROS EN TODOS LADOS!!
+		pid_t pidPuerta2 = fork();
+//todo ALERTA NEGRADA: aca la puerta 2 tiene abierto el pipe de la 1, cambiar o a otro proceso o a usar fifos
+		if (pidPuerta2 == 0){
+			execl("Puerta", "Puerta2", toString(fdRdPuerta2).c_str(), toString(fdWrPuerta2).c_str(), (char*)0);
+		}
+
+		//lanza niños
+		for (int i = 0; i<cantNinios ; i++){
+
+			pid_t pid = fork();
+
+			if (pid == 0){
+				execl("Kid", "Kid", toString(fdRdPuerta1).c_str(), toString(fdWrPuerta1).c_str(), toString(fdRdPuerta2).c_str(), toString(fdWrPuerta2).c_str(), (char*)0);
+			}
+		}
+
+	//se desattachea esta shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
+		kidsInPark.liberar ();
+
 	//espero que terminen todos los hijos
 	int status;
 	for (int i = 0; i<cantNinios ; i++){
-
 		wait(&status);
 	}
 
 
 	//Señales a puertas y calesita para que mueran
-cout<< "les digo que mueran" << endl;
 
 
 	kill(pidPuerta1, SIGUSR1);
@@ -245,32 +235,55 @@ cout<< "les digo que mueran" << endl;
 	write(fdWrPuerta1,&aux,sizeof(int));
 	write(fdWrPuerta2,&aux,sizeof(int));
 
-	wait(&status);
+	//cierro ambos descriptores porque el lanzador no usa estos pipes
+	//los tengo abiertos hasta aca porque igual no hay forks que los dupliquen en otros procesos
+	//y porque los necesito para desbloquear la puerta para que termine seguro
+	pipe1.cerrar();
+	pipe2.cerrar();
+
+	wait(&status); //todo waitpid
 	wait(&status);
 
 	//espera a la calesita
-	//todo cambiar por waitpid
-	struct sembuf operacion[1];
+	//puede que la calesita quede bloqueada esperando a un ultimo niño-> mando un fantasma
 
+	struct sembuf operacion[1];
+//manda un "chico fantasma" a dar la ultima vuelta
 	operacion[0].sem_num = 1;
 	operacion[0].sem_op = -1;
-	operacion[0].sem_flg = SEM_UNDO;
+	operacion[0].sem_flg = 0;
 
-	semop(semId, operacion, 1 );
+	semop(semId2, operacion, 1 );
 
+//le dice a la calesita que deje de girar
+//aca ya no hay nadie usandolo excepto la calesita bloqueada
+	semnum finit;
+	finit.val = 0;
+	semctl (semId, 0, SETVAL, finit );
+
+	//todo cambiar por waitpid de calesita
 	wait(&status);
 
-	//espera al recaudador y admin
+	//espera al recaudador y admin todo waitpid
 	wait(&status);
 	wait(&status);
 
 	//mato el semaforo
 	semctl(semId,0,IPC_RMID);
+	semctl(semId2,0,IPC_RMID);
+
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
 
 return 0;
 
 }
 
 #endif
-
-

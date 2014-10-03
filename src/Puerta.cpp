@@ -1,5 +1,4 @@
-/*
- * Puerta.cpp
+* Puerta.cpp
  *
  *  Created on: Sep 30, 2014
  *      Author: juan
@@ -8,19 +7,16 @@
 
 #ifdef PUERTA
 
-#include<iostream>
-#include <stdio.h>
-
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <signal.h>
+#include "Seniales/SignalHandler.h"
+#include "Seniales/SIGUSR1_Handler.h"
 #include <memory.h>
-
-#include <unistd.h>
-#include <stdlib.h>
+#include "Pipes_y_Fifos/FifoEscritura.h"
+#include "Pipes_y_Fifos/Pipe.h"
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
+
+
  /*
   * Controla las colas de chicos con pipes
   */
@@ -30,26 +26,15 @@ using namespace std;
 
 //todo Control de errores!!
 
-bool seguir = true;
-
-void manejaSig(int sig){
-	if(sig == SIGUSR1){
-		cout<< "MUERO" << endl;
-		seguir = false;
-	}
-}
 
 int main ( int argc, char** argv){
 
 	//pongo el manejador de la señal
-	struct sigaction sa;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sa.sa_handler = manejaSig;
-	sigaction(SIGUSR1,&sa,0);
+	SIGUSR1_Handler sigusr1_handler;
+	SignalHandler :: getInstance()->registrarHandler ( SIGUSR1,&sigusr1_handler );
 
 	//recibe pipes
-	int fdRead, fdWrRecaudador;
+	int fdRead,fdWrite;
 
 	stringstream ss;
 	ss.str("");
@@ -57,41 +42,55 @@ int main ( int argc, char** argv){
 	ss << argv[1];
 	ss >> fdRead;
 
-	cout << "Soy puerta y leo del: "<< fdRead << endl;
-
-	ss;
 	ss.str("");
 	ss.clear();
 	ss << argv[2];
-	ss >> fdWrRecaudador;
+	ss >> fdWrite;
 
-	cout << "Puerta le escribe al: "<< fdWrRecaudador << endl;
+	Pipe pipe(fdRead,fdWrite);
+	pipe.setearModo(Pipe::LECTURA);
 
-	while (seguir){
+
+	FifoEscritura fifoRecaudador("FifoRecaudador");
+	fifoRecaudador.abrir();
+
+
+	while (sigusr1_handler.getGracefulQuit() != 1){
 		int fdWr;
-		cout<<"LEooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo"<<endl;
 		read(fdRead, &fdWr, sizeof(int));
+
+		string ruta = "Cola" + toString(fdWr);
 //todo ver que pasaba si se llena un pipe
-		cout << "Puerta leyo: "<< fdWr<< endl;
+
 //le dice al chico que pase
+		FifoEscritura fifoAKid(ruta);
+
 		string strAux = "pasa";
-		write(fdWr, strAux.c_str(), 5);
+		fifoAKid.escribir( strAux.c_str(), strAux.length() + 1 );
+
+		fifoAKid.cerrar();
+		fifoAKid.eliminar();
 //le avisa al recaudador que pago un chico
 		if (fdWr != -1) { //-1 llega para que muera la puerta con la señal (sino queda bloqueada en el read)
 			int pago = 1;
-			write(fdWrRecaudador, &pago, sizeof(int));
+			fifoRecaudador.escribir( &pago, sizeof(int));
 		}
 
 	}
 	//para que muera el recaudador
 	int pago = 2;
-	write(fdWrRecaudador, &pago, sizeof(int));
+	fifoRecaudador.escribir( &pago, sizeof(int));
 
+
+	fifoRecaudador.cerrar();
+	fifoRecaudador.eliminar();
+
+	pipe.cerrar();
+
+	SignalHandler :: destruir ();
 
 return 0;
 
 }
 
 #endif
-
-
