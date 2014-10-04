@@ -47,7 +47,7 @@ int main ( int argc, char** argv){
 	srand(time(NULL));
 
 	//recibe pipes
-	int fdRdPuerta1,fdWrPuerta1,fdRdPuerta2,fdWrPuerta2;
+	int fdRdPuerta1,fdWrPuerta1;
 
 	stringstream ss;
 	ss.str("");
@@ -60,27 +60,13 @@ int main ( int argc, char** argv){
 	ss << argv[2];
 	ss >> fdWrPuerta1;
 
-	ss.str("");
-	ss.clear();
-	ss << argv[3];
-	ss >> fdRdPuerta2;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[4];
-	ss >> fdWrPuerta2;
-
 	Pipe pipePuerta1(fdRdPuerta1,fdWrPuerta1);
-	Pipe pipePuerta2(fdRdPuerta2,fdWrPuerta2);
 
 	pipePuerta1.setearModo(Pipe::ESCRITURA);
-	pipePuerta2.setearModo(Pipe::ESCRITURA);
 
 	string ruta = "Cola" + toString(getpid());
 	FifoLectura cola(ruta);
 
-	//para hacer operaciones del semaforo
-	struct sembuf operations[1];
 
 	//para la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
@@ -88,11 +74,17 @@ int main ( int argc, char** argv){
 
 
 //todo considerar permisos, hacerlos restrictivos
+//todo encapsular semaforos (esperar a que den el codigo en la practica)
+	//para hacer operaciones del semaforo
+	struct sembuf operations[1];
+
 	int key = ftok("arch",22);
 	int key2 = ftok("arch",23);
+	int key3 = ftok("arch",24);
 
 	int semId = semget( key, 1, IPC_CREAT|0666);
 	int semId2 = semget( key2, 1, IPC_CREAT|0666);
+	int semId3 = semget( key3, 1, IPC_CREAT|0666); //mutex entrada y salida
 
 	//prepara lock de kidsInPark
 	LockFile* lockW = new LockWrite("archLockKids");
@@ -102,12 +94,29 @@ int main ( int argc, char** argv){
 
 	while (otraVuelta) {
 		//aca consideramos que entro al parque
+
+		//para que entre "de a uno" uso semaforo binario para seccion critica
+		operations[0].sem_num = 0;
+		operations[0].sem_op = -1;
+		operations[0].sem_flg = 0;
+		semop(semId3, operations, 1);
+
+		//todo loggear que entro
+
+		//como entro aumenta cantidad de chicos presentes...
 		lockW->tomarLock();
 
 		kidsInPark.escribir(kidsInPark.leer()+1);
-	cout<< "Cant niños kid:" << kidsInPark.leer() << endl;
+cout<< "Cant niños kid:" << kidsInPark.leer() << endl;
 
 		lockW->liberarLock();
+
+
+		operations[0].sem_num = 0;
+		operations[0].sem_op = 1;
+		operations[0].sem_flg = 0;
+		semop(semId3, operations, 1);
+
 		//se mete en la cola de boletos
 
 		cout<< "Me encole! "<< getpid() << endl;
@@ -118,12 +127,17 @@ int main ( int argc, char** argv){
 cout<< "Le escribi a la puerta " << ruta << endl;
 
 //Espera que la puerta le escriba "pasa"
-		char buf[5];
-		cola.leer(buf, 5);
+		int permisoPasar = 0;
+		cola.leer(&permisoPasar, sizeof(int) );
 
 //todo sacar numeros magicos
 
-		cout<< "Termine la cola! "<< getpid() << endl;
+		cout<< "Termine la cola! boleto"<< getpid() << " Lei: "<< permisoPasar <<endl;
+
+//Espera que la segunda puerta le escriba "pasa"
+		cola.leer(&permisoPasar, sizeof(int) );
+
+		cout<< "Poria subir a calesita... "<< getpid() << " Lei: "<< permisoPasar <<endl;
 
 		//intenta subir a la calecita
 
@@ -188,15 +202,28 @@ cout<< "Le escribi a la puerta " << ruta << endl;
 	//libero memoria compartida
 	kidsInPark.liberar();
 
-  	//cierro pipes a las puertas y fifo de la cola
+  	//cierro pipe a las puerta y fifo de la cola
 	pipePuerta1.cerrar();
-	pipePuerta2.cerrar();
 
 	cola.cerrar();
 	cola.eliminar();
 
 	delete lockW;
 
+	//para que salga "de a uno" uso semaforo binario para seccion critica, uso el mismo de la entrada
+	// -> no salen y entran al mismo tiempo
+	operations[0].sem_num = 0;
+	operations[0].sem_op = -1;
+	operations[0].sem_flg = 0;
+	semop(semId3, operations, 1);
+
+	//todo loggear que salio
+	//todo preguntar si habri que hacer algo particular aca...
+
+	operations[0].sem_num = 0;
+	operations[0].sem_op = 1;
+	operations[0].sem_flg = 0;
+	semop(semId3, operations, 1);
   	return 0;
 
 }

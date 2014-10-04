@@ -1,6 +1,4 @@
-/*
- /*
- * Recaudador.cpp
+/* Recaudador.cpp
  *
  *  Created on: Sep 30, 2014
  *      Author: juan
@@ -49,8 +47,8 @@ int main ( int argc, char** argv){
 		int avisoPago;
 		fifo.leer(&avisoPago , sizeof(int));
 
-		if (avisoPago == 2) {break;}
-		cout << "Aviso pago" << avisoPago << endl;
+		if (avisoPago == 2) { break; }
+
 		lockW->tomarLock();
 
 		caja.escribir (caja.leer() + precio);

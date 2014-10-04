@@ -99,9 +99,13 @@ int main ( int argc, char** argv){
 //INICIALIZAR IPC mechanisms
 	int key1 = ftok("arch",22);
 	int key2 = ftok("arch",23);
+	int key3 = ftok("arch",24);
+	int key4 = ftok("arch",24);
 
 	int semId = semget( key1, 1, IPC_CREAT|0666); //calecita girando
 	int semId2 = semget( key2, 1, IPC_CREAT|0666); //lugares calecita
+	int semId3 = semget( key3, 1, IPC_CREAT|0666); //mutex entrada y salida
+	int semId4 = semget( key4, 1, IPC_CREAT|0666); //para control de cola de entrada a la calesita
 
 	union semnum {
 		int val;
@@ -124,9 +128,14 @@ int main ( int argc, char** argv){
 	int lugaresCalesitaUsados = init.val;
 
 	semctl (semId2, 0, SETVAL, init );
+	semctl (semId4, 0, SETVAL, init );//empiezan igual
+
+	init.val = 1; //al ppio alguien puede entrar (o salir)
+
+	semctl (semId3, 0, SETVAL, init );
 
 	//inicializa memoria compartida.
-
+//todo sacar a funcion
 
 	MemoriaCompartida<int> kidsInPark;
 	kidsInPark.crear("arch",33); //todo cambiar permisos (que los tome por param)
@@ -137,6 +146,11 @@ int main ( int argc, char** argv){
 	caja.crear("arch",44); //todo cambiar permisos (que los tome por param)
 	//Memoria compartida para la caja
 	caja.escribir(0);
+
+	MemoriaCompartida<int> continua;
+	continua.crear("arch",55); //todo cambiar permisos (que los tome por param)
+	//Memoria compartida para la caja
+	continua.escribir(0);
 
 //LANZAR RECAUDADOR Y ADMINISTRADOR
 
@@ -178,42 +192,46 @@ int main ( int argc, char** argv){
 		execl("Calesita", "Calesita", ss1.str().c_str(), ss2.str().c_str(), ss3.str().c_str(), (char*)0);
 	}
 
+	continua.liberar();
+
 	//LANZAR NIÑOS Y PUERTAS
 
-	//crea los pipes que van de los niños a las puertas y lanza puertas
-		Pipe pipe1;
-		int fdRdPuerta1 = pipe1.getFdLectura();
-		int fdWrPuerta1 = pipe1.getFdEscritura(); //para escribirle a la puerta 1
+	//crea los pipes que van de los niños a las puertas y entre puertas y lanza puertas
 
-		pid_t pidPuerta1 = fork();
-
-		if (pidPuerta1 == 0){
-			execl("Puerta", "Puerta1", toString(fdRdPuerta1).c_str(), toString(fdWrPuerta1).c_str(), (char*)0);
-		}
-
-		Pipe pipe2;
-		int fdRdPuerta2 = pipe2.getFdLectura();
-		int fdWrPuerta2 = pipe2.getFdEscritura(); //para escribirle a la puerta 2
+	Pipe pipeEntrePuertas;
+	int fdRdPuerta2 = pipeEntrePuertas.getFdLectura();
+	int fdWrPuerta2 = pipeEntrePuertas.getFdEscritura(); //para escribirle a la puerta 2
 
 	//todo REVISAR RECEPCION PARAMETROS EN TODOS LADOS!!
-		pid_t pidPuerta2 = fork();
-//todo ALERTA NEGRADA: aca la puerta 2 tiene abierto el pipe de la 1, cambiar o a otro proceso o a usar fifos
-		if (pidPuerta2 == 0){
-			execl("Puerta", "Puerta2", toString(fdRdPuerta2).c_str(), toString(fdWrPuerta2).c_str(), (char*)0);
+	pid_t pidPuerta2 = fork();
+	//todo ALERTA NEGRADA: aca la puerta 2 tiene abierto el pipe de la 1, cambiar o a otro proceso o a usar fifos
+	if (pidPuerta2 == 0){
+		execl("FilaCalesita", "Puerta2", toString(fdRdPuerta2).c_str(), toString(fdWrPuerta2).c_str(), (char*)0);
+	}
+
+	//pipe para que los ninios se encolen para boleto
+	Pipe pipeAKids;
+	int fdRdPuerta1 = pipeAKids.getFdLectura();
+	int fdWrPuerta1 = pipeAKids.getFdEscritura(); //para escribirle a la puerta 1
+
+	pid_t pidPuerta1 = fork();
+
+	if (pidPuerta1 == 0){
+		execl("FilaBoleto", "Fila1", toString(fdRdPuerta1).c_str(), toString(fdWrPuerta1).c_str(), toString(fdRdPuerta2).c_str(), toString(fdWrPuerta2).c_str(), (char*)0);
+	}
+
+	//lanza niños
+	for (int i = 0; i<cantNinios ; i++){
+
+		pid_t pid = fork();
+
+		if (pid == 0){
+			execl("Kid", "Kid", toString(fdRdPuerta1).c_str(), toString(fdWrPuerta1).c_str(), (char*)0);
 		}
-
-		//lanza niños
-		for (int i = 0; i<cantNinios ; i++){
-
-			pid_t pid = fork();
-
-			if (pid == 0){
-				execl("Kid", "Kid", toString(fdRdPuerta1).c_str(), toString(fdWrPuerta1).c_str(), toString(fdRdPuerta2).c_str(), toString(fdWrPuerta2).c_str(), (char*)0);
-			}
-		}
+	}
 
 	//se desattachea esta shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
-		kidsInPark.liberar ();
+	kidsInPark.liberar ();
 
 	//espero que terminen todos los hijos
 	int status;
@@ -224,10 +242,8 @@ int main ( int argc, char** argv){
 
 	//Señales a puertas y calesita para que mueran
 
-
 	kill(pidPuerta1, SIGUSR1);
 	kill(pidPuerta2, SIGUSR1);
-	kill(pidCal, SIGUSR1);
 
 	//espera a las puertas
 	//todo cambiar por waitpid
@@ -238,28 +254,33 @@ int main ( int argc, char** argv){
 	//cierro ambos descriptores porque el lanzador no usa estos pipes
 	//los tengo abiertos hasta aca porque igual no hay forks que los dupliquen en otros procesos
 	//y porque los necesito para desbloquear la puerta para que termine seguro
-	pipe1.cerrar();
-	pipe2.cerrar();
-
-	wait(&status); //todo waitpid
-	wait(&status);
-
-	//espera a la calesita
-	//puede que la calesita quede bloqueada esperando a un ultimo niño-> mando un fantasma
+	pipeAKids.cerrar();
+	pipeEntrePuertas.cerrar();
 
 	struct sembuf operacion[1];
-//manda un "chico fantasma" a dar la ultima vuelta
+
+	wait(&status); //todo waitpid
+
+	//para destrabar la puerta 2
 	operacion[0].sem_num = 1;
-	operacion[0].sem_op = -1;
+	operacion[0].sem_op = 1;
 	operacion[0].sem_flg = 0;
 
-	semop(semId2, operacion, 1 );
+	semop(semId4, operacion, 1 );
 
-//le dice a la calesita que deje de girar
-//aca ya no hay nadie usandolo excepto la calesita bloqueada
-	semnum finit;
-	finit.val = 0;
-	semctl (semId, 0, SETVAL, finit );
+	wait(&status);
+
+//espera a la calesita
+//puede que la calesita quede bloqueada esperando a un ultimo niño-> mando un fantasma
+
+//hace que un "chico fantasma" de la ultima vuelta
+	pid_t pidFantasma = fork();
+
+	if (pidFantasma == 0){
+
+		execl("Fantasma","Fantasma", (char*) 0);
+
+	}
 
 	//todo cambiar por waitpid de calesita
 	wait(&status);
@@ -271,6 +292,8 @@ int main ( int argc, char** argv){
 	//mato el semaforo
 	semctl(semId,0,IPC_RMID);
 	semctl(semId2,0,IPC_RMID);
+	semctl(semId3,0,IPC_RMID);
+	semctl(semId4,0,IPC_RMID);
 
 	//cierro el logger
 	if (logger != NULL) {

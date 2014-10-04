@@ -14,8 +14,6 @@
 #include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
-#include "Seniales/SignalHandler.h"
-#include "Seniales/SIGUSR1_Handler.h"
 #include <sys/sem.h>
 #include <sys/wait.h>
 
@@ -40,11 +38,6 @@ static const int CANTPARAM = -1;
 
 //todo que no loggee si muero == true!
 int main(int argc, char** argv) {
-
-	//pongo el manejador de la señal
-	SIGUSR1_Handler sigusr1_handler;
-	SignalHandler :: getInstance()->registrarHandler ( SIGUSR1,&sigusr1_handler );
-
 
 	//PARAMETROS
 	//tiempoVuelta: Cuanto dura una vuelta de la calesita
@@ -81,21 +74,28 @@ int main(int argc, char** argv) {
 	MemoriaCompartida<int> kidsInPark;
 	kidsInPark.crear("arch",33);
 
+	MemoriaCompartida<int> continua;
+	continua.crear("arch",55);
 
 	//obtiene los semaforos para sincronizarse
 	int key = ftok("arch",22);
 	int key2 = ftok("arch",23);
+	int key4 = ftok("arch",24);
 
 	int semId = semget( key, 1, IPC_CREAT|0666);
 	int semId2 = semget( key2, 1, IPC_CREAT|0666);
+	int semId4 = semget( key4, 1, IPC_CREAT|0666); //para control de cola de entrada a la calesita
 
 	struct sembuf operacion[1];
 
 	//prepara locks de kidsInPark
 	LockFile* lockW = new LockWrite("archLockKids");
 	LockFile* lockR = new LockRead("archLockKids");
+	LockFile* lockR2 = new LockRead("archLockCont");
 
-	while (sigusr1_handler.getGracefulQuit() != 1){
+	int seguir = 0;
+
+	while (seguir == 0){
 		operacion[0].sem_num = 0;
 		operacion[0].sem_op = 0; //arranca cuando no hay mas lugares
 		operacion[0].sem_flg = 0;
@@ -120,17 +120,10 @@ int main(int argc, char** argv) {
 
 		/************************************************************/
 
-		sleep(tiempoVuelta);
-
-		/************DEBUG***********************/
-
-		init2.array=arreglo2;
-		semctl(semId2,0,GETPID,init2);
-		pid = init2.val;
-		cout << semctl(semId2,0,GETALL,init2)<<endl;
-		cout<< "Semaf calesita apenas termina vuelta: " << init2.array[0] << "Tocado por: " << pid << endl;
-
-		/************************************************************/
+		if (seguir == 0){
+			//no duerme con el fantasma
+			sleep(tiempoVuelta);
+		}
 
 		//avisa a los chicos que termino la vuelta
 		operacion[0].sem_num = 0;
@@ -149,16 +142,6 @@ int main(int argc, char** argv) {
 
 		lockW->liberarLock();
 
-		/************DEBUG***********************/
-
-		init2.array=arreglo2;
-		semctl(semId2,0,GETPID,init2);
-		pid = init2.val;
-		cout << semctl(semId2,0,GETALL,init2)<<endl;
-		cout<< "Semaf calesita mientras bajan: " << init2.array[0] << "Tocado por: " << pid << endl;
-
-		/************************************************************/
-
 		//primero se fija que todos los niños hayan bajado
 		operacion[0].sem_num = 0;
 		operacion[0].sem_op = 0;
@@ -166,25 +149,11 @@ int main(int argc, char** argv) {
 
 		semop(semId, operacion, 1 );
 
-
-		/************DEBUG***********************/
-
-		init2.array=arreglo2;
-		semctl(semId2,0,GETPID,init2);
-		pid = init2.val;
-		cout << semctl(semId2,0,GETALL,init2)<<endl;
-		cout<< "Semaf calesita cuando bajan: " << init2.array[0] << "Tocado por: " << pid << endl;
-
-		/************************************************************/
-
-		//segundo, se bajan los pendejos -> abre lugares para los que queden
-		cout << "llegue 0" << endl;
+		//segundo, se bajan los pendejos -> abre lugares para los que queden y avisa a puerta que los deje pasar
 
 		lockR->tomarLock();
 		int kidsWaiting = kidsInPark.leer();
 		lockR->liberarLock();
-
-		cout << "llegue 1" << endl;
 
 		//segun cuantos chicos estan esperando es la cantidad de lugares que abre
 		if (kidsWaiting >= cantMaxLugares){
@@ -193,30 +162,20 @@ int main(int argc, char** argv) {
 			lugaresLibres = kidsWaiting;
 		}
 
-		cout << "llegue 2" << endl;
-
-		//por lo menos tiene 1 lugar libre
-		if (lugaresLibres <0 )
+		//siempre tiene por lo menos 1 lugar libre
+		if (lugaresLibres <= 0 )
 			{lugaresLibres = 1;};
-
 
 		operacion[0].sem_num = 0;
 		operacion[0].sem_op = lugaresLibres;
 		operacion[0].sem_flg = 0;
 
-		cout << "llegue 3" << endl;
-
 		int res = semop(semId2, operacion, 1 );
+		res = semop(semId4, operacion, 1 );
 
-		/************DEBUG***********************/
-
-		init2.array=arreglo2;
-		semctl(semId2,0,GETPID,init2);
-		pid = init2.val;
-		cout << semctl(semId2,0,GETALL,init2)<<endl;
-		cout<< "Semaf calesita lugares abiertos: " << init2.array[0] << "Tocado por: " << pid << endl;
-
-		/************************************************************/
+		lockR2->tomarLock();
+		seguir = continua.leer();
+		lockR2->liberarLock();
 
 	}
 
@@ -224,11 +183,11 @@ int main(int argc, char** argv) {
 
 	//libero memoria compartida y demas cosas
 	kidsInPark.liberar();
-
-	SignalHandler :: destruir ();
+	continua.liberar();
 
 	delete lockW;
 	delete lockR;
+	delete lockR2;
 
 	return 0;
 }
