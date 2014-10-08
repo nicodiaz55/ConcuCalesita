@@ -27,10 +27,16 @@ using namespace std;
 
 int main ( int argc, char** argv){
 
-	//pide memoria comp. para caja
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Administrador");
 
+	logger->log("Entré al trabajo", info);
+	//pide memoria comp. para caja
 	MemoriaCompartida<int> caja;
-	caja.crear("arch",44); //todo permisos
+	caja.crear("/etc",44); //todo permisos
 
 	//prepara lock de caja recaudacion
 	LockFile* lockR = new LockRead("archLockCaja");
@@ -40,7 +46,7 @@ int main ( int argc, char** argv){
 		lockR->tomarLock();
 
 		if (caja.leer() >= 0){
-			cout<<"Admin: \"En caja hay:\" " << caja.leer() << endl;
+			logger->log("En la caja hay: " + toString(caja.leer()), info);
 		}else{
 			break;
 		}
@@ -57,9 +63,21 @@ int main ( int argc, char** argv){
 
 	delete lockR;
 
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
+
+	logger->log("Me voy del trabajo", info);
 
 return 0;
 
 }
 
 #endif
+

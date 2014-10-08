@@ -16,7 +16,7 @@
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
-
+#include "Constantes.h"
 
  /*
   * Controla la cola de chicos despues de que tengan boleto
@@ -30,6 +30,14 @@ using namespace std;
 
 int main ( int argc, char** argv){
 
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Fila Calesita");
+
+	logger->log("Arranca la fila de la calesita",info);
+
 	//pongo el manejador de la señal
 	SIGUSR1_Handler sigusr1_handler;
 	SignalHandler :: getInstance()->registrarHandler ( SIGUSR1,&sigusr1_handler );
@@ -37,56 +45,65 @@ int main ( int argc, char** argv){
 	//recibe pipes
 	int fdReadPuerta,fdWritePuerta;
 
-	stringstream ss;
-	ss.str("");
-	ss.clear();
-	ss << argv[1];
-	ss >> fdReadPuerta;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[2];
-	ss >> fdWritePuerta;
+	fdReadPuerta = toInt(argv[1]);
+	fdWritePuerta  = toInt(argv[2]);
 
 	Pipe pipe(fdReadPuerta,fdWritePuerta);
 	pipe.setearModo(Pipe::LECTURA);
 
 	//agarra semaforo
-	int key4 = ftok("arch",24);
+	int key4 = ftok("/etc",25);
 	int semId4 = semget( key4, 1, IPC_CREAT|0666); //para control de cola de entrada a la calesita
 
 	struct sembuf operacion[1];
 
-	while (sigusr1_handler.getGracefulQuit() != 1){
-		int fdWr;
-		pipe.leer(&fdWr, sizeof(int));
+	bool seguir = true;
 
-		string ruta = "Cola" + toString(fdWr);
-//todo ver que pasaba si se llena un pipe
+	while (seguir){
+		int pidKid;
+		pipe.leer(&pidKid, sizeof(int));
 
-//le dice al chico que pase. No hay problema con usar el mismo fifo en ambas filas porque tienen
-//que escribir en orden por construccion.
-//(Ademas de que abren y cierran con lo cual no son el mismo Fifo [me siento Heraclito])
-		//para que no deje pasar a mas de los que pueden subir
-		operacion[0].sem_num = 1;
-		operacion[0].sem_op = -1;
-		operacion[0].sem_flg = 0;
+		if (pidKid != -1) {
+			string ruta = "Cola" + toString(pidKid);
+			//todo ver que pasaba si se llena un pipe
 
-		semop(semId4, operacion, 1 );
+			//le dice al chico que pase. No hay problema con usar el mismo fifo en ambas filas.
 
-		FifoEscritura fifoAKid(ruta);
+			//para que no deje pasar a mas de los que pueden subir le "pregunta" a la calesita cunatos quiere
+			operacion[0].sem_num = 1;
+			operacion[0].sem_op = -1;
+			operacion[0].sem_flg = 0;
 
-		int pasa = 8;
-		fifoAKid.escribir( &pasa, sizeof(int) );
+			semop(semId4, operacion, 1 );
 
-		fifoAKid.cerrar();
-		fifoAKid.eliminar();
+			FifoEscritura fifoAKid(ruta+ "C");
+			fifoAKid.abrir();
+
+			logger->log("Pasa el chico: " + toString(pidKid),info);
+			fifoAKid.escribir( &VALOR_PASAR2, sizeof(int) );
+
+			fifoAKid.cerrar();
+			fifoAKid.eliminar();
+		}else{
+			seguir = false;
+		}
 
 	}
 
 	pipe.cerrar();
 
 	SignalHandler :: destruir ();
+
+	logger->log("Se cierra la fila de la calesita",info);
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
 
 return 0;
 

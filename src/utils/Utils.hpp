@@ -19,6 +19,17 @@ string toString(T number) {
 	return ss.str();
 }
 
+int toInt(string str) {
+	stringstream ss;
+	ss.str("");
+	ss.clear();
+	ss << str;
+
+	int returnVal = 0;
+	ss >> returnVal;
+	return returnVal;
+}
+
 
 
 #endif /* UTILS_HPP_ */

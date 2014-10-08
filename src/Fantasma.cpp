@@ -11,7 +11,6 @@
 #include<iostream>
 #include <stdio.h>
 
-
 #include <sys/sem.h>
 
 #include "Memoria_Compartida/MemoriaCompartida.h"
@@ -38,17 +37,24 @@ using namespace std;
 
 int main ( int argc, char** argv){
 
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Fantasma");
+
+	logger->log("Entré al parque", info);
 
 	//para la memoria compartida
 	MemoriaCompartida<int> continua;
-	continua.crear("arch",55);
+	continua.crear("/etc",55);
 
 	//para hacer operaciones del semaforo
 	struct sembuf operations[1];
 
-	int key = ftok("arch",22);
-	int key2 = ftok("arch",23);
-	int key3 = ftok("arch",24);
+	int key = ftok("/etc",22);
+	int key2 = ftok("/etc",23);
+	int key3 = ftok("/etc",24);
 
 	int semId = semget( key, 1, IPC_CREAT|0666);
 	int semId2 = semget( key2, 1, IPC_CREAT|0666);
@@ -66,12 +72,12 @@ int main ( int argc, char** argv){
 	operations[0].sem_op = -1;
 	operations[0].sem_flg = 0;
 
-	cout<< "Quiero calesita Fantasma! "<< getpid() << endl;
+	logger->log("Intneto subir a la calesita", info);
 
 	semop(semId2, operations, 1);
 
 
-	cout<< "Subí a la calesita Fantasma! "<< getpid() << endl;
+	logger->log("Subí a la calesita", info);
 
 	//espera que la calesita gire
 	operations[0].sem_num = 0;
@@ -80,14 +86,24 @@ int main ( int argc, char** argv){
 
 	semop(semId, operations, 1);
 
-	cout<< "Me bajé Fantasma! "<< getpid() << endl;
+	logger->log("Me bajé de la calesita", info);
 
 
 	//libero memoria compartida
 	continua.liberar();
 
-  	//cierro pipe a las puerta y fifo de la cola
+
 	delete lockW;
+
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
 
   	return 0;
 

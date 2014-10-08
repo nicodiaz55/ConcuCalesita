@@ -44,33 +44,26 @@ using namespace std;
 
 int main ( int argc, char** argv){
 
-	srand(time(NULL));
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Kid");
 
+	logger->log("Entré al parque", info);
 	//recibe pipes
 	int fdRdPuerta1,fdWrPuerta1;
 
-	stringstream ss;
-	ss.str("");
-	ss.clear();
-	ss << argv[1];
-	ss >> fdRdPuerta1;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[2];
-	ss >> fdWrPuerta1;
+	fdRdPuerta1 = toInt(argv[1]);
+	fdWrPuerta1  = toInt(argv[2]);
 
 	Pipe pipePuerta1(fdRdPuerta1,fdWrPuerta1);
 
 	pipePuerta1.setearModo(Pipe::ESCRITURA);
 
-	string ruta = "Cola" + toString(getpid());
-	FifoLectura cola(ruta);
-
-
 	//para la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	kidsInPark.crear("arch",33); //todo permisos!
+	kidsInPark.crear("/etc",33); //todo permisos!
 
 
 //todo considerar permisos, hacerlos restrictivos
@@ -78,9 +71,9 @@ int main ( int argc, char** argv){
 	//para hacer operaciones del semaforo
 	struct sembuf operations[1];
 
-	int key = ftok("arch",22);
-	int key2 = ftok("arch",23);
-	int key3 = ftok("arch",24);
+	int key = ftok("/etc",22);
+	int key2 = ftok("/etc",23);
+	int key3 = ftok("/etc",24);
 
 	int semId = semget( key, 1, IPC_CREAT|0666);
 	int semId2 = semget( key2, 1, IPC_CREAT|0666);
@@ -89,115 +82,76 @@ int main ( int argc, char** argv){
 	//prepara lock de kidsInPark
 	LockFile* lockW = new LockWrite("archLockKids");
 
-	//y aca arranca
-	bool otraVuelta=true;
+	//aca consideramos que entro a la calesita
 
-	while (otraVuelta) {
-		//aca consideramos que entro al parque
+	//para que entre "de a uno" uso semaforo binario para seccion critica
+	operations[0].sem_num = 0;
+	operations[0].sem_op = -1;
+	operations[0].sem_flg = 0;
+	semop(semId3, operations, 1);
 
-		//para que entre "de a uno" uso semaforo binario para seccion critica
-		operations[0].sem_num = 0;
-		operations[0].sem_op = -1;
-		operations[0].sem_flg = 0;
-		semop(semId3, operations, 1);
+	logger->log("Entré a la calesita", info);
 
-		//todo loggear que entro
+	//como entro aumenta cantidad de chicos presentes...
+	lockW->tomarLock();
 
-		//como entro aumenta cantidad de chicos presentes...
-		lockW->tomarLock();
+	kidsInPark.escribir(kidsInPark.leer()+1);
+	logger->log("Aumento en uno la cantidad de chicos en el parque", info);
 
-		kidsInPark.escribir(kidsInPark.leer()+1);
-cout<< "Cant niños kid:" << kidsInPark.leer() << endl;
-
-		lockW->liberarLock();
+	lockW->liberarLock();
 
 
-		operations[0].sem_num = 0;
-		operations[0].sem_op = 1;
-		operations[0].sem_flg = 0;
-		semop(semId3, operations, 1);
+	operations[0].sem_num = 0;
+	operations[0].sem_op = 1;
+	operations[0].sem_flg = 0;
+	semop(semId3, operations, 1);
 
-		//se mete en la cola de boletos
+	//se mete en la cola de boletos
 
-		cout<< "Me encole! "<< getpid() << endl;
+	logger->log("Me encolo para sacar boleto", info);
 //Meterse es pasarle a la puerta por donde le tiene que escribir para desbloquearlo
-		int pid = getpid();
-		pipePuerta1.escribir( &pid, sizeof(int) );
+	int pid = getpid();
+	pipePuerta1.escribir( &pid, sizeof(int) );
 
-cout<< "Le escribi a la puerta " << ruta << endl;
+//Espera que la puerta le escriba "pasa" por el fifo corresponidente
+	int permisoPasar = 0;
 
-//Espera que la puerta le escriba "pasa"
-		int permisoPasar = 0;
-		cola.leer(&permisoPasar, sizeof(int) );
+	string ruta = "Cola" + toString(getpid());
+	FifoLectura fila(ruta);
+	fila.abrir();
+	fila.leer(&permisoPasar, sizeof(int) );
 
-//todo sacar numeros magicos
+//todo sacar TODOS los numeros magicos, pasar a constantes.h
 
-		cout<< "Termine la cola! boleto"<< getpid() << " Lei: "<< permisoPasar <<endl;
+	logger->log("Obtuve boleto " + toString(permisoPasar), info);
 
 //Espera que la segunda puerta le escriba "pasa"
-		cola.leer(&permisoPasar, sizeof(int) );
+	FifoLectura fila2(ruta + "C");
+	fila2.abrir();
+	int leer = fila2.leer(&permisoPasar, sizeof(int) );
 
-		cout<< "Poria subir a calesita... "<< getpid() << " Lei: "<< permisoPasar <<endl;
+	cout << leer << endl;
 
-		//intenta subir a la calecita
+	logger->log("Pase la cola para subir a la calesita " + toString(permisoPasar), info);
 
-		operations[0].sem_num = 0;
-		operations[0].sem_op = -1;
-		operations[0].sem_flg = 0;
+	//intenta subir a la calecita
 
-		cout<< "Quiero calesita! "<< getpid() << endl;
+	operations[0].sem_num = 0;
+	operations[0].sem_op = -1;
+	operations[0].sem_flg = 0;
 
-		/************DEBUG***********************/
-		ushort arreglo2[2];
+	semop(semId2, operations, 1);
 
-		union semnum {
-			int val;
-			struct semid_ds* buf;
-			ushort* array;
-		};
+	logger->log("Me subí a la calesita", info);
 
-		semnum init2;
-		init2.array=arreglo2;
-		semctl(semId2,0,GETPID,init2);
-		cout << semctl(semId2,0,GETALL,init2)<<endl;
-		cout<< "Semaf calesita lugares libres: " << init2.array[0] << "Tocado por: " << init2.val << endl;
+	//espera que la calesita gire
+	operations[0].sem_num = 0;
+	operations[0].sem_op = -1;
+	operations[0].sem_flg = 0;
 
-		/************************************************************/
+	semop(semId, operations, 1);
 
-		semop(semId2, operations, 1);
-
-
-		cout<< "Subí a la calesita! "<< getpid() << endl;
-
-		//espera que la calesita gire
-		operations[0].sem_num = 0;
-		operations[0].sem_op = -1;
-		operations[0].sem_flg = 0;
-
-		/************DEBUG***********************/
-		ushort arreglo[2];
-
-
-		semnum init;
-		init.array=arreglo;
-		semctl(semId,0,GETALL,init);
-		cout<< "Avisos calesita girando: " << init.array[0] << endl;
-
-
-		/************************************************************/
-
-		semop(semId, operations, 1);
-
-		cout<< "Me bajé! "<< getpid() << endl;
-
-		otraVuelta = false;
-		//A veces el chico quiere subirse de nuevo
-	/*
-		if ((rand()%100) > 20){
-			otraVuelta = true;
-		}
-	*/
-	}
+	logger->log("Me bajé de la calesita", info);
 
 	//libero memoria compartida
 	kidsInPark.liberar();
@@ -205,25 +159,36 @@ cout<< "Le escribi a la puerta " << ruta << endl;
   	//cierro pipe a las puerta y fifo de la cola
 	pipePuerta1.cerrar();
 
-	cola.cerrar();
-	cola.eliminar();
+	fila.cerrar();
+	fila.eliminar();
 
 	delete lockW;
 
 	//para que salga "de a uno" uso semaforo binario para seccion critica, uso el mismo de la entrada
-	// -> no salen y entran al mismo tiempo
+	// por fiaca de no crear otro mas, a lo sumo no hay chicos entrando al mismo tiempo que otros salen
 	operations[0].sem_num = 0;
 	operations[0].sem_op = -1;
 	operations[0].sem_flg = 0;
 	semop(semId3, operations, 1);
 
-	//todo loggear que salio
-	//todo preguntar si habri que hacer algo particular aca...
+	logger->log("Me fui del parque", info);
+	//todo preguntar si habria que hacer algo particular aca...
 
 	operations[0].sem_num = 0;
 	operations[0].sem_op = 1;
 	operations[0].sem_flg = 0;
 	semop(semId3, operations, 1);
+
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
+
   	return 0;
 
 }

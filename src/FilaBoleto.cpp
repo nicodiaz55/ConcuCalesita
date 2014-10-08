@@ -16,7 +16,7 @@
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
-
+#include "Constantes.h"
 
  /*
   * Controla las colas de chicos con pipes
@@ -30,6 +30,14 @@ using namespace std;
 
 int main ( int argc, char** argv){
 
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "FilaBoleto");
+
+	logger->log("Arranca la fila de venta de boletos",info);
+
 	//pongo el manejador de la señal
 	SIGUSR1_Handler sigusr1_handler;
 	SignalHandler :: getInstance()->registrarHandler ( SIGUSR1,&sigusr1_handler );
@@ -37,26 +45,10 @@ int main ( int argc, char** argv){
 	//recibe pipes
 	int fdReadKid,fdWriteKid,fdReadPuerta,fdWritePuerta;
 
-	stringstream ss;
-	ss.str("");
-	ss.clear();
-	ss << argv[1];
-	ss >> fdReadKid;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[2];
-	ss >> fdWriteKid;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[3];
-	ss >> fdReadPuerta;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[4];
-	ss >> fdWritePuerta;
+	fdReadKid = toInt(argv[1]);
+	fdWriteKid = toInt(argv[2]);
+	fdReadPuerta = toInt(argv[3]);
+	fdWritePuerta = toInt(argv[4]);
 
 	Pipe pipe1(fdReadKid,fdWriteKid);
 	pipe1.setearModo(Pipe::LECTURA);
@@ -64,51 +56,49 @@ int main ( int argc, char** argv){
 	Pipe pipe2(fdReadPuerta,fdWritePuerta);
 	pipe2.setearModo(Pipe::ESCRITURA);
 
-
 	FifoEscritura fifoRecaudador("FifoRecaudador");
 	fifoRecaudador.abrir();
 
+	bool seguir = true;
 
-	while (sigusr1_handler.getGracefulQuit() != 1){
-cout << "pase 4"<< endl;
+	while (seguir){
+
 		int pidKid;
 		pipe1.leer(&pidKid, sizeof(int));
-cout << "pase 5"<< endl;
-		cout << "Fila bol lee del pipe:" << pidKid << " gracequit = " << sigusr1_handler.getGracefulQuit() << endl;
 
-		string ruta = "Cola" + toString(pidKid);
-//todo ver que pasaba si se llena un pipe
+		if (pidKid != -1){//-1 llega para que muera la puerta
 
-//le dice al chico que pase
-		FifoEscritura fifoAKid(ruta);
-cout << "pase 1"<< endl;
-		int pasa = 8;
-		fifoAKid.escribir( &pasa, sizeof(int) );
+			string ruta = "Cola" + toString(pidKid);
+			//todo ver que pasaba si se llena un pipe
 
-		fifoAKid.cerrar();
-		fifoAKid.eliminar();
-//le avisa al recaudador que pago un chico
-		if (pidKid != -1) { //-1 llega para que muera la puerta con la señal (sino puede quedar bloqueada en el read)
+			//le dice al chico que pase
+			FifoEscritura fifoAKid(ruta);
+			fifoAKid.abrir();
+
+			logger->log("Le da boleto al chico: " + toString(pidKid),info);
+			fifoAKid.escribir( &VALOR_PASAR, sizeof(int) );
+
+			fifoAKid.cerrar();
+			fifoAKid.eliminar();
+
+			//le avisa al recaudador que pago un chico
 			int pago = 1;
-cout << "pase Nooooo"<< endl;
-			cout << "Le escribo al rec " << " gracequit = " << sigusr1_handler.getGracefulQuit() << endl;
+			logger->log("Le dice al recaudador que paso el chico: " + toString(pidKid),info);
 			fifoRecaudador.escribir( &pago, sizeof(int));
-		}
-//le mete el niño a la otra fila
-		//(si, se que la pasa el -1 tmb. aca, pero por seguridad duplico abajo)
-		pipe2.escribir(&pidKid, sizeof(int));
-cout << "pase 2"<< endl;
 
+			//le mete el niño a la otra fila
+			pipe2.escribir(&pidKid, sizeof(int));
+		}else{
+			seguir=false;
+			//Le pasa el -1 a la otra fila para que muera
+			int msj = -1;
+			pipe2.escribir(&msj, sizeof(int));
+		}
 	}
-cout << "pase 3"<< endl;
+
 	//para que muera el recaudador
 	int pago = 2;
-	cout << "Le escribo al rec " << pago << " gracequit = " << sigusr1_handler.getGracefulQuit() << endl;
 	fifoRecaudador.escribir( &pago, sizeof(int));
-
-	//Le pasa el -1 para que no bloquee en la muerte
-	int msj = -1;
-	pipe2.escribir(&msj, sizeof(int));
 
 	fifoRecaudador.cerrar();
 	fifoRecaudador.eliminar();
@@ -117,6 +107,18 @@ cout << "pase 3"<< endl;
 	pipe2.cerrar();
 
 	SignalHandler :: destruir ();
+
+	logger->log("Se cierra la fila de venta de boletos",info);
+
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
 
 return 0;
 

@@ -1,4 +1,5 @@
-/* Recaudador.cpp
+/*
+ * Recaudador.cpp
  *
  *  Created on: Sep 30, 2014
  *      Author: juan
@@ -30,14 +31,20 @@ using namespace std;
 static const int precio = 2;
 
 int main ( int argc, char** argv){
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Recaudador");
+
+	logger->log("Entra al trabajo", info);
 
 	FifoLectura fifo("FifoRecaudador");
 	fifo.abrir();
 
-
 	//pide memoria comp. para caja
 	MemoriaCompartida<int> caja;
-	caja.crear("arch",44);
+	caja.crear("/etc",44);
 
 	//prepara lock de caja recaudacion
 	LockFile* lockW = new LockWrite("archLockCaja");
@@ -48,10 +55,10 @@ int main ( int argc, char** argv){
 		fifo.leer(&avisoPago , sizeof(int));
 
 		if (avisoPago == 2) { break; }
-
 		lockW->tomarLock();
 
 		caja.escribir (caja.leer() + precio);
+		logger->log("Aumenta recaudacion de la caja en: " + toString(precio), info);
 
 		lockW->liberarLock();
 
@@ -70,9 +77,20 @@ int main ( int argc, char** argv){
 	fifo.cerrar();
 	fifo.eliminar();
 
-
+	logger->log("Sale del trabajo.", info);
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
 return 0;
 
 }
 
 #endif
+
+

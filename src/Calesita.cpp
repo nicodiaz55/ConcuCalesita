@@ -27,7 +27,8 @@
 using namespace std;
 
 /*
- * La calecita
+ * La calesita
+ *
  * */
 
 
@@ -35,10 +36,16 @@ static const int CANTPARAM = -1;
 
 //todo Control de errores!!
 
-
 //todo que no loggee si muero == true!
 int main(int argc, char** argv) {
 
+	//Abro el logger
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LOG.log");
+	logger->init();
+	Info* info = new Info(getpid(), "Calesita");
+
+	logger->log("Se abre la calesita para este dia",info);
 	//PARAMETROS
 	//tiempoVuelta: Cuanto dura una vuelta de la calesita
 	//cantMaxLugares: Cuantos lugares tiene la calesita en total
@@ -47,40 +54,29 @@ int main(int argc, char** argv) {
 
 	//todo extraer a funcion
 	if ( argc != 4 ){
-		cout << "Cantidad de parametros incorrectos, especifique duracion y cantidad de lugares" << endl;
+		logger->log("Cantidad de parámetros incorrectos, especifique duración y cantidad de lugares máxima y usados",info);
 		return CANTPARAM;
 	}
 
-	stringstream ss;
+	lugaresLibres = toInt(argv[1]);
 
-	ss.str("");
-	ss.clear();
-	ss << argv[1];
-	ss >> lugaresLibres;
+	cantMaxLugares = toInt(argv[2]);
 
-	ss.str("");
-	ss.clear();
-	ss << argv[2];
-	ss >> cantMaxLugares;
-
-	ss.str("");
-	ss.clear();
-	ss << argv[3];
-	ss >> tiempoVuelta;
+	tiempoVuelta = toInt(argv[3]);
 
 	//Fin recepcion de parametros
 
 	//obtiene la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	kidsInPark.crear("arch",33);
+	kidsInPark.crear("/etc",33);
 
 	MemoriaCompartida<int> continua;
-	continua.crear("arch",55);
+	continua.crear("/etc",55);
 
 	//obtiene los semaforos para sincronizarse
-	int key = ftok("arch",22);
-	int key2 = ftok("arch",23);
-	int key4 = ftok("arch",24);
+	int key = ftok("/etc",22);
+	int key2 = ftok("/etc",23);
+	int key4 = ftok("/etc",25);
 
 	int semId = semget( key, 1, IPC_CREAT|0666);
 	int semId2 = semget( key2, 1, IPC_CREAT|0666);
@@ -102,32 +98,15 @@ int main(int argc, char** argv) {
 
 		semop(semId2, operacion, 1 );
 
-		/************DEBUG***********************/
-		ushort arreglo2[2];
-
-		union semnum {
-			int val;
-			struct semid_ds* buf;
-			ushort* array;
-		};
-
-		semnum init2;
-		init2.array=arreglo2;
-		semctl(semId2,0,GETPID,init2);
-		int pid = init2.val;
-		cout << semctl(semId2,0,GETALL,init2)<<endl;
-		cout<< "Semaf calesita antes de la vuelta: " << init2.array[0] << "Tocado por: " << pid << endl;
-
-		/************************************************************/
-
 		if (seguir == 0){
 			//no duerme con el fantasma
+			logger->log("Arranca una vuelta",info);
 			sleep(tiempoVuelta);
+			logger->log("Termina la vuelta",info);
 		}
 
 		//avisa a los chicos que termino la vuelta
 		operacion[0].sem_num = 0;
-		cout<<"Lugares libres: "<< lugaresLibres<<endl;
 		operacion[0].sem_op = lugaresLibres; //A tantos como giraron (que son los que deberian estar esperando esta señal)
 		operacion[0].sem_flg = 0;
 
@@ -179,8 +158,6 @@ int main(int argc, char** argv) {
 
 	}
 
-	cout<<"Salgo del whiule y termino: " <<endl;
-
 	//libero memoria compartida y demas cosas
 	kidsInPark.liberar();
 	continua.liberar();
@@ -188,6 +165,18 @@ int main(int argc, char** argv) {
 	delete lockW;
 	delete lockR;
 	delete lockR2;
+
+	logger->log("Se detiene la calesita",info);
+
+	//cierro el logger
+	if (logger != NULL) {
+		delete logger;
+		logger = NULL;
+	}
+	if (info != NULL) {
+		delete info;
+		info = NULL;
+	}
 
 	return 0;
 }

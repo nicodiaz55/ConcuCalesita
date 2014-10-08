@@ -61,5 +61,7 @@ Logger::~Logger() {
 		delete logger->output;
 		logger->output = 0;
 	}
+
+	//todo no hay un delete logger en algun lado?
 	logger = NULL;
 }

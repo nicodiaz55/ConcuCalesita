@@ -16,6 +16,8 @@ using namespace std;
 Output::Output(string output) {
 	this->output = output;
 	this->file = 0;
+	this->semId= -1;
+
 }
 
 Output::~Output() {
@@ -23,6 +25,7 @@ Output::~Output() {
 		close(file);
 		file = 0;
 	}
+
 }
 
 /**
@@ -30,12 +33,18 @@ Output::~Output() {
  */
 bool Output::init() {
 	file = open(output.c_str(), O_CREAT | O_WRONLY, 0777);
+
+	int key = ftok("/etc",100);
+
+	semId = semget( key, 1, IPC_CREAT|0666); //calecita girando
+
 	if (file == -1) {
 		// string err = "No se pudo abrir el archivo: " + string(strerror(errno));
 		// throw err;
 		file = 0;
 		return false;
 	}
+
 	return true;
 }
 
@@ -53,5 +62,17 @@ void Output::log(LogMessage* message) {
 	string m = message->toString();
 	const void* buffer = m.c_str();
 	const ssize_t buffer_size = m.size();
+
+	operations[0].sem_num = 0;
+	operations[0].sem_op = -1;
+	operations[0].sem_flg = 0;
+	semop(semId, operations, 1);
+
 	write(file, buffer, buffer_size);
+
+	operations[0].sem_num = 0;
+	operations[0].sem_op = 1;
+	operations[0].sem_flg = 0;
+	semop(semId, operations, 1);
+
 }
