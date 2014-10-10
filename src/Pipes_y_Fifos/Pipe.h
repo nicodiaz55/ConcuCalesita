@@ -21,6 +21,8 @@ public:
 		descriptores[1]=fd2;
 	}
 
+	int crear();
+
 	~Pipe();
 
 	void setearModo ( const int modo );

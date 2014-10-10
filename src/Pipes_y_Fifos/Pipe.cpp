@@ -1,9 +1,11 @@
 #include "Pipe.h"
 
 Pipe :: Pipe() : lectura(true), escritura(true) {
-	pipe ( this->descriptores );
-	/*fcntl ( this->descriptors[0],F_SETFL,O_NONBLOCK );
-	fcntl ( this->descriptors[1],F_SETFL,O_NONBLOCK );*/
+
+}
+
+int Pipe :: crear(){
+	return (pipe ( this->descriptores ));
 }
 
 Pipe::~Pipe() {
@@ -11,18 +13,18 @@ Pipe::~Pipe() {
 
 void Pipe :: setearModo ( const int modo ) {
 	if ( modo == LECTURA ) {
-		close ( this->descriptores[1] );
+		if (this->descriptores[1] > 0) {close ( this->descriptores[1] );}
 		this->escritura = false;
 
 	} else if ( modo == ESCRITURA ) {
-		close ( this->descriptores[0] );
+		if (this->descriptores[0] > 0) {close ( this->descriptores[0] );}
 		this->lectura = false;
 	}
 }
 
 ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 	if ( this->lectura == true ) {
-		close ( this->descriptores[0] );
+		if (this->descriptores[0] > 0) {close ( this->descriptores[0] );}
 		this->lectura = false;
 	}
 
@@ -31,7 +33,7 @@ ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 
 ssize_t Pipe :: leer ( void* buffer,const int buffSize ) {
 	if ( this->escritura == true ) {
-		close ( this->descriptores[1] );
+		if (this->descriptores[1] > 0) {close ( this->descriptores[1] );}
 		this->escritura = false;
 	}
 
@@ -54,12 +56,12 @@ int Pipe :: getFdEscritura () const {
 
 void Pipe :: cerrar () {
 	if ( this->lectura == true ) {
-		close ( this->descriptores[0] );
+		if (this->descriptores[0] > 0) {close ( this->descriptores[0] );}
 		this->lectura = false;
 	}
 
 	if ( this->escritura == true ) {
-		close ( this->descriptores[1] );
+		if (this->descriptores[1] > 0) {close ( this->descriptores[1] );}
 		this->escritura = false;
 	}
 }

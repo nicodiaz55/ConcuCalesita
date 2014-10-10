@@ -11,8 +11,7 @@
 #include <stdio.h>
 
 
-#include <sys/sem.h>
-
+#include "Semaforos/Semaforo.h"
 #include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Pipes_y_Fifos/Pipe.h"
 #include "Pipes_y_Fifos/FifoLectura.h"
@@ -65,17 +64,16 @@ int main ( int argc, char** argv){
 
 
 //todo considerar permisos, hacerlos restrictivos
-//todo encapsular semaforos (esperar a que den el codigo en la practica)
+
 	//para hacer operaciones del semaforo
 	struct sembuf operations[1];
 
-	int key = ftok("/etc",22);
-	int key2 = ftok("/etc",23);
-	int key3 = ftok("/etc",24);
-
-	int semId = semget( key, 1, IPC_CREAT|0666);
-	int semId2 = semget( key2, 1, IPC_CREAT|0666);
-	int semId3 = semget( key3, 1, IPC_CREAT|0666); //mutex entrada y salida
+	Semaforo semCalGira("/etc", 22);
+	semCalGira.crear();
+	Semaforo semMutexEntrada("/etc", 24);
+	semMutexEntrada.crear();
+	Semaforo semCalLug("/etc", 23);
+	semCalLug.crear();
 
 	//prepara lock de kidsInPark
 	LockFile* lockW = new LockWrite("archLockKids");
@@ -83,10 +81,7 @@ int main ( int argc, char** argv){
 	//aca consideramos que entro a la calesita
 
 	//para que entre "de a uno" uso semaforo binario para seccion critica
-	operations[0].sem_num = 0;
-	operations[0].sem_op = -1;
-	operations[0].sem_flg = 0;
-	semop(semId3, operations, 1);
+	semMutexEntrada.p(-1);
 
 	logger->log("Entré a la calesita", info);
 
@@ -98,11 +93,8 @@ int main ( int argc, char** argv){
 
 	lockW->liberarLock();
 
+	semMutexEntrada.v(1);
 
-	operations[0].sem_num = 0;
-	operations[0].sem_op = 1;
-	operations[0].sem_flg = 0;
-	semop(semId3, operations, 1);
 
 	//se mete en la cola de boletos
 
@@ -133,21 +125,12 @@ int main ( int argc, char** argv){
 	logger->log("Pase la cola para subir a la calesita " + toString(permisoPasar), info);
 
 	//intenta subir a la calecita
-
-	operations[0].sem_num = 0;
-	operations[0].sem_op = -1;
-	operations[0].sem_flg = 0;
-
-	semop(semId2, operations, 1);
+	semCalLug.p(-1);
 
 	logger->log("Me subí a la calesita", info);
 
 	//espera que la calesita gire
-	operations[0].sem_num = 0;
-	operations[0].sem_op = -1;
-	operations[0].sem_flg = 0;
-
-	semop(semId, operations, 1);
+	semCalGira.p(-1);
 
 	logger->log("Me bajé de la calesita", info);
 
@@ -164,18 +147,13 @@ int main ( int argc, char** argv){
 
 	//para que salga "de a uno" uso semaforo binario para seccion critica, uso el mismo de la entrada
 	// por fiaca de no crear otro mas, a lo sumo no hay chicos entrando al mismo tiempo que otros salen
-	operations[0].sem_num = 0;
-	operations[0].sem_op = -1;
-	operations[0].sem_flg = 0;
-	semop(semId3, operations, 1);
+
+	semMutexEntrada.p(-1);
 
 	logger->log("Me fui del parque", info);
 	//todo preguntar si habria que hacer algo particular aca...
 
-	operations[0].sem_num = 0;
-	operations[0].sem_op = 1;
-	operations[0].sem_flg = 0;
-	semop(semId3, operations, 1);
+	semMutexEntrada.v(1);
 
 	//cierro el logger
 	if (logger != NULL) {

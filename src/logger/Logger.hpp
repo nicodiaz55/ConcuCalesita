@@ -13,6 +13,9 @@ using namespace std;
 #include <iostream>
 #include "Output.hpp"
 #include "Info.hpp"
+#include "../Constantes.h"
+
+#include "../Locks/LockWrite.hpp"
 
 class Logger {
 	private:
@@ -20,6 +23,8 @@ class Logger {
 		static Logger* logger;
 		bool canLog;
 		Output* output;
+
+		LockWrite* lockLog;
 	private:
 		Logger();
 

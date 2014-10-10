@@ -13,6 +13,7 @@ Logger* Logger::logger = NULL;
 Logger::Logger() {
 	canLog = false;
 	output = 0;
+	lockLog = new LockWrite(ARCH_LOCK_LOG);
 }
 
 Logger* Logger::getLogger() {
@@ -47,11 +48,16 @@ void Logger::setOutput(string output) {
  * Loggea un mensaje
  */
 void Logger::log(string message, const Info* info) const{
+
+	this->lockLog->tomarLock();
+
 	LogMessage* m = new LogMessage(message, info);
 	if (output != 0 && canLog) {
 		output->log(m);
 	}
 	delete m;
+
+	this->lockLog->liberarLock();
 }
 
 Logger::~Logger() {
@@ -61,6 +67,8 @@ Logger::~Logger() {
 		delete logger->output;
 		logger->output = 0;
 	}
+
+	delete lockLog;
 
 	//todo no hay un delete logger en algun lado?
 	logger = NULL;

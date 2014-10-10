@@ -11,16 +11,13 @@
 using namespace std;
 
 #include "LogMessage.hpp"
-//#include "../Locks/LockWrite.hpp"
-#include <sys/sem.h>
+
 
 class Output {
 	private:
 		string output;
 		int file; // file descriptor
 
-		int semId;//cosas del semaforo para que sea concurrente el output
-		struct sembuf operations[1];
 	public:
 		Output(const string output);
 		virtual ~Output();

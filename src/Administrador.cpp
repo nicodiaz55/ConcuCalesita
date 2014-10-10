@@ -60,6 +60,8 @@ int main ( int argc, char** argv){
 
 	delete lockR;
 
+	logger->log("Me voy del trabajo", info);
+
 	//cierro el logger
 	if (logger != NULL) {
 		delete logger;
@@ -69,8 +71,6 @@ int main ( int argc, char** argv){
 		delete info;
 		info = NULL;
 	}
-
-	logger->log("Me voy del trabajo", info);
 
 return 0;
 

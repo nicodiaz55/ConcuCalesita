@@ -19,7 +19,7 @@ class SignalHandler {
 	public:
 		static SignalHandler* getInstance ();
 		static void destruir ();
-		EventHandler* registrarHandler ( int signum,EventHandler* eh );
+		int registrarHandler ( int signum,EventHandler* eh );
 		int removerHandler ( int signum );
 
 };

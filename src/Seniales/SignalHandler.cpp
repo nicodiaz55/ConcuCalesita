@@ -21,7 +21,9 @@ void SignalHandler :: destruir () {
 	}
 }
 
-EventHandler* SignalHandler :: registrarHandler ( int signum,EventHandler* eh ) {
+int SignalHandler :: registrarHandler ( int signum,EventHandler* eh ) {
+
+	int res = 0;
 
 	EventHandler* old_eh = SignalHandler :: signal_handlers [ signum ];
 	SignalHandler :: signal_handlers [ signum ] = eh;
@@ -30,10 +32,17 @@ EventHandler* SignalHandler :: registrarHandler ( int signum,EventHandler* eh ) 
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = SignalHandler :: dispatcher;
 	sigemptyset ( &sa.sa_mask );	// inicializa la mascara de seniales a bloquear durante la ejecucion del handler como vacio
-	sigaddset ( &sa.sa_mask,signum );
-	sigaction ( signum,&sa,0 );	// cambiar accion de la senial
 
-	return old_eh;
+
+	res = sigaddset ( &sa.sa_mask,signum );
+	if (res == -1) { return RES_ERROR_SIGADDSET;}
+
+	res = sigaction ( signum,&sa,0 );	// cambiar accion de la senial
+	if (res == -1) { return RES_ERROR_SIGACTION;}
+
+	eh = old_eh;
+
+	return 0;
 }
 
 void SignalHandler :: dispatcher ( int signum ) {

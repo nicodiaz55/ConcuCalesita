@@ -8,9 +8,6 @@
 
 #ifdef FILA1
 
-#include "Seniales/SignalHandler.h"
-#include "Seniales/SIGUSR1_Handler.h"
-#include <memory.h>
 #include "Pipes_y_Fifos/FifoEscritura.h"
 #include "Pipes_y_Fifos/Pipe.h"
 
@@ -35,10 +32,6 @@ int main ( int argc, char** argv){
 	Info* info = new Info(getpid(), "FilaBoleto");
 
 	logger->log("Arranca la fila de venta de boletos",info);
-
-	//pongo el manejador de la señal
-	SIGUSR1_Handler sigusr1_handler;
-	SignalHandler :: getInstance()->registrarHandler ( SIGUSR1,&sigusr1_handler );
 
 	//recibe pipes
 	int fdReadKid,fdWriteKid,fdReadPuerta,fdWritePuerta;
@@ -103,8 +96,6 @@ int main ( int argc, char** argv){
 
 	pipe1.cerrar();
 	pipe2.cerrar();
-
-	SignalHandler :: destruir ();
 
 	logger->log("Se cierra la fila de venta de boletos",info);
 
