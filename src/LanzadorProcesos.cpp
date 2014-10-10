@@ -161,14 +161,14 @@ int main ( int argc, char** argv){
 	pid_t pidRec = fork();
 
 	if (pidRec == -1){
-		logger->log("Error: Falla fork de recaudador" + ". Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: Falla fork de recaudador. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
 	if (pidRec == 0) {
 		res = execl("Recaudador", "Recaudador", (char*) 0);
 		if (res != RES_OK){
-			logger->log("Error: Falla en exec del recaudador" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en exec del recaudador. Strerr: " + toString(strerror(errno)), info);
 			//return MUERTE_POR_ERROR;
 		}
 	}
@@ -178,14 +178,14 @@ int main ( int argc, char** argv){
 	pid_t pidAdmin = fork();
 
 	if (pidAdmin == -1){
-		logger->log("Error: Falla en fork del administrador" + ". Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: Falla en fork del administrador. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
 	if (pidAdmin == 0) {
 		res = execl("Administrador", "Administrador", (char*) 0);
 		if (res != RES_OK){
-			logger->log("Error: Falla en exec del administrador" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en exec del administrador. Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 	}
@@ -204,7 +204,7 @@ int main ( int argc, char** argv){
 	pid_t pidCal;
 	pidCal = fork();
 	if (pidCal == -1){
-		logger->log("Error: Falla en fork de la calesita" + ". Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: Falla en fork de la calesita. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
@@ -212,7 +212,7 @@ int main ( int argc, char** argv){
 		res = execl("Calesita", "Calesita", arg1.c_str(), arg2.c_str(), arg3.c_str(),
 				(char*) 0);
 		if (res != RES_OK){
-			logger->log("Error: Falla en exec de la calesita" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en exec de la calesita. Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 	}
@@ -235,7 +235,7 @@ int main ( int argc, char** argv){
 
 	pid_t pidPuerta2 = fork();
 	if (pidPuerta2 == -1){
-		logger->log("Error: Falla en fork de la fila de la calesita" + ". Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: Falla en fork de la fila de la calesita. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
@@ -243,7 +243,7 @@ int main ( int argc, char** argv){
 		res = execl("FilaCalesita", "Puerta2", toString(fdRdPuerta2).c_str(),
 				toString(fdWrPuerta2).c_str(), (char*) 0);
 		if (res != RES_OK){
-			logger->log("Error: Falla en exec de la fila de la calesita" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en exec de la fila de la calesita. Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 	}
@@ -260,7 +260,7 @@ int main ( int argc, char** argv){
 
 	pid_t pidPuerta1 = fork();
 	if (pidPuerta1 == -1){
-		logger->log("Error: Falla en fork de la fila de boletos" + ". Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: Falla en fork de la fila de boletos. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
@@ -269,7 +269,7 @@ int main ( int argc, char** argv){
 				toString(fdWrPuerta1).c_str(), toString(fdRdPuerta2).c_str(),
 				toString(fdWrPuerta2).c_str(), (char*) 0);
 		if (res != RES_OK){
-			logger->log("Error: Falla en exec de la fila de boletos" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en exec de la fila de boletos. Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 	}
@@ -283,7 +283,7 @@ int main ( int argc, char** argv){
 
 		pid_t pid = fork();
 		if (pid == -1){
-			logger->log("Error: Falla en fork de un chico" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en fork de un chico. Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 
@@ -291,7 +291,7 @@ int main ( int argc, char** argv){
 			res = execl("Kid", "Kid", toString(fdRdPuerta1).c_str(),
 					toString(fdWrPuerta1).c_str(), (char*) 0);
 			if (res != RES_OK){
-				logger->log("Error: Falla en exec de un chico" + ". Strerr: " + toString(strerror(errno)), info);
+				logger->log("Error: Falla en exec de un chico. Strerr: " + toString(strerror(errno)), info);
 				return MUERTE_POR_ERROR;
 			}
 		}
@@ -307,8 +307,8 @@ int main ( int argc, char** argv){
 	int status;
 	for (int i = 0; i < cantNinios; i++) {
 		res = wait(&status);
-		if (res != RES_OK){
-			logger->log("Error: en el wait de un chico " + ". Strerr: " + toString(strerror(errno)), info);
+		if (res == -1){
+			logger->log("Error: en el wait de un chico . Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 	}
@@ -319,8 +319,8 @@ int main ( int argc, char** argv){
 	//todo cambiar por waitpid
 	int aux = -1;
 	res = write(fdWrPuerta1, &aux, sizeof(int));
-	if (res != RES_OK){
-		logger->log("Error: en un write" + ". Strerr: " + toString(strerror(errno)), info);
+	if (res == -1){
+		logger->log("Error: en un write. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
@@ -330,8 +330,8 @@ int main ( int argc, char** argv){
 	pipeAKids.cerrar();
 
 	res = wait(&status); //todo waitpid
-	if (res != RES_OK){
-		logger->log("Error: en el wait puerta 1" + ". Strerr: " + toString(strerror(errno)), info);
+	if (res == -1){
+		logger->log("Error: en el wait puerta 1. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
@@ -340,8 +340,8 @@ int main ( int argc, char** argv){
 	controlErrores1(res, logger, info);
 
 	res = wait(&status);
-	if (res != RES_OK){
-		logger->log("Error: en el wait puerta 2" + ". Strerr: " + toString(strerror(errno)), info);
+	if (res == -1){
+		logger->log("Error: en el wait puerta 2. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 	//espera a la calesita
@@ -350,14 +350,14 @@ int main ( int argc, char** argv){
 	//hace que un "chico fantasma" de la ultima vuelta
 	pid_t pidFantasma = fork();
 	if (pidFantasma == -1){
-		logger->log("Error: Falla en fork del fantasma" + ". Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: Falla en fork del fantasma. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
 	if (pidFantasma == 0) {
 		res = execl("Fantasma", "Fantasma", (char*) 0);
 		if (res != RES_OK){
-			logger->log("Error: Falla en exec del fantasma" + ". Strerr: " + toString(strerror(errno)), info);
+			logger->log("Error: Falla en exec del fantasma. Strerr: " + toString(strerror(errno)), info);
 			return MUERTE_POR_ERROR;
 		}
 	}
@@ -365,20 +365,20 @@ int main ( int argc, char** argv){
 
 	//todo cambiar por waitpid de calesita
 	res = wait(&status);
-	if (res != RES_OK){
-		logger->log("Error: en el wait de calesita" + ". Strerr: " + toString(strerror(errno)), info);
+	if (res == -1){
+		logger->log("Error: en el wait de calesita. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 	//espera al recaudador y admin todo waitpid
 	wait(&status);
-	if (res != RES_OK){
-		logger->log("Error: en el wait del administrador o recaudador" + ". Strerr: " + toString(strerror(errno)), info);
+	if (res == -1){
+		logger->log("Error: en el wait del administrador o recaudador. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 
 	wait(&status);
-	if (res != RES_OK){
-		logger->log("Error: en el wait del administrador o recaudador" + ". Strerr: " + toString(strerror(errno)), info);
+	if (res == -1){
+		logger->log("Error: en el wait del administrador o recaudador. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
 

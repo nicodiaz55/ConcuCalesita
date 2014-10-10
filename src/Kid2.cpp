@@ -65,9 +65,6 @@ int main ( int argc, char** argv){
 
 //todo considerar permisos, hacerlos restrictivos
 
-	//para hacer operaciones del semaforo
-	struct sembuf operations[1];
-
 	Semaforo semCalGira("/etc", 22);
 	semCalGira.crear();
 	Semaforo semMutexEntrada("/etc", 24);

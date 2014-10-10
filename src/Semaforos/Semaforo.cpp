@@ -15,11 +15,11 @@ Semaforo::~Semaforo() {
 
 int Semaforo:: crear(){
 
-	key_t clave = ftok ( arch.c_str(),clave );
+	key_t key = ftok ( arch.c_str(),clave );
 
-	if (clave < 0) { return RES_ERROR_FTOK;}
+	if (clave == -1) { return RES_ERROR_FTOK;}
 
-	this->nombre = semget ( clave,1,0666 | IPC_CREAT );
+	this->nombre = semget ( key,1,0666 | IPC_CREAT );
 
 	if (nombre < 0) { return RES_ERROR_SEMGET;}
 

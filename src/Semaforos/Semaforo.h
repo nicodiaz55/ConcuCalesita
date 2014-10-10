@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <string>
 
+#include "../Constantes.h"
+
 class Semaforo {
 
 private:
