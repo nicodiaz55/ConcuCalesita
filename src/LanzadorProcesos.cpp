@@ -37,7 +37,7 @@ using namespace std;
 
 //todo Control de errores!!
 
-int leerParametros(const int argc, char** argv, int cantNinios,int lugaresCalesita,int tiempoVuelta,const Logger* logger, const Info* info){
+int leerParametros(const int argc, char** argv, int& cantNinios,int& lugaresCalesita,int& tiempoVuelta,const Logger* logger, const Info* info){
 
 	if (argc < 4) {
 			cout
