@@ -46,7 +46,7 @@ void Logger::setOutput(string output) {
 /**
  * Loggea un mensaje
  */
-void Logger::log(string message, Info* info) {
+void Logger::log(string message, const Info* info) const{
 	LogMessage* m = new LogMessage(message, info);
 	if (output != 0 && canLog) {
 		output->log(m);
@@ -64,4 +64,14 @@ Logger::~Logger() {
 
 	//todo no hay un delete logger en algun lado?
 	logger = NULL;
+}
+
+Logger* obtenerLogger(){
+
+	Logger* logger = Logger::getLogger();
+	logger->setOutput("LogCalesita.log");
+	logger->init();
+
+	return logger;
+
 }

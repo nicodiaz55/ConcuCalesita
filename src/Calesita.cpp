@@ -40,9 +40,7 @@ static const int CANTPARAM = -1;
 int main(int argc, char** argv) {
 
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "Calesita");
 
 	logger->log("Se abre la calesita para este dia",info);
@@ -68,10 +66,10 @@ int main(int argc, char** argv) {
 
 	//obtiene la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	kidsInPark.crear("/etc",33);
+	kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
 
 	MemoriaCompartida<int> continua;
-	continua.crear("/etc",55);
+	continua.crear("/etc",55, PERMISOS_USER_RDWR);
 
 	//obtiene los semaforos para sincronizarse
 	int key = ftok("/etc",22);

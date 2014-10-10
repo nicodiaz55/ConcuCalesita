@@ -11,6 +11,8 @@
 #include <sys/shm.h>
 #include <string>
 
+#include "../Constantes.h"
+
 
 template <class T> class MemoriaCompartida {
 
@@ -18,12 +20,14 @@ private:
 	int shmId;
 	T*	ptrDatos;
 
-	int cantidadProcesosAdosados () const;
+	long unsigned int cantidadProcesosAdosados () const;
 
 public:
 	MemoriaCompartida ();
+	MemoriaCompartida (const MemoriaCompartida  &shMem);
+
 	~MemoriaCompartida ();
-	int crear ( const std::string& archivo,const char letra );
+	int crear ( const std::string& archivo,const int letra, uint permisos);
 	void liberar ();
 	void escribir ( const T& dato );
 	T leer () const;
@@ -33,10 +37,19 @@ public:
 template <class T> MemoriaCompartida<T> :: MemoriaCompartida() : shmId(0), ptrDatos(NULL) {
 }
 
+template <class T> MemoriaCompartida<T> :: MemoriaCompartida (const MemoriaCompartida  &shMem) {
+   this->shmId = shMem.shmId;
+   this->ptrDatos = shMem.ptrDatos;
+}
+
 template <class T> MemoriaCompartida<T> :: ~MemoriaCompartida() {
 }
 
-template <class T> int MemoriaCompartida<T> :: crear ( const std::string& archivo,const char letra ) {
+template <class T> int MemoriaCompartida<T> :: crear ( const std::string& archivo,const int letra , uint permisos) {
+
+	if (permisos < 0 || permisos > 0777){
+		return ERROR_PERMISOS;
+	}
 
 	// generacion de la clave
 	key_t clave = ftok ( archivo.c_str(),letra );
@@ -44,7 +57,7 @@ template <class T> int MemoriaCompartida<T> :: crear ( const std::string& archiv
 		return ERROR_FTOK;
 	else {
 		// creacion de la memoria compartida
-		this->shmId = shmget ( clave,sizeof(T),0666|IPC_CREAT );
+		this->shmId = shmget ( clave,sizeof(T), permisos|IPC_CREAT );
 
 		if ( this->shmId == -1 )
 			return ERROR_SHMGET;
@@ -67,7 +80,7 @@ template <class T> void MemoriaCompartida<T> :: liberar () {
 	// detach del bloque de memoria
 	shmdt ( static_cast<void*> (this->ptrDatos) );
 
-	int procAdosados = this->cantidadProcesosAdosados ();
+	long unsigned int procAdosados = this->cantidadProcesosAdosados ();
 
 	if ( procAdosados == 0 ) {
 		shmctl ( this->shmId,IPC_RMID,NULL );
@@ -82,7 +95,7 @@ template <class T> T MemoriaCompartida<T> :: leer () const {
 	return ( *(this->ptrDatos) );
 }
 
-template <class T> int MemoriaCompartida<T> :: cantidadProcesosAdosados () const {
+template <class T> long unsigned int MemoriaCompartida<T> :: cantidadProcesosAdosados () const {
 	shmid_ds estado;
 	shmctl ( this->shmId,IPC_STAT,&estado );
 	return estado.shm_nattch;

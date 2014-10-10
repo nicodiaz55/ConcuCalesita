@@ -7,7 +7,7 @@
 
 #include "LogMessage.hpp"
 
-LogMessage::LogMessage(string message, Info* info) {
+LogMessage::LogMessage(string message, const Info* info) {
 	this->message = message;
 	this->formattedMessage = formatMessage(info);
 }
@@ -34,7 +34,7 @@ string LogMessage::toString() {
 /**
  * Da formato al mensaje que se va a loggear
  */
-string LogMessage::formatMessage(Info* info) {
+string LogMessage::formatMessage(const Info* info) {
 	if (info == NULL)
 		return "";
 	return info->calculateTime() + " | " + info->name + " (" + info->pid + ") | " + message + "\n";

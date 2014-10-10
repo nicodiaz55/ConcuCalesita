@@ -29,7 +29,9 @@ class Logger {
 		void setOutput(string output);
 		void init();
 		void stop();
-		void log(string message, Info* info);
+		void log(string message,const Info* info) const;
 };
+
+Logger* obtenerLogger();
 
 #endif /* LOGGER_HPP_ */

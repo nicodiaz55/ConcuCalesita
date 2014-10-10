@@ -31,9 +31,7 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "Fila Calesita");
 
 	logger->log("Arranca la fila de la calesita",info);

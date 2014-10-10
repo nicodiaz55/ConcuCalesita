@@ -36,7 +36,7 @@ bool Output::init() {
 
 	int key = ftok("/etc",100);
 
-	semId = semget( key, 1, IPC_CREAT|0666); //calecita girando
+	semId = semget( key, 1, IPC_CREAT|0666);
 
 	if (file == -1) {
 		// string err = "No se pudo abrir el archivo: " + string(strerror(errno));

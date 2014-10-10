@@ -32,9 +32,7 @@ static const int precio = 2;
 
 int main ( int argc, char** argv){
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "Recaudador");
 
 	logger->log("Entra al trabajo", info);
@@ -44,7 +42,7 @@ int main ( int argc, char** argv){
 
 	//pide memoria comp. para caja
 	MemoriaCompartida<int> caja;
-	caja.crear("/etc",44);
+	caja.crear("/etc",44, PERMISOS_USER_RDWR);
 
 	//prepara lock de caja recaudacion
 	LockFile* lockW = new LockWrite("archLockCaja");
@@ -63,6 +61,10 @@ int main ( int argc, char** argv){
 		lockW->liberarLock();
 
 	}
+
+	//todo IMP!!!
+	//todo Que no pase de aca hasta que el administrador tenga tomada la memoria compartida
+	//todo (semaforo wait aca y signal en admin)
 
 	//para que muera el administrador
 	lockW->tomarLock();

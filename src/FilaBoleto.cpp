@@ -31,9 +31,7 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "FilaBoleto");
 
 	logger->log("Arranca la fila de venta de boletos",info);

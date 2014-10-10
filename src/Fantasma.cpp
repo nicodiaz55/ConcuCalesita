@@ -38,16 +38,14 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "Fantasma");
 
 	logger->log("Entré al parque", info);
 
 	//para la memoria compartida
 	MemoriaCompartida<int> continua;
-	continua.crear("/etc",55);
+	continua.crear("/etc",55, PERMISOS_USER_RDWR);
 
 	//para hacer operaciones del semaforo
 	struct sembuf operations[1];

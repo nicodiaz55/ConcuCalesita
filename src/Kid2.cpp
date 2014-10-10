@@ -45,9 +45,7 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "Kid");
 
 	logger->log("Entré al parque", info);
@@ -63,7 +61,7 @@ int main ( int argc, char** argv){
 
 	//para la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	kidsInPark.crear("/etc",33); //todo permisos!
+	kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR); //todo permisos!
 
 
 //todo considerar permisos, hacerlos restrictivos

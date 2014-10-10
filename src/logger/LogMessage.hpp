@@ -18,12 +18,12 @@ class LogMessage {
 		string message;
 		string formattedMessage;
 	public:
-		LogMessage(string message, Info* info);
+		LogMessage(string message, const Info* info);
 		virtual ~LogMessage();
 		string getMessage();
 		string toString();
 	private:
-		string formatMessage(Info* info);
+		string formatMessage(const Info* info);
 };
 
 

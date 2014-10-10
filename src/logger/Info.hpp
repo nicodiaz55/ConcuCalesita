@@ -29,7 +29,7 @@ class Info {
 			name = "";
 			pid = "";
 		}
-		string calculateTime() {
+		string calculateTime() const{
 			time_t rawtime;
 			struct tm* timeinfo;
 			time(&rawtime);

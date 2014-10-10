@@ -8,7 +8,6 @@
 #ifdef ADMIN
 
 #include "Memoria_Compartida/MemoriaCompartida.h"
-#include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
 
 #include "logger/Logger.hpp"
@@ -28,15 +27,13 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LOG.log");
-	logger->init();
+	Logger* logger = obtenerLogger();
 	Info* info = new Info(getpid(), "Administrador");
 
 	logger->log("Entré al trabajo", info);
 	//pide memoria comp. para caja
 	MemoriaCompartida<int> caja;
-	caja.crear("/etc",44); //todo permisos
+	caja.crear("/etc",44, PERMISOS_USER_RDWR);
 
 	//prepara lock de caja recaudacion
 	LockFile* lockR = new LockRead("archLockCaja");
