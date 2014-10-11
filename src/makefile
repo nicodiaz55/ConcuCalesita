@@ -10,23 +10,25 @@ PIPE = ./Pipes_y_Fifos/Pipe.h
 CONST = Constantes.h
 LOG = ./logger/Logger.hpp
 UTILS = ./utils/Utils.hpp
+CAJA = ./Caja.h
 FIFORD = ./Pipes_y_Fifos/FifoLectura.h
 FIFOWR = ./Pipes_y_Fifos/FifoEscritura.h
 SIG = ./Seniales/SignalHandler.h
 LOCKRD = ./Locks/LockRead.hpp
 LOCKWR = ./Locks/LockWrite.hpp
 SEM = ./Semaforos/Semaforo.h
+RANDOM = ./utils/Random.hpp
 
-DEPS_LANZADOR = $(MEM) $(PIPE) $(CONST) $(LOG) $(UTILS) $(SEM) $(SIG)
-DEPS_ADMINISTRADOR = $(CONST) $(LOG) $(UTILS) $(MEM) $(LOCKRD)
+DEPS_LANZADOR = $(MEM) $(PIPE) $(CONST) $(LOG) $(UTILS) $(SEM) $(SIG) $(RANDOM) $(CAJA)
+DEPS_ADMINISTRADOR = $(CONST) $(LOG) $(UTILS) $(MEM) $(LOCKRD) $(RANDOM) $(CAJA)
 DEPS_CALESITA = $(CONST) $(LOG) $(UTILS) $(MEM) $(LOCKWR) $(LOCKRD) $(SEM)
 DEPS_KID = $(CONST) $(LOG) $(UTILS) $(MEM) $(PIPE) $(FIFORD) $(LOCKWR) $(LOCKRD) $(SEM)
-DEPS_RECAUDADOR = $(MEM) $(FIFORD) $(LOCKWR) $(LOCKRD) $(CONST) $(LOG) $(UTILS)
+DEPS_RECAUDADOR = $(MEM) $(FIFORD) $(LOCKWR) $(LOCKRD) $(CONST) $(LOG) $(UTILS) $(CAJA)
 DEPS_FILACALESITA = $(CONST) $(LOG) $(UTILS) $(SIG) $(FIFOWR) $(PIPE)
 DEPS_FILABOLETO = $(CONST) $(LOG) $(UTILS) $(SIG) $(FIFOWR) $(PIPE) $(SEM)
 DEPS_FANTASMA = $(CONST) $(LOG) $(UTILS) $(LOCKWR) $(MEM) $(SEM)
 
-OBJ = Pipe.o Fifo.o FifoLectura.o FifoEscritura.o Logger.o SignalHandler.o  Random.o LockFile.o Output.o LogMessage.o Semaforo.o
+OBJ = Pipe.o Fifo.o FifoLectura.o FifoEscritura.o Logger.o SignalHandler.o Random.o LockFile.o Output.o LogMessage.o Semaforo.o Caja.o
 
 EJEC = Lanzador Administrador Calesita Kid Recaudador FilaCalesita FilaBoleto Fantasma
 
@@ -68,7 +70,7 @@ Administrador.o: Administrador.cpp $(DEPS_ADMINISTRADOR)
 Calesita.o: Calesita.cpp $(DEPS_CALESITA)
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)  -DCALESITA 
 
-Kid.o: Kid2.cpp $(DEPS_KID)
+Kid.o: Kid.cpp $(DEPS_KID)
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)  -DKID
 
 Recaudador.o: Recaudador.cpp $(DEPS_RECAUDADOR)
@@ -107,6 +109,9 @@ Semaforo.o: ./Semaforos/Semaforo.cpp ./Semaforos/Semaforo.h
 Random.o: ./utils/Random.cpp ./utils/Random.hpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)
 
+Caja.o: ./Caja.cpp ./Caja.h
+	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)
+	
 Logger.o: ./logger/Logger.cpp ./logger/Output.hpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)
 

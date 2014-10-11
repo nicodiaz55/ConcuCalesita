@@ -34,10 +34,10 @@ static const int CANTPARAM = -1;
 int main(int argc, char** argv) {
 
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Calesita");
 
-	logger->log("Se abre la calesita para este dia",info);
+	logger->log("Se abre la calesita para este día",info);
 	//PARAMETROS
 	//tiempoVuelta: Cuanto dura una vuelta de la calesita
 	//cantMaxLugares: Cuantos lugares tiene la calesita en total
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 		//avisa a los chicos que termino la vuelta
 		semCalGira.v(lugaresLibres);
 
-		//Despues de girar baja la cantidad de pendejos esperando
+		//Despues de girar baja la cantidad de chicos esperando
 		lockWKidsinPark->tomarLock();
 
 		int chicosRestantes = kidsInPark.leer() - lugaresLibres;
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 		//primero se fija que todos los niños hayan bajado
 		semCalGira.zero();
 
-		//segundo, se bajan los pendejos -> abre lugares para los que queden y avisa a puerta que los deje pasar
+		//segundo, se bajan los chicos -> abre lugares para los que queden y avisa a puerta que los deje pasar
 		lockRKidsInPark->tomarLock();
 		int kidsWaiting = kidsInPark.leer();
 		lockRKidsInPark->liberarLock();
@@ -142,11 +142,11 @@ int main(int argc, char** argv) {
 
 	logger->log("Se detiene la calesita",info);
 
-	//cierro el logger
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;

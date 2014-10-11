@@ -10,7 +10,6 @@
 #include "Seniales/SignalHandler.h"
 #include "Seniales/SIGINT_Handler.h"
 #include "Semaforos/Semaforo.h"
-#include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Pipes_y_Fifos/Pipe.h"
 #include <sys/wait.h>
 
@@ -18,8 +17,10 @@
 #include <errno.h>
 
 #include "Constantes.h"
+#include "Caja.h"
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
+#include "utils/Random.hpp"
 
 
 /*
@@ -81,15 +82,17 @@ int leerParametros(const int argc, char** argv, int& cantNinios,int& lugaresCale
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Lanzador");
+
+	logger->start();
 
 	logger->log("Empieza la simulación", info);
 
 	//pongo el manejador de la señal
 	SIGINT_Handler sigint_handler;
-	int res = SignalHandler :: getInstance()->registrarHandler ( SIGINT, & sigint_handler );
-	if (res != RES_OK){
+	int res = SignalHandler :: getInstance()->registrarHandler(SIGINT, &sigint_handler);
+	if (res != RES_OK) {
 		logger->log("Error: " + toString(res) + ". Strerr: " + toString(strerror(errno)),info);
 		return MUERTE_POR_ERROR;
 	}
@@ -109,11 +112,11 @@ int main ( int argc, char** argv){
 	//INICIALIZAR IPC mechanisms
 
 	//INICIALIZA SEMAFOROS
-	Semaforo semCalGira("/etc", 22, 0); //indica si la calesita esta girando
+	Semaforo semCalGira("/etc", 22, 0); //indica si la calesita esta girando, 0 esta girando, >0 cant gente que puede bajar
 	res = semCalGira.crear();
 	controlErrores1(res, logger, info);
 
-	Semaforo semMutexEntrada("/etc", 24,1); //indica si se puede entrar o no al parque (para que los niños "entren y salgan de a uno")
+	Semaforo semMutexEntrada("/etc", 24, 1); //indica si se puede entrar o no al parque (para que los niños "entren y salgan de a uno")
 	res = semMutexEntrada.crear();
 	controlErrores1(res, logger, info);
 
@@ -143,18 +146,17 @@ int main ( int argc, char** argv){
 	//Memoria compartida de cantidad de chicos en parque
 	kidsInPark.escribir(0);
 
-	MemoriaCompartida<int> caja;
-	res = caja.crear("/etc", 44, PERMISOS_USER_RDWR);
+	//Memoria compartida para la caja
+	Caja caja;
+	res = caja.init();
+	caja.iniciarRecaudacion();
 	controlErrores1(res, logger, info);
 
-	//Memoria compartida para la caja
-	caja.escribir(0);
-
+	//Memoria compartida para la calesita
 	MemoriaCompartida<int> continua;
 	res = continua.crear("/etc", 55, PERMISOS_USER_RDWR);
 	controlErrores1(res, logger, info);
 
-	//Memoria compartida para la caja
 	continua.escribir(0);
 
 	//LANZAR RECAUDADOR Y ADMINISTRADOR
@@ -169,7 +171,7 @@ int main ( int argc, char** argv){
 		res = execl("Recaudador", "Recaudador", (char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec del recaudador. Strerr: " + toString(strerror(errno)), info);
-			//return MUERTE_POR_ERROR;
+			return MUERTE_POR_ERROR;
 		}
 	}
 
@@ -192,7 +194,7 @@ int main ( int argc, char** argv){
 
 	logger->log("Se lanzó el administrador", info);
 	//desattachea de la caja una vez que la tienen Recaud. y Admin.
-	res = caja.liberar();
+	res = caja.terminar();
 	controlErrores1(res, logger, info);
 
 	//LANZAR CALESITA
@@ -224,13 +226,13 @@ int main ( int argc, char** argv){
 	controlErrores1(res, logger, info);
 	//LANZAR NIÑOS Y PUERTAS
 
-	//crea los pipes que van de los niños a las puertas y entre puertas y lanza puertas
+	//crea los pipes que van de los niños a las puerta y entre puertas y lanza puertas
 
-	Pipe pipeEntrePuertas;
+	Pipe pipeEntrePuertas; // entre la fila de boletos y la de la calesita
 	res = pipeEntrePuertas.crear();
 	controlErrores1(res, logger, info);
 
-	int fdRdPuerta2 = pipeEntrePuertas.getFdLectura();
+	int fdRdPuerta2 = pipeEntrePuertas.getFdLectura(); // puerta de la calesita
 	int fdWrPuerta2 = pipeEntrePuertas.getFdEscritura(); //para escribirle a la puerta 2
 
 	pid_t pidPuerta2 = fork();
@@ -297,12 +299,15 @@ int main ( int argc, char** argv){
 		}
 
 		logger->log("Se lanzó un niño", info);
+		usleep((int) exponentialTime(2));
 	}
 
 	//se desattachea esta shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
 	res = kidsInPark.liberar();
 	controlErrores1(res, logger, info);
 
+
+	//COMIENZO DEL FIN
 	//espero que terminen todos los hijos
 	int status;
 	for (int i = 0; i < cantNinios; i++) {
@@ -316,7 +321,7 @@ int main ( int argc, char** argv){
 	//Le dice a las puertas que mueran
 
 	//espera a las puertas
-	//todo cambiar por waitpid
+
 	int aux = -1;
 	res = write(fdWrPuerta1, &aux, sizeof(int));
 	if (res == -1){
@@ -364,11 +369,13 @@ int main ( int argc, char** argv){
 	logger->log("Se lanzó el niño fantasma", info);
 
 	//todo cambiar por waitpid de calesita
+	logger->log("Espero a que muera la calesita", info);
 	res = wait(&status);
 	if (res == -1){
 		logger->log("Error: en el wait de calesita. Strerr: " + toString(strerror(errno)), info);
 		return MUERTE_POR_ERROR;
 	}
+	logger->log("Espero a que muera el recaudador y el admin", info);
 	//espera al recaudador y admin todo waitpid
 	wait(&status);
 	if (res == -1){
@@ -382,6 +389,15 @@ int main ( int argc, char** argv){
 		return MUERTE_POR_ERROR;
 	}
 
+	// Espera al fantasma
+	logger->log("Espero a que muera el fantasma", info);
+	wait(&status);
+	if (res == -1){
+		logger->log("Error: en el wait del fantasma. Strerr: " + toString(strerror(errno)), info);
+		return MUERTE_POR_ERROR;
+	}
+
+	logger->log("Ok ahora mato semaforos", info);
 	//mato semaforos
 	res = semCalGira.eliminar();
 	controlErrores1(res, logger, info);
@@ -428,17 +444,21 @@ int main ( int argc, char** argv){
 		raise(SIGINT);
 	}
 
-	//cierro el logger
+	logger->log("Terminó la simulación", info);
+
+	logger->end();
+
+	SignalHandler :: destruir ();
+
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;
 	}
-
-	SignalHandler :: destruir ();
 
 	return RES_OK;
 

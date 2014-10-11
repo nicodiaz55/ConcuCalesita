@@ -28,7 +28,7 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "FilaBoleto");
 
 	logger->log("Arranca la fila de venta de boletos",info);
@@ -74,7 +74,7 @@ int main ( int argc, char** argv){
 
 			//le avisa al recaudador que pago un chico
 			int pago = 1;
-			logger->log("Le dice al recaudador que paso el chico: " + toString(pidKid),info);
+			logger->log("Le dice al recaudador que pasó el chico: " + toString(pidKid),info);
 			fifoRecaudador.escribir( &pago, sizeof(int));
 
 			//le mete el niño a la otra fila
@@ -99,11 +99,11 @@ int main ( int argc, char** argv){
 
 	logger->log("Se cierra la fila de venta de boletos",info);
 
-	//cierro el logger
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;

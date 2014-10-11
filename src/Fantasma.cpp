@@ -37,7 +37,7 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Fantasma");
 
 	logger->log("Entré al parque", info);
@@ -78,14 +78,15 @@ int main ( int argc, char** argv){
 	//libero memoria compartida
 	continua.liberar();
 
+	logger->log("Como mis deseos infantiles fueron satisfecho, me retiro de este mundo", info);
 
 	delete lockWContinua;
 
-	//cierro el logger
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;

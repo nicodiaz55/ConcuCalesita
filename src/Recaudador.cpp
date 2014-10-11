@@ -8,14 +8,13 @@
 #ifdef RECAUDADOR
 
 
-#include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Pipes_y_Fifos/FifoLectura.h"
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
-
+#include "Caja.h"
 
  /*
   * Registra en la caja el cobro de boletos
@@ -32,17 +31,18 @@ static const int precio = 2;
 
 int main ( int argc, char** argv){
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Recaudador");
 
-	logger->log("Entra al trabajo", info);
+	logger->log("Entré a trabajar", info);
 
 	FifoLectura fifo("FifoRecaudador");
 	fifo.abrir();
 
 	//pide memoria comp. para caja
-	MemoriaCompartida<int> caja;
-	caja.crear("/etc",44, PERMISOS_USER_RDWR);
+	Caja caja;
+	int res = caja.init();
+	controlErrores1(res, logger, info);
 
 	//prepara lock de caja recaudacion
 	LockFile* lockW = new LockWrite("archLockCaja");
@@ -55,8 +55,9 @@ int main ( int argc, char** argv){
 		if (avisoPago == 2) { break; }
 		lockW->tomarLock();
 
-		caja.escribir (caja.leer() + precio);
-		logger->log("Aumenta recaudacion de la caja en: " + toString(precio), info);
+		res = caja.aumentarRecaudacion(precio);
+		controlErrores1(res, logger, info); //todo revisar
+		logger->log("Coloqué $" + toString(precio) + "en la caja", info);
 
 		lockW->liberarLock();
 
@@ -68,23 +69,25 @@ int main ( int argc, char** argv){
 
 	//para que muera el administrador
 	lockW->tomarLock();
-	caja.escribir(-1);
+	caja.setearEstado(false);
 	lockW->liberarLock();
 
 	//libero memoria compartida
- 	caja.liberar();
+	res = caja.terminar();
+	controlErrores1(res, logger, info);
 
  	delete lockW;
 
 	fifo.cerrar();
 	fifo.eliminar();
 
-	logger->log("Sale del trabajo.", info);
-	//cierro el logger
+	logger->log("Terminé mi trabajo", info);
+
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;

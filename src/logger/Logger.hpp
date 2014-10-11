@@ -19,24 +19,18 @@ using namespace std;
 
 class Logger {
 	private:
-		static bool instanceFlag;
-		static Logger* logger;
 		bool canLog;
 		Output* output;
-
 		LockWrite* lockLog;
-	private:
-		Logger();
-
 	public:
-		static Logger* getLogger();
+		Logger();
 		~Logger();
-		void setOutput(string output);
 		void init();
 		void stop();
+		void setOutput(string output);
 		void log(string message,const Info* info) const;
+		void start(); // mensaje de entrada
+		void end(); // mensaje de salida
 };
-
-Logger* obtenerLogger();
 
 #endif /* LOGGER_HPP_ */

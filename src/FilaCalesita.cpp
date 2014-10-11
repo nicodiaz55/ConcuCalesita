@@ -28,7 +28,7 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Fila Calesita");
 
 	logger->log("Arranca la fila de la calesita",info);
@@ -78,11 +78,12 @@ int main ( int argc, char** argv){
 	pipeEntrePuertas.cerrar();
 
 	logger->log("Se cierra la fila de la calesita",info);
-	//cierro el logger
+
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;

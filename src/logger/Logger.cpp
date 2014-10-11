@@ -6,22 +6,16 @@
  */
 
 #include "Logger.hpp"
-
-bool Logger::instanceFlag = false;
-Logger* Logger::logger = NULL;
+#include <string>
+#include <sstream>
+#include <ctime>
 
 Logger::Logger() {
 	canLog = false;
-	output = 0;
+	output = NULL;
 	lockLog = new LockWrite(ARCH_LOCK_LOG);
-}
-
-Logger* Logger::getLogger() {
-	if (!instanceFlag) {
-		logger = new Logger();
-		instanceFlag = true;
-	}
-	return logger;
+	setOutput("LogCalesita.log");
+	init();
 }
 
 void Logger::init() {
@@ -61,25 +55,36 @@ void Logger::log(string message, const Info* info) const{
 }
 
 Logger::~Logger() {
-	instanceFlag = false;
-	logger->canLog = false;
-	if (logger->output) {
-		delete logger->output;
-		logger->output = 0;
+	canLog = false;
+	if (output != NULL) {
+		delete output;
+		output = NULL;
 	}
-
-	delete lockLog;
-
-	//todo no hay un delete logger en algun lado?
-	logger = NULL;
+	if (lockLog != NULL) {
+		delete lockLog;
+		lockLog = NULL;
+	}
 }
 
-Logger* obtenerLogger(){
+string calculateTime() {
+	time_t rawtime;
+	struct tm* timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	char buffer[50];
+	strftime(buffer, 50, "%Y-%m-%d", timeinfo);
+	return string(buffer);
+}
 
-	Logger* logger = Logger::getLogger();
-	logger->setOutput("LogCalesita.log");
-	logger->init();
+void Logger::start() {
+	string message =
+			"***************************************************************************************************\n"
+			"*                                    ConcuCalesita - " + calculateTime() + "                                   *\n"
+			"***************************************************************************************************";
+	log(message, NULL);
+}
 
-	return logger;
-
+void Logger::end() {
+	string message = "***************************************************************************************************";
+	log(message, NULL);
 }

@@ -36,6 +36,6 @@ string LogMessage::toString() {
  */
 string LogMessage::formatMessage(const Info* info) {
 	if (info == NULL)
-		return "";
-	return info->calculateTime() + " | " + info->name + " (" + info->pid + ") | " + message + "\n";
+		return message + "\n";
+	return info->calculateTime() + " | [" + info->pid + "] " + info->name + "\t | " + message + "\n";
 }

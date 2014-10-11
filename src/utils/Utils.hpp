@@ -11,8 +11,8 @@
 #include <sstream>
 #include <glob.h>
 #include <vector>
-
-
+#include <errno.h>
+#include <string.h>
 using namespace std;
 
 template <typename T>

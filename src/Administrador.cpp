@@ -7,12 +7,11 @@
 
 #ifdef ADMIN
 
-#include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Locks/LockRead.hpp"
-
+#include "utils/Random.hpp"
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
-
+#include "Caja.h"
 
  /*
   * Mira la caja de boletos e imprime por pantalla o al log o whatever
@@ -27,13 +26,14 @@ using namespace std;
 int main ( int argc, char** argv){
 
 	//Abro el logger
-	Logger* logger = obtenerLogger();
+	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Administrador");
 
-	logger->log("Entré al trabajo", info);
+	logger->log("Entré a trabajar", info);
 	//pide memoria comp. para caja
-	MemoriaCompartida<int> caja;
-	caja.crear("/etc",44, PERMISOS_USER_RDWR);
+	Caja caja;
+	int res = caja.init();
+	controlErrores1(res, logger, info);
 
 	//prepara lock de caja recaudacion
 	LockFile* lockR = new LockRead("archLockCaja");
@@ -42,31 +42,31 @@ int main ( int argc, char** argv){
 
 		lockR->tomarLock();
 
-		if (caja.leer() >= 0){
-			logger->log("En la caja hay: " + toString(caja.leer()), info);
-		}else{
+		logger->log("En la caja hay: $" + toString(caja.obtenerRecaudacion()), info);
+		if (caja.obtenerEstado() == false) {
 			break;
 		}
 
 		lockR->liberarLock();
 
 		//este sleep esta para que no llene el log solo con sus lecturas
-		sleep(1);
+		sleep(uniform(1,2));
 
 	}
 
 	//libero memoria compartida
-	caja.liberar();
+	res = caja.terminar();
+	controlErrores1(res, logger, info);
 
 	delete lockR;
 
-	logger->log("Me voy del trabajo", info);
+	logger->log("Terminé mi trabajo", info);
 
-	//cierro el logger
 	if (logger != NULL) {
 		delete logger;
 		logger = NULL;
 	}
+
 	if (info != NULL) {
 		delete info;
 		info = NULL;
