@@ -50,7 +50,7 @@ int main ( int argc, char** argv){
 
 	FifoEscritura fifoRecaudador("FifoRecaudador");
 	int res = fifoRecaudador.abrir();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	bool seguir = true;
 
@@ -69,7 +69,7 @@ int main ( int argc, char** argv){
 			//le dice al chico que pase
 			FifoEscritura fifoAKid(ruta);
 			res = fifoAKid.abrir();
-			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+			if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 			logger->log("Le da boleto al chico: " + toString(pidKid),info);
 

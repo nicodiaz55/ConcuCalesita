@@ -39,7 +39,7 @@ int main ( int argc, char** argv){
 
 	FifoLectura fifo("FifoRecaudador");
 	int res = fifo.abrir();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 
 	//pide memoria comp. para caja

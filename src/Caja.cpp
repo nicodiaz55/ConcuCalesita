@@ -6,7 +6,7 @@
  */
 
 #include "Caja.h"
-
+#include <iostream>
 using namespace std;
 
 Caja::Caja() {
@@ -24,6 +24,8 @@ int Caja::init() {
 		return res2;
 	}
 
+	cout << "recaudado: " << recaudado.shmId << endl;
+	cout << "estado: " << estado.shmId << endl;
 	estado.escribir(true);
 
 	return RES_OK;
@@ -43,10 +45,17 @@ int Caja::obtenerRecaudacion() {
 
 int Caja::terminar() {
 
-	recaudado.liberar();
-	estado.liberar();
+	int res = recaudado.liberar();
+	if (res == RES_OK){
+		return res;
+	}
 
-	return 0; // TODO emm... corregir
+	res =  estado.liberar();
+	if (res == RES_OK){
+		return res;
+	}
+
+	return res;
 }
 
 void Caja::iniciarRecaudacion() {

@@ -1,562 +1,342 @@
 ***************************************************************************************************
-*                                    ConcuCalesita - 2014-10-11                                   *
+*                                    ConcuCalesita - 2014-10-12                                   *
 ***************************************************************************************************
-18:24:46 | [5310] Lanzador	 | Empieza la simulación
-18:24:46 | [5310] Lanzador	 | La cantidad de niños en el barrio es: 10
-18:24:46 | [5310] Lanzador	 | La cantidad de lugares es: 5
-18:24:46 | [5310] Lanzador	 | El tiempo de vuelta es de: 3 segundos
-18:24:46 | [5310] Lanzador	 | Se lanzó el recaudador
-18:24:46 | [5310] Lanzador	 | Se lanzó el administrador
-18:24:46 | [5310] Lanzador	 | Se lanzó la calesita
-18:24:46 | [5310] Lanzador	 | Se lanzó la fila para subir a la calesita
-18:24:46 | [5310] Lanzador	 | Se lanzó la fila para comprar boleto
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5312] Administrador	 | Entré a trabajar
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5314] Fila Calesita	 | Arranca la fila de la calesita
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5315] FilaBoleto	 | Arranca la fila de venta de boletos
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5316] Kid		 | Voy hacia el parque :D
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5311] Recaudador	 | Entré a trabajar
-18:24:46 | [5310] Lanzador	 | Se lanzó un niño
-18:24:46 | [5313] Calesita	 | Se abre la calesita para este día
-18:24:46 | [5321] Kid		 | Voy hacia el parque :D
-18:24:46 | [5316] Kid		 | Entré al parque
-18:24:46 | [5316] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5316] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5321] Kid		 | Entré al parque
-18:24:46 | [5321] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5321] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5316
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5316
-18:24:46 | [5316] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5318] Kid		 | Voy hacia el parque :D
-18:24:46 | [5318] Kid		 | Entré al parque
-18:24:46 | [5318] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5318] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5324] Kid		 | Voy hacia el parque :D
-18:24:46 | [5314] Fila Calesita	 | Pasa el chico: 5316
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5318
-18:24:46 | [5312] Administrador	 | En la caja hay: $0
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5318
-18:24:46 | [5323] Kid		 | Voy hacia el parque :D
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5323] Kid		 | Entré al parque
-18:24:46 | [5316] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:46 | [5316] Kid		 | Me subí a la calesita :D
-18:24:46 | [5318] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5314] Fila Calesita	 | Pasa el chico: 5318
-18:24:46 | [5322] Kid		 | Voy hacia el parque :D
-18:24:46 | [5318] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:46 | [5318] Kid		 | Me subí a la calesita :D
-18:24:46 | [5323] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5323] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5325] Kid		 | Voy hacia el parque :D
-18:24:46 | [5319] Kid		 | Voy hacia el parque :D
-18:24:46 | [5317] Kid		 | Voy hacia el parque :D
-18:24:46 | [5324] Kid		 | Entré al parque
-18:24:46 | [5324] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5324] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5322] Kid		 | Entré al parque
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5321
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5321
-18:24:46 | [5320] Kid		 | Voy hacia el parque :D
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5323
-18:24:46 | [5322] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5323] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5323
-18:24:46 | [5325] Kid		 | Entré al parque
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5324
-18:24:46 | [5321] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5324
-18:24:46 | [5314] Fila Calesita	 | Pasa el chico: 5321
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5314] Fila Calesita	 | Pasa el chico: 5323
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5323] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:46 | [5323] Kid		 | Me subí a la calesita :D
-18:24:46 | [5325] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5319] Kid		 | Entré al parque
-18:24:46 | [5319] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5322] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5317] Kid		 | Entré al parque
-18:24:46 | [5317] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5317] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5322
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5322
-18:24:46 | [5321] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:46 | [5321] Kid		 | Me subí a la calesita :D
-18:24:46 | [5324] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5314] Fila Calesita	 | Pasa el chico: 5324
-18:24:46 | [5324] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:46 | [5313] Calesita	 | Arranca una vuelta
-18:24:46 | [5324] Kid		 | Me subí a la calesita :D
-18:24:46 | [5320] Kid		 | Entré al parque
-18:24:46 | [5320] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:24:46 | [5320] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5319] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5325] Kid		 | Me encolo para sacar boleto
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5320
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5320
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5319
-18:24:46 | [5322] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5319
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5319] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5317
-18:24:46 | [5317] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5317
-18:24:46 | [5320] Kid		 | Obtuve mi boleto 5
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5315] FilaBoleto	 | Le da boleto al chico: 5325
-18:24:46 | [5315] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5325
-18:24:46 | [5311] Recaudador	 | Coloqué $2en la caja
-18:24:46 | [5325] Kid		 | Obtuve mi boleto 5
-18:24:48 | [5312] Administrador	 | En la caja hay: $20
-18:24:49 | [5312] Administrador	 | En la caja hay: $20
-18:24:49 | [5313] Calesita	 | Termina la vuelta
-18:24:49 | [5316] Kid		 | Me bajé de la calesita :(
-18:24:49 | [5318] Kid		 | Me bajé de la calesita :(
-18:24:49 | [5316] Kid		 | Me fui del parque
-18:24:49 | [5318] Kid		 | Me fui del parque
-18:24:49 | [5323] Kid		 | Me bajé de la calesita :(
-18:24:49 | [5314] Fila Calesita	 | Pasa el chico: 5322
-18:24:49 | [5323] Kid		 | Me fui del parque
-18:24:49 | [5314] Fila Calesita	 | Pasa el chico: 5320
-18:24:49 | [5314] Fila Calesita	 | Pasa el chico: 5319
-18:24:49 | [5321] Kid		 | Me bajé de la calesita :(
-18:24:49 | [5314] Fila Calesita	 | Pasa el chico: 5317
-18:24:49 | [5321] Kid		 | Me fui del parque
-18:24:49 | [5314] Fila Calesita	 | Pasa el chico: 5325
-18:24:49 | [5317] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:49 | [5317] Kid		 | Me subí a la calesita :D
-18:24:49 | [5324] Kid		 | Me bajé de la calesita :(
-18:24:49 | [5324] Kid		 | Me fui del parque
-18:24:49 | [5320] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:49 | [5320] Kid		 | Me subí a la calesita :D
-18:24:49 | [5319] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:49 | [5319] Kid		 | Me subí a la calesita :D
-18:24:49 | [5325] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:49 | [5325] Kid		 | Me subí a la calesita :D
-18:24:49 | [5322] Kid		 | Pasé la cola para subir a la calesita 6
-18:24:49 | [5313] Calesita	 | Arranca una vuelta
-18:24:49 | [5322] Kid		 | Me subí a la calesita :D
-18:24:51 | [5312] Administrador	 | En la caja hay: $20
-18:24:52 | [5313] Calesita	 | Termina la vuelta
-18:24:52 | [5320] Kid		 | Me bajé de la calesita :(
-18:24:52 | [5320] Kid		 | Me fui del parque
-18:24:52 | [5317] Kid		 | Me bajé de la calesita :(
-18:24:52 | [5317] Kid		 | Me fui del parque
-18:24:52 | [5325] Kid		 | Me bajé de la calesita :(
-18:24:52 | [5325] Kid		 | Me fui del parque
-18:24:52 | [5319] Kid		 | Me bajé de la calesita :(
-18:24:52 | [5319] Kid		 | Me fui del parque
-18:24:52 | [5322] Kid		 | Me bajé de la calesita :(
-18:24:52 | [5322] Kid		 | Me fui del parque
-18:24:52 | [5314] Fila Calesita	 | Se cierra la fila de la calesita
-18:24:52 | [5311] Recaudador	 | Terminé mi trabajo
-18:24:52 | [5315] FilaBoleto	 | Se cierra la fila de venta de boletos
-18:24:52 | [5310] Lanzador	 | Se lanzó el niño fantasma
-18:24:52 | [5310] Lanzador	 | Espero a que muera la calesita
-18:24:52 | [5310] Lanzador	 | Espero a que muera el recaudador y el admin
-18:24:52 | [5340] Fantasma	 | Entré al parque
-18:24:52 | [5340] Fantasma	 | Intento subir a la calesita
-18:24:52 | [5340] Fantasma	 | Subí a la calesita
-18:24:52 | [5313] Calesita	 | Arranca una vuelta
-18:24:53 | [5312] Administrador	 | En la caja hay: $20
-18:24:53 | [5312] Administrador	 | Terminé mi trabajo
-18:24:55 | [5313] Calesita	 | Termina la vuelta
-18:24:55 | [5313] Calesita	 | Se detiene la calesita
-18:24:55 | [5340] Fantasma	 | Me bajé de la calesita
-18:24:55 | [5340] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
-18:24:55 | [5310] Lanzador	 | Espero a que muera el fantasma
-18:24:55 | [5310] Lanzador	 | Ok ahora mato semaforos
-18:24:55 | [5310] Lanzador	 | Terminó la simulación
+16:35:48 | [2456] Lanzador	 | Empieza la simulación
+16:35:48 | [2456] Lanzador	 | La cantidad de niños en el barrio es: 2
+16:35:48 | [2456] Lanzador	 | La cantidad de lugares es: 2
+16:35:48 | [2456] Lanzador	 | El tiempo de vuelta es de: 2 segundos
+16:35:48 | [2456] Lanzador	 | Se lanzó el recaudador
+16:35:48 | [2456] Lanzador	 | Se lanzó el administrador
+16:35:48 | [2456] Lanzador	 | Se lanzó la calesita
+16:35:48 | [2456] Lanzador	 | Se lanzó la fila para subir a la calesita
+16:35:48 | [2456] Lanzador	 | Se lanzó la fila para comprar boleto
+16:35:48 | [2456] Lanzador	 | Se lanzó un niño
+16:35:48 | [2456] Lanzador	 | Se lanzó un niño
+16:35:48 | [2459] Calesita	 | Se abre la calesita para este día
+16:35:48 | [2461] FilaBoleto	 | Arranca la fila de venta de boletos
+16:35:48 | [2463] Kid		 | Voy hacia el parque :D
+16:35:48 | [2463] Kid		 | Entré al parque
+16:35:48 | [2463] Kid		 | Aumento en uno la cantidad de chicos en el parque
+16:35:48 | [2457] Recaudador	 | Entré a trabajar
+16:35:48 | [2463] Kid		 | Me encolo para sacar boleto
+16:35:48 | [2463] Kid		 | Atencion: se escribieron en el pipe solo: 0
+16:35:48 | [2458] Administrador	 | Entré a trabajar
+16:35:48 | [2458] Administrador	 | En la caja hay: $0
+16:35:48 | [2457] Recaudador	 | Error: 7. Strerr: File exists
+16:35:48 | [2456] Lanzador	 | Error: en el wait de un chico . Strerr: Interrupted system call
+16:35:48 | [2460] Fila Calesita	 | Arranca la fila de la calesita
+16:35:48 | [2461] FilaBoleto	 | Error: 5. Strerr: Success
+16:35:48 | [2461] FilaBoleto	 | Error: 8. Strerr: File exists
+16:35:48 | [2461] FilaBoleto	 | Le da boleto al chico: 2463
+16:35:48 | [2456] Lanzador	 | Error: en el wait de un chico . Strerr: Interrupted system call
+16:35:48 | [2461] FilaBoleto	 | Le dice al recaudador que pasó el chico: 2463
+16:35:48 | [2463] Kid		 | Error: 9. Strerr: Numerical result out of range
+16:35:48 | [2463] Kid		 | Atencion: se leyeron del pipe solo: 9
+16:35:48 | [2463] Kid		 | Obtuve mi boleto 
+16:35:48 | [2456] Lanzador	 | Error: en el wait puerta 1. Strerr: Interrupted system call
+16:35:48 | [2463] Kid		 | Error: 10. Strerr: File exists
+16:35:48 | [2462] Kid		 | Voy hacia el parque :D
+16:35:48 | [2460] Fila Calesita	 | Error: 6. Strerr: Numerical result out of range
+16:35:48 | [2462] Kid		 | Entré al parque
+16:35:48 | [2456] Lanzador	 | Error: en el wait puerta 2. Strerr: Interrupted system call
+16:35:48 | [2462] Kid		 | Aumento en uno la cantidad de chicos en el parque
+16:35:48 | [2457] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:35:48 | [2456] Lanzador	 | Se lanzó el niño fantasma
+16:35:48 | [2457] Recaudador	 | Coloqué $2en la caja
+16:35:48 | [2461] FilaBoleto	 | Se cierra la fila de venta de boletos
+16:35:48 | [2456] Lanzador	 | Espero a que muera la calesita
+16:35:48 | [2457] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:35:48 | [2457] Recaudador	 | Terminé mi trabajo
+16:35:48 | [2462] Kid		 | Me encolo para sacar boleto
+16:35:48 | [2456] Lanzador	 | Espero a que muera el recaudador y el admin
+16:35:48 | [2456] Lanzador	 | Espero a que muera el fantasma
+16:35:48 | [2464] Fantasma	 | Entré al parque
+16:35:48 | [2464] Fantasma	 | Intento subir a la calesita
+16:35:48 | [2464] Fantasma	 | Subí a la calesita
+16:35:48 | [2460] Fila Calesita	 | Pasa el chico: 2463
+16:35:48 | [2463] Kid		 | Pasé la cola para subir a la calesita 
+16:35:48 | [2463] Kid		 | Me subí a la calesita :D
+16:35:48 | [2463] Kid		 | Me bajé de la calesita :(
+16:35:48 | [2464] Fantasma	 | Me bajé de la calesita
+16:35:48 | [2460] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+16:35:48 | [2464] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
+16:35:48 | [2459] Calesita	 | Se detiene la calesita
+16:35:48 | [2460] Fila Calesita	 | Se cierra la fila de la calesita
+16:35:48 | [2463] Kid		 | Me fui del parque
+16:35:48 | [2456] Lanzador	 | Ok ahora mato semaforos
+16:35:48 | [2456] Lanzador	 | MUERTE POR SIGINT
+16:35:50 | [2458] Administrador	 | En la caja hay: $2
+16:35:50 | [2458] Administrador	 | Terminé mi trabajo
 ***************************************************************************************************
+*                                    ConcuCalesita - 2014-10-12                                   *
 ***************************************************************************************************
-*                                    ConcuCalesita - 2014-10-11                                   *
-***************************************************************************************************
-18:26:38 | [5357] Lanzador	 | Empieza la simulación
-18:26:38 | [5357] Lanzador	 | La cantidad de niños en el barrio es: 10
-18:26:38 | [5357] Lanzador	 | La cantidad de lugares es: 5
-18:26:38 | [5357] Lanzador	 | El tiempo de vuelta es de: 3 segundos
-18:26:38 | [5357] Lanzador	 | Se lanzó el recaudador
-18:26:38 | [5357] Lanzador	 | Se lanzó el administrador
-18:26:38 | [5357] Lanzador	 | Se lanzó la calesita
-18:26:38 | [5357] Lanzador	 | Se lanzó la fila para subir a la calesita
-18:26:38 | [5357] Lanzador	 | Se lanzó la fila para comprar boleto
-18:26:38 | [5361] Fila Calesita	 | Arranca la fila de la calesita
-18:26:38 | [5358] Recaudador	 | Entré a trabajar
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5362] FilaBoleto	 | Arranca la fila de venta de boletos
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5360] Calesita	 | Se abre la calesita para este día
-18:26:38 | [5357] Lanzador	 | Se lanzó un niño
-18:26:38 | [5363] Kid		 | Voy hacia el parque :D
-18:26:38 | [5363] Kid		 | Entré al parque
-18:26:38 | [5363] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5363] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5366] Kid		 | Voy hacia el parque :D
-18:26:38 | [5366] Kid		 | Entré al parque
-18:26:38 | [5366] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5366] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5364] Kid		 | Voy hacia el parque :D
-18:26:38 | [5365] Kid		 | Voy hacia el parque :D
-18:26:38 | [5368] Kid		 | Voy hacia el parque :D
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5363
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5363
-18:26:38 | [5363] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5366
-18:26:38 | [5367] Kid		 | Voy hacia el parque :D
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5366
-18:26:38 | [5366] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5361] Fila Calesita	 | Pasa el chico: 5363
-18:26:38 | [5371] Kid		 | Voy hacia el parque :D
-18:26:38 | [5365] Kid		 | Entré al parque
-18:26:38 | [5361] Fila Calesita	 | Pasa el chico: 5366
-18:26:38 | [5372] Kid		 | Voy hacia el parque :D
-18:26:38 | [5365] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5359] Administrador	 | Entré a trabajar
-18:26:38 | [5365] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5359] Administrador	 | En la caja hay: $4
-18:26:38 | [5370] Kid		 | Voy hacia el parque :D
-18:26:38 | [5364] Kid		 | Entré al parque
-18:26:38 | [5364] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5364] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5368] Kid		 | Entré al parque
-18:26:38 | [5368] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5367] Kid		 | Entré al parque
-18:26:38 | [5367] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5367] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5365
-18:26:38 | [5369] Kid		 | Voy hacia el parque :D
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5365
-18:26:38 | [5366] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5364
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5364
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5365] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5367
-18:26:38 | [5366] Kid		 | Me subí a la calesita :D
-18:26:38 | [5363] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:38 | [5363] Kid		 | Me subí a la calesita :D
-18:26:38 | [5361] Fila Calesita	 | Pasa el chico: 5365
-18:26:38 | [5371] Kid		 | Entré al parque
-18:26:38 | [5371] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5371] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5367
-18:26:38 | [5368] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5372] Kid		 | Entré al parque
-18:26:38 | [5372] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5372] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5370] Kid		 | Entré al parque
-18:26:38 | [5370] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5370] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5369] Kid		 | Entré al parque
-18:26:38 | [5369] Kid		 | Aumento en uno la cantidad de chicos en el parque
-18:26:38 | [5369] Kid		 | Me encolo para sacar boleto
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5367] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5365] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:38 | [5365] Kid		 | Me subí a la calesita :D
-18:26:38 | [5364] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5361] Fila Calesita	 | Pasa el chico: 5364
-18:26:38 | [5364] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:38 | [5364] Kid		 | Me subí a la calesita :D
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5371
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5371
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5361] Fila Calesita	 | Pasa el chico: 5367
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5368
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5368
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5367] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:38 | [5367] Kid		 | Me subí a la calesita :D
-18:26:38 | [5360] Calesita	 | Arranca una vuelta
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5372
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5372
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5372] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5370
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5370
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5370] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5362] FilaBoleto	 | Le da boleto al chico: 5369
-18:26:38 | [5362] FilaBoleto	 | Le dice al recaudador que pasó el chico: 5369
-18:26:38 | [5368] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5358] Recaudador	 | Coloqué $2en la caja
-18:26:38 | [5369] Kid		 | Obtuve mi boleto 5
-18:26:38 | [5371] Kid		 | Obtuve mi boleto 5
-18:26:40 | [5359] Administrador	 | En la caja hay: $20
-18:26:41 | [5359] Administrador	 | En la caja hay: $20
-18:26:41 | [5360] Calesita	 | Termina la vuelta
-18:26:41 | [5361] Fila Calesita	 | Pasa el chico: 5371
-18:26:41 | [5361] Fila Calesita	 | Pasa el chico: 5368
-18:26:41 | [5361] Fila Calesita	 | Pasa el chico: 5372
-18:26:41 | [5361] Fila Calesita	 | Pasa el chico: 5370
-18:26:41 | [5361] Fila Calesita	 | Pasa el chico: 5369
-18:26:41 | [5370] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:41 | [5370] Kid		 | Me subí a la calesita :D
-18:26:41 | [5365] Kid		 | Me bajé de la calesita :(
-18:26:41 | [5365] Kid		 | Me fui del parque
-18:26:41 | [5364] Kid		 | Me bajé de la calesita :(
-18:26:41 | [5367] Kid		 | Me bajé de la calesita :(
-18:26:41 | [5364] Kid		 | Me fui del parque
-18:26:41 | [5367] Kid		 | Me fui del parque
-18:26:41 | [5366] Kid		 | Me bajé de la calesita :(
-18:26:41 | [5366] Kid		 | Me fui del parque
-18:26:41 | [5369] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:41 | [5369] Kid		 | Me subí a la calesita :D
-18:26:41 | [5372] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:41 | [5372] Kid		 | Me subí a la calesita :D
-18:26:41 | [5363] Kid		 | Me bajé de la calesita :(
-18:26:41 | [5363] Kid		 | Me fui del parque
-18:26:41 | [5371] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:41 | [5371] Kid		 | Me subí a la calesita :D
-18:26:41 | [5368] Kid		 | Pasé la cola para subir a la calesita 6
-18:26:41 | [5368] Kid		 | Me subí a la calesita :D
-18:26:41 | [5360] Calesita	 | Arranca una vuelta
-18:26:43 | [5359] Administrador	 | En la caja hay: $20
-18:26:44 | [5360] Calesita	 | Termina la vuelta
-18:26:44 | [5369] Kid		 | Me bajé de la calesita :(
-18:26:44 | [5371] Kid		 | Me bajé de la calesita :(
-18:26:44 | [5369] Kid		 | Me fui del parque
-18:26:44 | [5371] Kid		 | Me fui del parque
-18:26:44 | [5370] Kid		 | Me bajé de la calesita :(
-18:26:44 | [5370] Kid		 | Me fui del parque
-18:26:44 | [5372] Kid		 | Me bajé de la calesita :(
-18:26:44 | [5372] Kid		 | Me fui del parque
-18:26:44 | [5368] Kid		 | Me bajé de la calesita :(
-18:26:44 | [5368] Kid		 | Me fui del parque
-18:26:44 | [5361] Fila Calesita	 | Se cierra la fila de la calesita
-18:26:44 | [5358] Recaudador	 | Terminé mi trabajo
-18:26:44 | [5362] FilaBoleto	 | Se cierra la fila de venta de boletos
-18:26:44 | [5357] Lanzador	 | Se lanzó el niño fantasma
-18:26:44 | [5357] Lanzador	 | Espero a que muera la calesita
-18:26:44 | [5357] Lanzador	 | Espero a que muera el recaudador y el admin
-18:26:44 | [5384] Fantasma	 | Entré al parque
-18:26:44 | [5384] Fantasma	 | Intento subir a la calesita
-18:26:44 | [5384] Fantasma	 | Subí a la calesita
-18:26:44 | [5360] Calesita	 | Arranca una vuelta
-18:26:45 | [5359] Administrador	 | En la caja hay: $20
-18:26:45 | [5359] Administrador	 | Terminé mi trabajo
-18:26:47 | [5360] Calesita	 | Termina la vuelta
-18:26:47 | [5360] Calesita	 | Se detiene la calesita
-18:26:47 | [5384] Fantasma	 | Me bajé de la calesita
-18:26:47 | [5384] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
-18:26:47 | [5357] Lanzador	 | Espero a que muera el fantasma
-18:26:47 | [5357] Lanzador	 | Ok ahora mato semaforos
-18:26:47 | [5357] Lanzador	 | Terminó la simulación
+16:42:42 | [2756] Lanzador	 | Empieza la simulación
+16:42:42 | [2756] Lanzador	 | La cantidad de niños en el barrio es: 2
+16:42:42 | [2756] Lanzador	 | La cantidad de lugares es: 2
+16:42:42 | [2756] Lanzador	 | El tiempo de vuelta es de: 2 segundos
+16:42:42 | [2756] Lanzador	 | Se lanzó el recaudador
+16:42:42 | [2756] Lanzador	 | Se lanzó el administrador
+16:42:42 | [2756] Lanzador	 | Se lanzó la calesita
+16:42:42 | [2756] Lanzador	 | Se lanzó la fila para subir a la calesita
+16:42:42 | [2756] Lanzador	 | Se lanzó la fila para comprar boleto
+16:42:42 | [2756] Lanzador	 | Se lanzó un niño
+16:42:42 | [2756] Lanzador	 | Se lanzó un niño
+16:42:42 | [2757] Recaudador	 | Entré a trabajar
+16:42:42 | [2759] Calesita	 | Se abre la calesita para este día
+16:42:42 | [2763] Kid		 | Voy hacia el parque :D
+16:42:42 | [2763] Kid		 | Entré al parque
+16:42:42 | [2763] Kid		 | Aumento en uno la cantidad de chicos en el parque
+16:42:42 | [2763] Kid		 | Me encolo para sacar boleto
+16:42:42 | [2763] Kid		 | Atencion: se escribieron en el pipe solo: 0
+16:42:42 | [2761] FilaBoleto	 | Arranca la fila de venta de boletos
+16:42:42 | [2761] FilaBoleto	 | Le da boleto al chico: 2763
+16:42:42 | [2758] Administrador	 | Entré a trabajar
+16:42:42 | [2761] FilaBoleto	 | Le dice al recaudador que pasó el chico: 2763
+16:42:42 | [2763] Kid		 | Obtuve mi boleto 
+16:42:42 | [2757] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:42:42 | [2760] Fila Calesita	 | Arranca la fila de la calesita
+16:42:42 | [2762] Kid		 | Voy hacia el parque :D
+16:42:42 | [2760] Fila Calesita	 | Pasa el chico: 2763
+16:42:42 | [2762] Kid		 | Entré al parque
+16:42:42 | [2758] Administrador	 | En la caja hay: $0
+16:42:42 | [2760] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+16:42:42 | [2762] Kid		 | Aumento en uno la cantidad de chicos en el parque
+16:42:42 | [2762] Kid		 | Me encolo para sacar boleto
+16:42:42 | [2762] Kid		 | Atencion: se escribieron en el pipe solo: 0
+16:42:42 | [2757] Recaudador	 | Coloqué $2en la caja
+16:42:42 | [2761] FilaBoleto	 | Le da boleto al chico: 2762
+16:42:42 | [2762] Kid		 | Obtuve mi boleto 
+16:42:42 | [2761] FilaBoleto	 | Le dice al recaudador que pasó el chico: 2762
+16:42:42 | [2757] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:42:42 | [2760] Fila Calesita	 | Pasa el chico: 2762
+16:42:42 | [2757] Recaudador	 | Coloqué $2en la caja
+16:42:42 | [2763] Kid		 | Pasé la cola para subir a la calesita 
+16:42:42 | [2762] Kid		 | Pasé la cola para subir a la calesita 
+16:42:42 | [2760] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+16:42:42 | [2762] Kid		 | Me subí a la calesita :D
+16:42:42 | [2759] Calesita	 | Arranca una vuelta
+16:42:42 | [2763] Kid		 | Me subí a la calesita :D
+16:42:44 | [2758] Administrador	 | En la caja hay: $4
+16:42:44 | [2759] Calesita	 | Termina la vuelta
+16:42:44 | [2762] Kid		 | Me bajé de la calesita :(
+16:42:44 | [2763] Kid		 | Me bajé de la calesita :(
+16:42:44 | [2762] Kid		 | Me fui del parque
+16:42:44 | [2763] Kid		 | Me fui del parque
+16:42:44 | [2761] FilaBoleto	 | Se cierra la fila de venta de boletos
+16:42:44 | [2757] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:42:44 | [2760] Fila Calesita	 | Se cierra la fila de la calesita
+16:42:44 | [2757] Recaudador	 | Terminé mi trabajo
+16:42:44 | [2756] Lanzador	 | Se lanzó el niño fantasma
+16:42:44 | [2756] Lanzador	 | Espero a que muera la calesita
+16:42:44 | [2756] Lanzador	 | Espero a que muera el recaudador y el admin
+16:42:44 | [2764] Fantasma	 | Entré al parque
+16:42:44 | [2764] Fantasma	 | Intento subir a la calesita
+16:42:44 | [2764] Fantasma	 | Subí a la calesita
+16:42:44 | [2764] Fantasma	 | Me bajé de la calesita
+16:42:44 | [2764] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
+16:42:44 | [2759] Calesita	 | Se detiene la calesita
+16:42:44 | [2756] Lanzador	 | Espero a que muera el fantasma
+16:42:45 | [2758] Administrador	 | En la caja hay: $4
+16:42:45 | [2758] Administrador	 | Terminé mi trabajo
+16:42:45 | [2756] Lanzador	 | Ok ahora mato semaforos
+16:42:45 | [2756] Lanzador	 | Terminó la simulación
 ***************************************************************************************************
 ***************************************************************************************************
 *                                    ConcuCalesita - 2014-10-12                                   *
 ***************************************************************************************************
-14:27:49 | [3838] Lanzador	 | Empieza la simulación
-14:27:49 | [3838] Lanzador	 | La cantidad de niños en el barrio es: 3
-14:27:49 | [3838] Lanzador	 | La cantidad de lugares es: 5
-14:27:49 | [3838] Lanzador	 | El tiempo de vuelta es de: 5 segundos
-14:27:49 | [3838] Lanzador	 | Se lanzó el recaudador
-14:27:49 | [3838] Lanzador	 | Se lanzó el administrador
-14:27:49 | [3838] Lanzador	 | Se lanzó la calesita
-14:27:49 | [3838] Lanzador	 | Se lanzó la fila para subir a la calesita
-14:27:49 | [3838] Lanzador	 | Se lanzó la fila para comprar boleto
-14:27:49 | [3838] Lanzador	 | Se lanzó un niño
-14:27:49 | [3838] Lanzador	 | Se lanzó un niño
-14:27:49 | [3838] Lanzador	 | Se lanzó un niño
-14:27:49 | [3839] Recaudador	 | Entré a trabajar
-14:27:49 | [3841] Calesita	 | Se abre la calesita para este día
-14:27:49 | [3843] FilaBoleto	 | Arranca la fila de venta de boletos
-14:27:49 | [3840] Administrador	 | Entré a trabajar
-14:27:49 | [3844] Kid		 | Voy hacia el parque :D
-14:27:49 | [3842] Fila Calesita	 | Arranca la fila de la calesita
-14:27:49 | [3840] Administrador	 | En la caja hay: $0
-14:27:49 | [3844] Kid		 | Entré al parque
-14:27:49 | [3844] Kid		 | Aumento en uno la cantidad de chicos en el parque
-14:27:49 | [3844] Kid		 | Me encolo para sacar boleto
-14:27:49 | [3844] Kid		 | Atencion: se escribieron en el pipe solo: 0
-14:27:49 | [3843] FilaBoleto	 | Le da boleto al chico: 3844
-14:27:49 | [3844] Kid		 | Atencion: se leyeron del pipe solo: 9
-14:27:49 | [3844] Kid		 | Obtuve mi boleto 
-14:27:49 | [3843] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3844
-14:27:49 | [3839] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:27:49 | [3839] Recaudador	 | Coloqué $2en la caja
-14:27:49 | [3845] Kid		 | Voy hacia el parque :D
-14:27:49 | [3846] Kid		 | Voy hacia el parque :D
-14:27:49 | [3845] Kid		 | Entré al parque
-14:27:49 | [3845] Kid		 | Aumento en uno la cantidad de chicos en el parque
-14:27:49 | [3842] Fila Calesita	 | Pasa el chico: 3844
-14:27:49 | [3842] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
-14:27:49 | [3845] Kid		 | Me encolo para sacar boleto
-14:27:49 | [3844] Kid		 | Pasé la cola para subir a la calesita 
-14:27:49 | [3844] Kid		 | Me subí a la calesita :D
-14:27:49 | [3846] Kid		 | Entré al parque
-14:27:49 | [3846] Kid		 | Aumento en uno la cantidad de chicos en el parque
-14:27:49 | [3846] Kid		 | Me encolo para sacar boleto
-14:27:49 | [3845] Kid		 | Atencion: se escribieron en el pipe solo: 0
-14:27:49 | [3846] Kid		 | Atencion: se escribieron en el pipe solo: 0
-14:27:49 | [3843] FilaBoleto	 | Le da boleto al chico: 3845
-14:27:49 | [3845] Kid		 | Atencion: se leyeron del pipe solo: 9
-14:27:49 | [3845] Kid		 | Obtuve mi boleto 
-14:27:49 | [3843] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3845
-14:27:49 | [3839] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:27:49 | [3843] FilaBoleto	 | Le da boleto al chico: 3846
-14:27:49 | [3839] Recaudador	 | Coloqué $2en la caja
-14:27:49 | [3842] Fila Calesita	 | Pasa el chico: 3845
-14:27:49 | [3846] Kid		 | Atencion: se leyeron del pipe solo: 9
-14:27:49 | [3843] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3846
-14:27:49 | [3846] Kid		 | Obtuve mi boleto 
-14:27:49 | [3842] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
-14:27:49 | [3839] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:27:49 | [3842] Fila Calesita	 | Pasa el chico: 3846
-14:27:49 | [3845] Kid		 | Pasé la cola para subir a la calesita 
-14:27:49 | [3839] Recaudador	 | Coloqué $2en la caja
-14:27:49 | [3842] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
-14:27:49 | [3846] Kid		 | Pasé la cola para subir a la calesita 
-14:27:49 | [3845] Kid		 | Me subí a la calesita :D
-14:27:49 | [3846] Kid		 | Me subí a la calesita :D
-14:27:49 | [3841] Calesita	 | Arranca una vuelta
-14:27:51 | [3840] Administrador	 | En la caja hay: $6
-14:27:52 | [3840] Administrador	 | En la caja hay: $6
-14:27:54 | [3840] Administrador	 | En la caja hay: $6
-14:27:54 | [3841] Calesita	 | Termina la vuelta
-14:27:54 | [3844] Kid		 | Me bajé de la calesita :(
-14:27:54 | [3846] Kid		 | Me bajé de la calesita :(
-14:27:54 | [3844] Kid		 | Me fui del parque
-14:27:54 | [3845] Kid		 | Me bajé de la calesita :(
-14:27:54 | [3846] Kid		 | Me fui del parque
-14:27:54 | [3845] Kid		 | Me fui del parque
-14:27:54 | [3842] Fila Calesita	 | Se cierra la fila de la calesita
-14:27:54 | [3839] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:27:54 | [3843] FilaBoleto	 | Se cierra la fila de venta de boletos
-14:27:54 | [3839] Recaudador	 | Terminé mi trabajo
-14:27:54 | [3838] Lanzador	 | Se lanzó el niño fantasma
-14:27:54 | [3838] Lanzador	 | Espero a que muera la calesita
-14:27:54 | [3838] Lanzador	 | Espero a que muera el recaudador y el admin
-14:27:54 | [3847] Fantasma	 | Entré al parque
-14:27:54 | [3847] Fantasma	 | Intento subir a la calesita
-14:27:54 | [3847] Fantasma	 | Subí a la calesita
-14:27:54 | [3841] Calesita	 | Arranca una vuelta
-14:27:56 | [3840] Administrador	 | En la caja hay: $6
-14:27:56 | [3840] Administrador	 | Terminé mi trabajo
-14:27:59 | [3841] Calesita	 | Termina la vuelta
-14:27:59 | [3847] Fantasma	 | Me bajé de la calesita
-14:27:59 | [3847] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
-14:27:59 | [3838] Lanzador	 | Espero a que muera el fantasma
-14:28:38 | [3838] Lanzador	 | Ok ahora mato semaforos
-14:28:38 | [3838] Lanzador	 | MUERTE POR SIGINT
+16:56:38 | [3025] Lanzador	 | Empieza la simulación
+16:56:38 | [3025] Lanzador	 | La cantidad de niños en el barrio es: 2
+16:56:38 | [3025] Lanzador	 | La cantidad de lugares es: 2
+16:56:38 | [3025] Lanzador	 | El tiempo de vuelta es de: 2 segundos
+16:56:38 | [3025] Lanzador	 | Se lanzó el recaudador
+16:56:38 | [3025] Lanzador	 | Se lanzó el administrador
+16:56:38 | [3025] Lanzador	 | Se lanzó la calesita
+16:56:38 | [3025] Lanzador	 | Se lanzó la fila para subir a la calesita
+16:56:38 | [3025] Lanzador	 | Se lanzó la fila para comprar boleto
+16:56:38 | [3025] Lanzador	 | Se lanzó un niño
+16:56:38 | [3025] Lanzador	 | Se lanzó un niño
+16:56:38 | [3026] Recaudador	 | Entré a trabajar
+16:56:38 | [3027] Administrador	 | Entré a trabajar
+16:56:38 | [3027] Administrador	 | En la caja hay: $0
+16:56:38 | [3028] Calesita	 | Se abre la calesita para este día
+16:56:38 | [3030] FilaBoleto	 | Arranca la fila de venta de boletos
+16:56:38 | [3032] Kid		 | Voy hacia el parque :D
+16:56:38 | [3029] Fila Calesita	 | Arranca la fila de la calesita
+16:56:38 | [3032] Kid		 | Entré al parque
+16:56:38 | [3032] Kid		 | Aumento en uno la cantidad de chicos en el parque
+16:56:38 | [3032] Kid		 | Me encolo para sacar boleto
+16:56:38 | [3032] Kid		 | Atencion: se escribieron en el pipe solo: 0
+16:56:38 | [3030] FilaBoleto	 | Le da boleto al chico: 3032
+16:56:38 | [3030] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3032
+16:56:38 | [3032] Kid		 | Obtuve mi boleto 
+16:56:38 | [3026] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:56:38 | [3026] Recaudador	 | Coloqué $2en la caja
+16:56:38 | [3029] Fila Calesita	 | Pasa el chico: 3032
+16:56:38 | [3029] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+16:56:38 | [3032] Kid		 | Pasé la cola para subir a la calesita 
+16:56:38 | [3032] Kid		 | Me subí a la calesita :D
+16:56:38 | [3031] Kid		 | Voy hacia el parque :D
+16:56:38 | [3031] Kid		 | Entré al parque
+16:56:38 | [3031] Kid		 | Aumento en uno la cantidad de chicos en el parque
+16:56:38 | [3031] Kid		 | Me encolo para sacar boleto
+16:56:38 | [3031] Kid		 | Atencion: se escribieron en el pipe solo: 0
+16:56:38 | [3030] FilaBoleto	 | Le da boleto al chico: 3031
+16:56:38 | [3030] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3031
+16:56:38 | [3031] Kid		 | Obtuve mi boleto 
+16:56:38 | [3026] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:56:38 | [3029] Fila Calesita	 | Pasa el chico: 3031
+16:56:38 | [3029] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+16:56:38 | [3026] Recaudador	 | Coloqué $2en la caja
+16:56:38 | [3031] Kid		 | Pasé la cola para subir a la calesita 
+16:56:38 | [3031] Kid		 | Me subí a la calesita :D
+16:56:38 | [3028] Calesita	 | Arranca una vuelta
+16:56:40 | [3027] Administrador	 | En la caja hay: $4
+16:56:40 | [3028] Calesita	 | Termina la vuelta
+16:56:40 | [3032] Kid		 | Me bajé de la calesita :(
+16:56:40 | [3031] Kid		 | Me bajé de la calesita :(
+16:56:40 | [3032] Kid		 | Me fui del parque
+16:56:40 | [3031] Kid		 | Me fui del parque
+16:56:40 | [3029] Fila Calesita	 | Se cierra la fila de la calesita
+16:56:40 | [3030] FilaBoleto	 | Se cierra la fila de venta de boletos
+16:56:40 | [3026] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+16:56:40 | [3026] Recaudador	 | Terminé mi trabajo
+16:56:40 | [3025] Lanzador	 | Se lanzó el niño fantasma
+16:56:40 | [3025] Lanzador	 | Espero a que muera la calesita
+16:56:40 | [3025] Lanzador	 | Espero a que muera el recaudador y el admin
+16:56:40 | [3039] Fantasma	 | Entré al parque
+16:56:40 | [3039] Fantasma	 | Intento subir a la calesita
+16:56:40 | [3039] Fantasma	 | Subí a la calesita
+16:56:40 | [3039] Fantasma	 | Me bajé de la calesita
+16:56:40 | [3039] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
+16:56:40 | [3028] Calesita	 | Se detiene la calesita
+16:56:40 | [3025] Lanzador	 | Espero a que muera el fantasma
+16:56:41 | [3027] Administrador	 | En la caja hay: $4
+16:56:41 | [3027] Administrador	 | Terminé mi trabajo
+16:56:41 | [3025] Lanzador	 | Ok ahora mato semaforos
+16:56:41 | [3025] Lanzador	 | Terminó la simulación
+***************************************************************************************************
 ***************************************************************************************************
 *                                    ConcuCalesita - 2014-10-12                                   *
 ***************************************************************************************************
-14:35:25 | [4073] Lanzador	 | Empieza la simulación
-14:35:25 | [4073] Lanzador	 | La cantidad de niños en el barrio es: 3
-14:35:25 | [4073] Lanzador	 | La cantidad de lugares es: 5
-14:35:25 | [4073] Lanzador	 | El tiempo de vuelta es de: 5 segundos
-14:35:25 | [4073] Lanzador	 | Se lanzó el recaudador
-14:35:25 | [4073] Lanzador	 | Se lanzó el administrador
-14:35:25 | [4073] Lanzador	 | Se lanzó la calesita
-14:35:25 | [4073] Lanzador	 | Se lanzó la fila para subir a la calesita
-14:35:25 | [4073] Lanzador	 | Se lanzó la fila para comprar boleto
-14:35:25 | [4073] Lanzador	 | Se lanzó un niño
-14:35:25 | [4073] Lanzador	 | Se lanzó un niño
-14:35:25 | [4073] Lanzador	 | Se lanzó un niño
-14:35:25 | [4074] Recaudador	 | Entré a trabajar
-14:35:25 | [4075] Administrador	 | Entré a trabajar
-14:35:25 | [4075] Administrador	 | En la caja hay: $0
-14:35:25 | [4081] Kid		 | Voy hacia el parque :D
-14:35:25 | [4081] Kid		 | Entré al parque
-14:35:25 | [4081] Kid		 | Aumento en uno la cantidad de chicos en el parque
-14:35:25 | [4081] Kid		 | Me encolo para sacar boleto
-14:35:25 | [4081] Kid		 | Atencion: se escribieron en el pipe solo: 0
-14:35:25 | [4076] Calesita	 | Se abre la calesita para este día
-14:35:25 | [4079] Kid		 | Voy hacia el parque :D
-14:35:25 | [4079] Kid		 | Entré al parque
-14:35:25 | [4079] Kid		 | Aumento en uno la cantidad de chicos en el parque
-14:35:25 | [4079] Kid		 | Me encolo para sacar boleto
-14:35:25 | [4079] Kid		 | Atencion: se escribieron en el pipe solo: 0
-14:35:25 | [4078] FilaBoleto	 | Arranca la fila de venta de boletos
-14:35:25 | [4078] FilaBoleto	 | Le da boleto al chico: 4081
-14:35:25 | [4081] Kid		 | Atencion: se leyeron del pipe solo: 9
-14:35:25 | [4081] Kid		 | Obtuve mi boleto 
-14:35:25 | [4078] FilaBoleto	 | Le dice al recaudador que pasó el chico: 4081
-14:35:25 | [4078] FilaBoleto	 | Le da boleto al chico: 4079
-14:35:25 | [4078] FilaBoleto	 | Le dice al recaudador que pasó el chico: 4079
-14:35:25 | [4077] Fila Calesita	 | Arranca la fila de la calesita
-14:35:25 | [4077] Fila Calesita	 | Pasa el chico: 4081
-14:35:25 | [4077] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
-14:35:25 | [4080] Kid		 | Voy hacia el parque :D
-14:35:25 | [4074] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:35:25 | [4081] Kid		 | Pasé la cola para subir a la calesita 
-14:35:25 | [4074] Recaudador	 | Coloqué $2en la caja
-14:35:25 | [4074] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:35:25 | [4074] Recaudador	 | Coloqué $2en la caja
-14:35:25 | [4079] Kid		 | Atencion: se leyeron del pipe solo: 9
-14:35:25 | [4079] Kid		 | Obtuve mi boleto 
-14:35:25 | [4081] Kid		 | Me subí a la calesita :D
-14:35:25 | [4077] Fila Calesita	 | Pasa el chico: 4079
-14:35:25 | [4077] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
-14:35:25 | [4079] Kid		 | Pasé la cola para subir a la calesita 
-14:35:25 | [4079] Kid		 | Me subí a la calesita :D
-14:35:25 | [4080] Kid		 | Entré al parque
-14:35:25 | [4080] Kid		 | Aumento en uno la cantidad de chicos en el parque
-14:35:25 | [4080] Kid		 | Me encolo para sacar boleto
-14:35:25 | [4080] Kid		 | Atencion: se escribieron en el pipe solo: 0
-14:35:25 | [4078] FilaBoleto	 | Le da boleto al chico: 4080
-14:35:25 | [4080] Kid		 | Atencion: se leyeron del pipe solo: 9
-14:35:25 | [4080] Kid		 | Obtuve mi boleto 
-14:35:25 | [4078] FilaBoleto	 | Le dice al recaudador que pasó el chico: 4080
-14:35:25 | [4074] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:35:25 | [4074] Recaudador	 | Coloqué $2en la caja
-14:35:25 | [4077] Fila Calesita	 | Pasa el chico: 4080
-14:35:25 | [4077] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
-14:35:25 | [4080] Kid		 | Pasé la cola para subir a la calesita 
-14:35:25 | [4080] Kid		 | Me subí a la calesita :D
-14:35:25 | [4076] Calesita	 | Arranca una vuelta
-14:35:27 | [4075] Administrador	 | En la caja hay: $6
-14:35:28 | [4075] Administrador	 | En la caja hay: $6
-14:35:30 | [4075] Administrador	 | En la caja hay: $6
-14:35:30 | [4076] Calesita	 | Termina la vuelta
-14:35:30 | [4081] Kid		 | Me bajé de la calesita :(
-14:35:30 | [4080] Kid		 | Me bajé de la calesita :(
-14:35:30 | [4081] Kid		 | Me fui del parque
-14:35:30 | [4079] Kid		 | Me bajé de la calesita :(
-14:35:30 | [4080] Kid		 | Me fui del parque
-14:35:30 | [4079] Kid		 | Me fui del parque
-14:35:30 | [4077] Fila Calesita	 | Se cierra la fila de la calesita
-14:35:30 | [4074] Recaudador	 | Atencion: se leyeron del fifo solo: 0
-14:35:30 | [4078] FilaBoleto	 | Se cierra la fila de venta de boletos
-14:35:30 | [4074] Recaudador	 | Terminé mi trabajo
-14:35:30 | [4073] Lanzador	 | Se lanzó el niño fantasma
-14:35:30 | [4073] Lanzador	 | Espero a que muera la calesita
-14:35:30 | [4073] Lanzador	 | Espero a que muera el recaudador y el admin
-14:35:30 | [4089] Fantasma	 | Entré al parque
-14:35:30 | [4089] Fantasma	 | Intento subir a la calesita
-14:35:30 | [4089] Fantasma	 | Subí a la calesita
-14:35:30 | [4089] Fantasma	 | Me bajé de la calesita
-14:35:30 | [4089] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
-14:35:30 | [4076] Calesita	 | Se detiene la calesita
-14:35:30 | [4073] Lanzador	 | Espero a que muera el fantasma
-14:35:32 | [4075] Administrador	 | En la caja hay: $6
-14:35:32 | [4075] Administrador	 | Terminé mi trabajo
-14:35:32 | [4073] Lanzador	 | Ok ahora mato semaforos
-14:35:32 | [4073] Lanzador	 | Terminó la simulación
-***************************************************************************************************
+17:04:01 | [3311] Lanzador	 | Empieza la simulación
+17:04:01 | [3311] Lanzador	 | La cantidad de niños en el barrio es: 5
+17:04:01 | [3311] Lanzador	 | La cantidad de lugares es: 100
+17:04:01 | [3311] Lanzador	 | El tiempo de vuelta es de: 2 segundos
+17:04:01 | [3311] Lanzador	 | Se lanzó el recaudador
+17:04:01 | [3311] Lanzador	 | Se lanzó el administrador
+17:04:01 | [3311] Lanzador	 | Se lanzó la calesita
+17:04:01 | [3311] Lanzador	 | Se lanzó la fila para subir a la calesita
+17:04:01 | [3311] Lanzador	 | Se lanzó la fila para comprar boleto
+17:04:01 | [3311] Lanzador	 | Se lanzó un niño
+17:04:01 | [3311] Lanzador	 | Se lanzó un niño
+17:04:01 | [3311] Lanzador	 | Se lanzó un niño
+17:04:01 | [3312] Recaudador	 | Entré a trabajar
+17:04:01 | [3311] Lanzador	 | Se lanzó un niño
+17:04:01 | [3311] Lanzador	 | Se lanzó un niño
+17:04:01 | [3316] FilaBoleto	 | Arranca la fila de venta de boletos
+17:04:01 | [3317] Kid		 | Voy hacia el parque :D
+17:04:01 | [3313] Administrador	 | Entré a trabajar
+17:04:01 | [3317] Kid		 | Entré al parque
+17:04:01 | [3317] Kid		 | Aumento en uno la cantidad de chicos en el parque
+17:04:01 | [3317] Kid		 | Me encolo para sacar boleto
+17:04:01 | [3313] Administrador	 | En la caja hay: $0
+17:04:01 | [3317] Kid		 | Atencion: se escribieron en el pipe solo: 0
+17:04:01 | [3318] Kid		 | Voy hacia el parque :D
+17:04:01 | [3316] FilaBoleto	 | Le da boleto al chico: 3317
+17:04:01 | [3317] Kid		 | Obtuve mi boleto 
+17:04:01 | [3318] Kid		 | Entré al parque
+17:04:01 | [3318] Kid		 | Aumento en uno la cantidad de chicos en el parque
+17:04:01 | [3318] Kid		 | Me encolo para sacar boleto
+17:04:01 | [3316] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3317
+17:04:01 | [3318] Kid		 | Atencion: se escribieron en el pipe solo: 0
+17:04:01 | [3316] FilaBoleto	 | Le da boleto al chico: 3318
+17:04:01 | [3316] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3318
+17:04:01 | [3318] Kid		 | Obtuve mi boleto 
+17:04:01 | [3312] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+17:04:01 | [3312] Recaudador	 | Coloqué $2en la caja
+17:04:01 | [3312] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+17:04:01 | [3312] Recaudador	 | Coloqué $2en la caja
+17:04:01 | [3314] Calesita	 | Se abre la calesita para este día
+17:04:01 | [3320] Kid		 | Voy hacia el parque :D
+17:04:01 | [3320] Kid		 | Entré al parque
+17:04:01 | [3320] Kid		 | Aumento en uno la cantidad de chicos en el parque
+17:04:01 | [3320] Kid		 | Me encolo para sacar boleto
+17:04:01 | [3320] Kid		 | Atencion: se escribieron en el pipe solo: 0
+17:04:01 | [3316] FilaBoleto	 | Le da boleto al chico: 3320
+17:04:01 | [3316] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3320
+17:04:01 | [3320] Kid		 | Obtuve mi boleto 
+17:04:01 | [3312] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+17:04:01 | [3312] Recaudador	 | Coloqué $2en la caja
+17:04:01 | [3315] Fila Calesita	 | Arranca la fila de la calesita
+17:04:01 | [3315] Fila Calesita	 | Pasa el chico: 3317
+17:04:01 | [3315] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+17:04:01 | [3317] Kid		 | Pasé la cola para subir a la calesita 
+17:04:01 | [3317] Kid		 | Me subí a la calesita :D
+17:04:01 | [3315] Fila Calesita	 | Pasa el chico: 3318
+17:04:01 | [3315] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+17:04:01 | [3318] Kid		 | Pasé la cola para subir a la calesita 
+17:04:01 | [3318] Kid		 | Me subí a la calesita :D
+17:04:01 | [3315] Fila Calesita	 | Pasa el chico: 3320
+17:04:01 | [3315] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+17:04:01 | [3320] Kid		 | Pasé la cola para subir a la calesita 
+17:04:01 | [3320] Kid		 | Me subí a la calesita :D
+17:04:01 | [3321] Kid		 | Voy hacia el parque :D
+17:04:01 | [3321] Kid		 | Entré al parque
+17:04:01 | [3319] Kid		 | Voy hacia el parque :D
+17:04:01 | [3321] Kid		 | Aumento en uno la cantidad de chicos en el parque
+17:04:01 | [3321] Kid		 | Me encolo para sacar boleto
+17:04:01 | [3319] Kid		 | Entré al parque
+17:04:01 | [3319] Kid		 | Aumento en uno la cantidad de chicos en el parque
+17:04:01 | [3319] Kid		 | Me encolo para sacar boleto
+17:04:01 | [3321] Kid		 | Atencion: se escribieron en el pipe solo: 0
+17:04:01 | [3319] Kid		 | Atencion: se escribieron en el pipe solo: 0
+17:04:01 | [3316] FilaBoleto	 | Le da boleto al chico: 3321
+17:04:01 | [3316] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3321
+17:04:01 | [3312] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+17:04:01 | [3312] Recaudador	 | Coloqué $2en la caja
+17:04:01 | [3321] Kid		 | Obtuve mi boleto 
+17:04:01 | [3316] FilaBoleto	 | Le da boleto al chico: 3319
+17:04:01 | [3315] Fila Calesita	 | Pasa el chico: 3321
+17:04:01 | [3319] Kid		 | Obtuve mi boleto 
+17:04:01 | [3316] FilaBoleto	 | Le dice al recaudador que pasó el chico: 3319
+17:04:01 | [3315] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+17:04:01 | [3312] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+17:04:01 | [3315] Fila Calesita	 | Pasa el chico: 3319
+17:04:01 | [3321] Kid		 | Pasé la cola para subir a la calesita 
+17:04:01 | [3312] Recaudador	 | Coloqué $2en la caja
+17:04:01 | [3315] Fila Calesita	 | Atencion: se escribieron al pipe solo: 6
+17:04:01 | [3319] Kid		 | Pasé la cola para subir a la calesita 
+17:04:01 | [3321] Kid		 | Me subí a la calesita :D
+17:04:01 | [3319] Kid		 | Me subí a la calesita :D
+17:04:01 | [3314] Calesita	 | Arranca una vuelta
+17:04:03 | [3313] Administrador	 | En la caja hay: $10
+17:04:03 | [3314] Calesita	 | Termina la vuelta
+17:04:03 | [3317] Kid		 | Me bajé de la calesita :(
+17:04:03 | [3321] Kid		 | Me bajé de la calesita :(
+17:04:03 | [3317] Kid		 | Me fui del parque
+17:04:03 | [3320] Kid		 | Me bajé de la calesita :(
+17:04:03 | [3318] Kid		 | Me bajé de la calesita :(
+17:04:03 | [3321] Kid		 | Me fui del parque
+17:04:03 | [3319] Kid		 | Me bajé de la calesita :(
+17:04:03 | [3320] Kid		 | Me fui del parque
+17:04:03 | [3318] Kid		 | Me fui del parque
+17:04:03 | [3319] Kid		 | Me fui del parque
+17:04:03 | [3315] Fila Calesita	 | Se cierra la fila de la calesita
+17:04:03 | [3316] FilaBoleto	 | Se cierra la fila de venta de boletos
+17:04:03 | [3312] Recaudador	 | Atencion: se leyeron del fifo solo: 0
+17:04:03 | [3312] Recaudador	 | Terminé mi trabajo
+17:04:03 | [3311] Lanzador	 | Se lanzó el niño fantasma
+17:04:03 | [3311] Lanzador	 | Espero a que muera la calesita
+17:04:03 | [3311] Lanzador	 | Espero a que muera el recaudador y el admin
+17:04:03 | [3331] Fantasma	 | Entré al parque
+17:04:03 | [3331] Fantasma	 | Intento subir a la calesita
+17:04:03 | [3331] Fantasma	 | Subí a la calesita
+17:04:03 | [3331] Fantasma	 | Me bajé de la calesita
+17:04:03 | [3331] Fantasma	 | Como mis deseos infantiles fueron satisfecho, me retiro de este mundo
+17:04:03 | [3314] Calesita	 | Error: -10. Strerr: Invalid argument
+17:04:03 | [3314] Calesita	 | Se detiene la calesita
+17:04:03 | [3311] Lanzador	 | Espero a que muera el fantasma
+17:04:03 | [3311] Lanzador	 | Ok ahora mato semaforos
+17:04:03 | [3311] Lanzador	 | MUERTE POR SIGINT
+17:04:04 | [3313] Administrador	 | En la caja hay: $10
+17:04:04 | [3313] Administrador	 | Terminé mi trabajo

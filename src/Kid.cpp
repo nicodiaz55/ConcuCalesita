@@ -32,8 +32,6 @@ using namespace std;
 
 //todo Control de errores!!
 
-
-
 int main ( int argc, char** argv){
 
 	//Abro el logger
@@ -41,11 +39,12 @@ int main ( int argc, char** argv){
 	Info* info = new Info(getpid(), "Kid\t");
 
 	logger->log("Voy hacia el parque :D", info);
-	//recibe pipes
+	//recibe pipes y cantidad de lugares
 	int fdRdPuerta1,fdWrPuerta1;
 
 	fdRdPuerta1 = toInt(argv[1]);
 	fdWrPuerta1  = toInt(argv[2]);
+	int lugares = toInt(argv[3]);
 
 	Pipe pipePuerta1(fdRdPuerta1,fdWrPuerta1);
 
@@ -109,12 +108,9 @@ int main ( int argc, char** argv){
 	string ruta = "Cola" + toString(getpid());
 	FifoLectura fila(ruta);
 	res = fila.abrir();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	fila.leer(&permisoPasar, sizeof(int) );
-	if (res != sizeof(int)){
-		logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
-	}
 //todo sacar TODOS los numeros magicos, pasar a constantes.h
 
 	logger->log("Obtuve mi boleto ", info);
@@ -122,11 +118,8 @@ int main ( int argc, char** argv){
 //Espera que la segunda puerta le escriba "pasa"
 	FifoLectura fila2(ruta + "C");
 	res = fila2.abrir();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 	res = fila2.leer(&permisoPasar, sizeof(int) );
-	if (res != sizeof(int)){
-		logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
-	}
 
 	logger->log("Pasé la cola para subir a la calesita ", info);
 

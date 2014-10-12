@@ -53,8 +53,10 @@ static const int VALOR_PASAR2 = 6;
 
 static const int CERRAR = 1;
 
+static const bool LUGAR_LIBRE = false;
+static const bool LUGAR_OCUPADO = true;
 
-
+static const int INICIO_CLAVES_LUGARES = 500;
 
 static const int PERMISOS_USER_RDWR = 0600;
 

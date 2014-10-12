@@ -159,6 +159,25 @@ int main ( int argc, char** argv){
 
 	continua.escribir(0);
 
+	//Memoria compartida para identificar los lugares de la calesita
+	int claveAux = INICIO_CLAVES_LUGARES;
+
+	std::vector<MemoriaCompartida<bool> > memLugares;
+
+	for (int i = 0; i < lugaresCalesita; i++){
+		MemoriaCompartida<bool> lugar;
+
+		res = lugar.crear("/home/juan/git/ConcuCalesita/src/Constantes.h", claveAux, PERMISOS_USER_RDWR);
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
+		lugar.escribir(LUGAR_LIBRE);
+
+		claveAux++;
+		cout << "Creo y meto: " << lugar.shmId << endl;
+		memLugares.push_back(lugar);
+
+	}
+
 	//LANZAR RECAUDADOR Y ADMINISTRADOR
 	pid_t pidRec = fork();
 
@@ -291,7 +310,7 @@ int main ( int argc, char** argv){
 
 		if (pid == 0) {
 			res = execl("Kid", "Kid", toString(fdRdPuerta1).c_str(),
-					toString(fdWrPuerta1).c_str(), (char*) 0);
+					toString(fdWrPuerta1).c_str(), toString(lugaresCalesita).c_str(), (char*) 0);
 			if (res != RES_OK){
 				logger->log("Error: Falla en exec de un chico. Strerr: " + toString(strerror(errno)), info);
 				raise (SIGINT);
@@ -306,6 +325,14 @@ int main ( int argc, char** argv){
 	res = kidsInPark.liberar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
+	//desattacheo tambien de la de los lugares
+	vector<MemoriaCompartida<bool> >::iterator it ;
+
+	for ( it = memLugares.begin(); it != memLugares.end(); it++) {
+		res = (*it).liberar();
+		cout << "Libero: " << (*it).shmId << endl;
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+	}
 
 	//COMIENZO DEL FIN
 	//espero que terminen todos los hijos

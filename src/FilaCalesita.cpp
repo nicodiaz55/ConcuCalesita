@@ -69,7 +69,7 @@ int main ( int argc, char** argv){
 
 			FifoEscritura fifoAKid(ruta + "C");
 			res = fifoAKid.abrir();
-			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+			if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 			logger->log("Pasa el chico: " + toString(pidKid),info);
 

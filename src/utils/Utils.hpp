@@ -13,6 +13,7 @@
 #include <vector>
 #include <errno.h>
 #include <string.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -52,11 +53,21 @@ vector<string> glob(const string& pat){
 }
 
 int controlErrores1(int res, Logger* logger, Info* info) {
+	if (res != RES_OK) {
+		logger->log(
+				"Error: " + toString(res) + ". Strerr: "
+				+ toString(strerror(errno)), info);
+		kill(getppid(), SIGINT);
+	}
+	return RES_OK;
+}
+
+int controlErrores2(int res, Logger* logger, Info* info) {
 	if (res == -1) {
 		logger->log(
 				"Error: " + toString(res) + ". Strerr: "
 				+ toString(strerror(errno)), info);
-		kill(getppid(),SIGINT);
+		kill(getppid(), SIGINT);
 	}
 	return RES_OK;
 }
