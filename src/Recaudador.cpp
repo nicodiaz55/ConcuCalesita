@@ -54,9 +54,6 @@ int main ( int argc, char** argv){
 
 		int avisoPago;
 		fifo.leer(&avisoPago , sizeof(int));
-		if (res != sizeof(int)){
-			logger->log("Atencion: se leyeron del fifo solo: " + toString(res),info);
-		}
 
 		if (avisoPago == 2) { break; }
 		lockW->tomarLock();

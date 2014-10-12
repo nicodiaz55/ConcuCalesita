@@ -167,7 +167,7 @@ int main ( int argc, char** argv){
 	for (int i = 0; i < lugaresCalesita; i++){
 		MemoriaCompartida<bool> lugar;
 
-		res = lugar.crear("/home/juan/git/ConcuCalesita/src/Constantes.h", claveAux, PERMISOS_USER_RDWR);
+		res = lugar.crear("/home", claveAux, PERMISOS_USER_RDWR);
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 		lugar.escribir(LUGAR_LIBRE);

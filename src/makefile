@@ -28,16 +28,14 @@ DEPS_FILACALESITA = $(CONST) $(LOG) $(UTILS) $(SIG) $(FIFOWR) $(PIPE)
 DEPS_FILABOLETO = $(CONST) $(LOG) $(UTILS) $(SIG) $(FIFOWR) $(PIPE) $(SEM)
 DEPS_FANTASMA = $(CONST) $(LOG) $(UTILS) $(LOCKWR) $(MEM) $(SEM)
 
-OBJ = Pipe.o Fifo.o FifoLectura.o FifoEscritura.o Logger.o SignalHandler.o Random.o LockFile.o Output.o LogMessage.o Semaforo.o Caja.o
+OBJ = Pipe.o Fifo.o FifoLectura.o FifoEscritura.o Logger.o SignalHandler.o Random.o LockFile.o Output.o LogMessage.o Semaforo.o Caja.o Lanzador.o Utils.o
 
-EJEC = Lanzador Administrador Calesita Kid Recaudador FilaCalesita FilaBoleto Fantasma
+EJEC = ConcuCalesita Administrador Calesita Kid Recaudador FilaCalesita FilaBoleto Fantasma
 
 #all: de que depende, que tiene que existir o no haber sido modificado... 
 all: $(EJEC) cleanO
 
-Lanzador: Lanzador.o $(OBJ)
-# $< es la primer dependencia, en este caso Lanzador.cpp
-# $@ es el nombre de la regla en este caso Lanzador
+ConcuCalesita: ConcuCalesita.o $(OBJ)
 	$(CC) $(CFLAGS) $< $(OBJ) -o $@ $(INC_PARAMS)
 
 Administrador: Administrador.o $(OBJ)
@@ -61,7 +59,10 @@ FilaBoleto: FilaBoleto.o $(OBJ)
 Fantasma: Fantasma.o $(OBJ)
 	$(CC) $(CFLAGS) $< $(OBJ) -o $@ $(INC_PARAMS)
 
-Lanzador.o: LanzadorProcesos.cpp $(DEPS_LANZADOR)
+ConcuCalesita.o: ConcuCalesita.cpp $(DEPS_LANZADOR)
+	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS) -DMAIN
+
+Lanzador.o: Lanzador.cpp Lanzador.h $(DEPS_LANZADOR)
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS) -DLANZADOR
 
 Administrador.o: Administrador.cpp $(DEPS_ADMINISTRADOR)
@@ -119,6 +120,9 @@ Output.o: ./logger/Output.cpp ./logger/LogMessage.hpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)
 
 LogMessage.o: ./logger/LogMessage.cpp ./logger/Info.hpp
+	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)
+
+Utils.o: ./utils/Utils.cpp ./utils/Utils.hpp
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_PARAMS)
 
 

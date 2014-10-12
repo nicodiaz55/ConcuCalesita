@@ -52,10 +52,8 @@ int main ( int argc, char** argv){
 
 	while (seguir){
 		int pidKid;
-		res = pipeEntrePuertas.leer(&pidKid, sizeof(int));
-		if (res != sizeof(int)){
-			logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
-		}
+		pipeEntrePuertas.leer(&pidKid, sizeof(int));
+
 
 		if (pidKid != -1) {
 			string ruta = "Cola" + toString(pidKid);
@@ -74,9 +72,6 @@ int main ( int argc, char** argv){
 			logger->log("Pasa el chico: " + toString(pidKid),info);
 
 			fifoAKid.escribir( &VALOR_PASAR2, sizeof(int) );
-			if (res != sizeof(int)){
-				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
-			}
 
 			fifoAKid.cerrar();
 			fifoAKid.eliminar();

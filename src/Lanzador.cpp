@@ -6,17 +6,7 @@
  */
 
 #include "Lanzador.h"
-#include "Seniales/SignalHandler.h"
-#include "Seniales/SIGINT_Handler.h"
-#include "Semaforos/Semaforo.h"
-#include "Pipes_y_Fifos/Pipe.h"
-#include <sys/wait.h>
-#include <cstdlib>
-#include <cerrno>
-#include "Constantes.h"
-#include "Caja.h"
-#include "utils/Utils.hpp"
-#include "utils/Random.hpp"
+
 
 using namespace std;
 
@@ -44,7 +34,7 @@ void Lanzador::iniciar() {
 	logger->log("Empieza la simulación", info);
 
 	//pongo el manejador de la señal
-	sigint_handler = new SIGINT_Handler();
+	sigint_handler = new SIGINT_Handler;
 	int res = SignalHandler::getInstance()->registrarHandler(SIGINT, sigint_handler);
 	if (res != RES_OK) {
 		logger->log("Error: " + toString(res) + ". Strerr: " + toString(strerror(errno)),info);
@@ -94,7 +84,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 		raise (SIGINT);
 	}
 	if (pidAdmin == 0) {
-		int res = execl("Administrador", "Administrador", (char*) 0);
+		res = execl("Administrador", "Administrador", (char*) 0);
 		if (res != RES_OK) {
 			logger->log("Error: Falla en exec del administrador. Strerr: " + toString(strerror(errno)), info);
 			raise (SIGINT);
@@ -108,7 +98,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 		raise (SIGINT);
 	}
 	if (pidRec == 0) {
-		int res = execl("Recaudador", "Recaudador", (char*) 0);
+		res = execl("Recaudador", "Recaudador", (char*) 0);
 		if (res != RES_OK) {
 			logger->log("Error: Falla en exec del recaudador. Strerr: " + toString(strerror(errno)), info);
 			raise (SIGINT);
@@ -117,7 +107,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 	logger->log("Se lanzó el recaudador", info);
 
 	//desattachea de la caja una vez que la tienen Recaud. y Admin.
-	int res = caja.terminar();
+	res = caja.terminar();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 }
 
@@ -233,7 +223,7 @@ void Lanzador::lanzarFilasYNinios() {
 	pipeEntrePuertas.cerrar();
 
 	MemoriaCompartida<int> kidsInPark;
-	int res = kidsInPark.crear("/etc", 33, PERMISOS_USER_RDWR);
+	res = kidsInPark.crear("/etc", 33, PERMISOS_USER_RDWR);
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	//Memoria compartida de cantidad de chicos en parque

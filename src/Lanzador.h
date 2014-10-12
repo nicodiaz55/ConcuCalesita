@@ -10,6 +10,20 @@
 
 #include "./logger/Logger.hpp"
 
+#include "Seniales/SignalHandler.h"
+#include "Seniales/SIGINT_Handler.h"
+#include "Semaforos/Semaforo.h"
+#include "Pipes_y_Fifos/Pipe.h"
+#include <sys/wait.h>
+
+#include <cstdlib>
+#include <cerrno>
+
+#include "Constantes.h"
+#include "Caja.h"
+#include "utils/Utils.hpp"
+#include "utils/Random.hpp"
+
 class Lanzador {
 private:
 	Logger* logger;
@@ -33,7 +47,7 @@ public:
 	void lanzarAdministradorYRecaudador();
 	void lanzarCalesita();
 	void lanzarFilasYNinios();
-	void esperarFin();
+	//void esperarFin();
 	void terminar();
 	~Lanzador();
 };

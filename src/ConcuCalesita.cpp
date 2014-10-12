@@ -56,21 +56,18 @@ int main ( int argc, char** argv) {
 	int res = leerParametros(argc, argv, cantNinios, lugaresCalesita, tiempoVuelta);
 	if (res != RES_OK) {
 		cout << "Error: " + toString(res) << endl;
-		raise(SIGINT); // TODO: esto aca funciona?
+		raise(SIGINT);
 	}
 
-	Lanzador* lanzador = new Lanzador(cantNinios, lugaresCalesita, tiempoVuelta);
-	lanzador->iniciar();
+	Lanzador lanzador(cantNinios, lugaresCalesita, tiempoVuelta);
+	lanzador.iniciar();
 
-	lanzador->lanzarAdministradorYRecaudador();
-	lanzador->lanzarCalesita();
-	lanzador->lanzarFilas();
-	lanzador->lanzarNinios();
+	lanzador.lanzarAdministradorYRecaudador();
+	lanzador.lanzarCalesita();
+	lanzador.lanzarFilasYNinios();
 
-	lanzador->esperarFin();
-	lanzador->terminar();
-
-	delete lanzador;
+	//lanzador.esperarFin(); todo estaba en el header, pero no definida la comente ahi tambien
+	lanzador.terminar();
 
 	return RES_OK;
 }

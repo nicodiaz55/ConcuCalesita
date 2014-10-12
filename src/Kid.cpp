@@ -99,9 +99,7 @@ int main ( int argc, char** argv){
 //Meterse es pasarle a la puerta por donde le tiene que escribir para desbloquearlo
 	int pid = getpid();
 	pipePuerta1.escribir( &pid, sizeof(int) );
-	if (res != sizeof(int)){
-		logger->log("Atencion: se escribieron en el pipe solo: " + toString(res), info);
-	}
+
 //Espera que la puerta le escriba "pasa" por el fifo corresponidente
 	int permisoPasar = 0;
 
