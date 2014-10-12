@@ -8,7 +8,7 @@ public:
 	FifoLectura(const std::string nombre);
 	~FifoLectura();
 
-	void abrir();
+	int abrir();
 	ssize_t leer(void* buffer,const ssize_t buffsize) const;
 };
 

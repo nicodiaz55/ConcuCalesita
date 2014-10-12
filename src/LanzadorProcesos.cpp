@@ -94,7 +94,7 @@ int main ( int argc, char** argv){
 	int res = SignalHandler :: getInstance()->registrarHandler(SIGINT, &sigint_handler);
 	if (res != RES_OK) {
 		logger->log("Error: " + toString(res) + ". Strerr: " + toString(strerror(errno)),info);
-		return MUERTE_POR_ERROR;
+		raise(SIGINT);
 	}
 
 
@@ -106,7 +106,7 @@ int main ( int argc, char** argv){
 	res = leerParametros(argc, argv, cantNinios, lugaresCalesita, tiempoVuelta, logger, info);
 	if (res != RES_OK){
 		logger->log("Error: " + toString(res), info);
-		return MUERTE_POR_ERROR;
+		raise(SIGINT);
 	}
 
 	//INICIALIZAR IPC mechanisms
@@ -114,11 +114,11 @@ int main ( int argc, char** argv){
 	//INICIALIZA SEMAFOROS
 	Semaforo semCalGira("/etc", 22, 0); //indica si la calesita esta girando, 0 esta girando, >0 cant gente que puede bajar
 	res = semCalGira.crear();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	Semaforo semMutexEntrada("/etc", 24, 1); //indica si se puede entrar o no al parque (para que los niños "entren y salgan de a uno")
 	res = semMutexEntrada.crear();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	int auxLugares = 0;
 
@@ -133,15 +133,15 @@ int main ( int argc, char** argv){
 	Semaforo semColaCal("/etc", 25, auxLugares); //indica cuantos niños pueden pasar la cola para subir a la calesita
 
 	res = semCalLug.crear();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = semColaCal.crear();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//INICIALIZA MEMORIA COMPARTIDA
 	MemoriaCompartida<int> kidsInPark;
 	res = kidsInPark.crear("/etc", 33, PERMISOS_USER_RDWR);
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//Memoria compartida de cantidad de chicos en parque
 	kidsInPark.escribir(0);
@@ -150,12 +150,12 @@ int main ( int argc, char** argv){
 	Caja caja;
 	res = caja.init();
 	caja.iniciarRecaudacion();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//Memoria compartida para la calesita
 	MemoriaCompartida<int> continua;
 	res = continua.crear("/etc", 55, PERMISOS_USER_RDWR);
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	continua.escribir(0);
 
@@ -164,14 +164,14 @@ int main ( int argc, char** argv){
 
 	if (pidRec == -1){
 		logger->log("Error: Falla fork de recaudador. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	if (pidRec == 0) {
 		res = execl("Recaudador", "Recaudador", (char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec del recaudador. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 
@@ -181,21 +181,22 @@ int main ( int argc, char** argv){
 
 	if (pidAdmin == -1){
 		logger->log("Error: Falla en fork del administrador. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	if (pidAdmin == 0) {
 		res = execl("Administrador", "Administrador", (char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec del administrador. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 
 	logger->log("Se lanzó el administrador", info);
 	//desattachea de la caja una vez que la tienen Recaud. y Admin.
 	res = caja.terminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
 
 	//LANZAR CALESITA
 
@@ -207,7 +208,7 @@ int main ( int argc, char** argv){
 	pidCal = fork();
 	if (pidCal == -1){
 		logger->log("Error: Falla en fork de la calesita. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	if (pidCal == 0) {
@@ -215,7 +216,7 @@ int main ( int argc, char** argv){
 				(char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec de la calesita. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 
@@ -223,14 +224,13 @@ int main ( int argc, char** argv){
 
 	//libero para que ya la maneje solo la calesita (y mas tarde el fantasma)
 	res = continua.liberar();
-	controlErrores1(res, logger, info);
-	//LANZAR NIÑOS Y PUERTAS
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}	//LANZAR NIÑOS Y PUERTAS
 
 	//crea los pipes que van de los niños a las puerta y entre puertas y lanza puertas
 
 	Pipe pipeEntrePuertas; // entre la fila de boletos y la de la calesita
 	res = pipeEntrePuertas.crear();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	int fdRdPuerta2 = pipeEntrePuertas.getFdLectura(); // puerta de la calesita
 	int fdWrPuerta2 = pipeEntrePuertas.getFdEscritura(); //para escribirle a la puerta 2
@@ -238,7 +238,7 @@ int main ( int argc, char** argv){
 	pid_t pidPuerta2 = fork();
 	if (pidPuerta2 == -1){
 		logger->log("Error: Falla en fork de la fila de la calesita. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	if (pidPuerta2 == 0) {
@@ -246,7 +246,7 @@ int main ( int argc, char** argv){
 				toString(fdWrPuerta2).c_str(), (char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec de la fila de la calesita. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 
@@ -255,7 +255,7 @@ int main ( int argc, char** argv){
 	//pipe para que los ninios se encolen para boleto
 	Pipe pipeAKids;
 	res = pipeAKids.crear();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	int fdRdPuerta1 = pipeAKids.getFdLectura();
 	int fdWrPuerta1 = pipeAKids.getFdEscritura(); //para escribirle a la puerta 1
@@ -263,7 +263,7 @@ int main ( int argc, char** argv){
 	pid_t pidPuerta1 = fork();
 	if (pidPuerta1 == -1){
 		logger->log("Error: Falla en fork de la fila de boletos. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	if (pidPuerta1 == 0) {
@@ -272,7 +272,7 @@ int main ( int argc, char** argv){
 				toString(fdWrPuerta2).c_str(), (char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec de la fila de boletos. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 
@@ -286,7 +286,7 @@ int main ( int argc, char** argv){
 		pid_t pid = fork();
 		if (pid == -1){
 			logger->log("Error: Falla en fork de un chico. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 
 		if (pid == 0) {
@@ -294,7 +294,7 @@ int main ( int argc, char** argv){
 					toString(fdWrPuerta1).c_str(), (char*) 0);
 			if (res != RES_OK){
 				logger->log("Error: Falla en exec de un chico. Strerr: " + toString(strerror(errno)), info);
-				return MUERTE_POR_ERROR;
+				raise (SIGINT);
 			}
 		}
 
@@ -304,7 +304,7 @@ int main ( int argc, char** argv){
 
 	//se desattachea esta shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
 	res = kidsInPark.liberar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 
 	//COMIENZO DEL FIN
@@ -314,7 +314,7 @@ int main ( int argc, char** argv){
 		res = wait(&status);
 		if (res == -1){
 			logger->log("Error: en el wait de un chico . Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 
@@ -326,7 +326,7 @@ int main ( int argc, char** argv){
 	res = write(fdWrPuerta1, &aux, sizeof(int));
 	if (res == -1){
 		logger->log("Error: en un write. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	//cierro descriptor
@@ -337,17 +337,17 @@ int main ( int argc, char** argv){
 	res = wait(&status); //todo waitpid
 	if (res == -1){
 		logger->log("Error: en el wait puerta 1. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	//para destrabar la puerta 2
 	res = semColaCal.v(1);
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = wait(&status);
 	if (res == -1){
 		logger->log("Error: en el wait puerta 2. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 	//espera a la calesita
 	//puede que la calesita quede bloqueada esperando a un ultimo niño-> mando un fantasma
@@ -356,14 +356,14 @@ int main ( int argc, char** argv){
 	pid_t pidFantasma = fork();
 	if (pidFantasma == -1){
 		logger->log("Error: Falla en fork del fantasma. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	if (pidFantasma == 0) {
 		res = execl("Fantasma", "Fantasma", (char*) 0);
 		if (res != RES_OK){
 			logger->log("Error: Falla en exec del fantasma. Strerr: " + toString(strerror(errno)), info);
-			return MUERTE_POR_ERROR;
+			raise (SIGINT);
 		}
 	}
 	logger->log("Se lanzó el niño fantasma", info);
@@ -373,20 +373,20 @@ int main ( int argc, char** argv){
 	res = wait(&status);
 	if (res == -1){
 		logger->log("Error: en el wait de calesita. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 	logger->log("Espero a que muera el recaudador y el admin", info);
 	//espera al recaudador y admin todo waitpid
 	wait(&status);
 	if (res == -1){
 		logger->log("Error: en el wait del administrador o recaudador. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	wait(&status);
 	if (res == -1){
 		logger->log("Error: en el wait del administrador o recaudador. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	// Espera al fantasma
@@ -394,22 +394,22 @@ int main ( int argc, char** argv){
 	wait(&status);
 	if (res == -1){
 		logger->log("Error: en el wait del fantasma. Strerr: " + toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		raise (SIGINT);
 	}
 
 	logger->log("Ok ahora mato semaforos", info);
 	//mato semaforos
 	res = semCalGira.eliminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = semMutexEntrada.eliminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = semCalLug.eliminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = semColaCal.eliminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 	//Si le llega SIGINT llega hasta aca, controlo si llego la señal
 	if (sigint_handler.getGracefulQuit() == CERRAR){
 

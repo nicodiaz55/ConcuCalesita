@@ -10,6 +10,7 @@
 
 #include "Pipes_y_Fifos/FifoEscritura.h"
 #include "Pipes_y_Fifos/Pipe.h"
+#include <signal.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -48,26 +49,34 @@ int main ( int argc, char** argv){
 	pipe2.setearModo(Pipe::ESCRITURA);
 
 	FifoEscritura fifoRecaudador("FifoRecaudador");
-	fifoRecaudador.abrir();
+	int res = fifoRecaudador.abrir();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	bool seguir = true;
 
 	while (seguir){
 
 		int pidKid;
-		pipe1.leer(&pidKid, sizeof(int));
+		res = pipe1.leer(&pidKid, sizeof(int));
+		if (res != sizeof(int)){
+			logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
+		}
 
 		if (pidKid != -1){//-1 llega para que muera la puerta
 
 			string ruta = "Cola" + toString(pidKid);
-			//todo ver que pasaba si se llena un pipe
 
 			//le dice al chico que pase
 			FifoEscritura fifoAKid(ruta);
-			fifoAKid.abrir();
+			res = fifoAKid.abrir();
+			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 			logger->log("Le da boleto al chico: " + toString(pidKid),info);
-			fifoAKid.escribir( &VALOR_PASAR, sizeof(int) );
+
+			res = fifoAKid.escribir( &VALOR_PASAR, sizeof(int) );
+			if (res != sizeof(int)){
+				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
+			}
 
 			fifoAKid.cerrar();
 			fifoAKid.eliminar();
@@ -75,21 +84,33 @@ int main ( int argc, char** argv){
 			//le avisa al recaudador que pago un chico
 			int pago = 1;
 			logger->log("Le dice al recaudador que pasó el chico: " + toString(pidKid),info);
-			fifoRecaudador.escribir( &pago, sizeof(int));
+			res = fifoRecaudador.escribir( &pago, sizeof(int));
+			if (res != sizeof(int)){
+				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
+			}
 
 			//le mete el niño a la otra fila
-			pipe2.escribir(&pidKid, sizeof(int));
+			res = pipe2.escribir(&pidKid, sizeof(int));
+			if (res != sizeof(int)){
+				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
+			}
 		}else{
 			seguir=false;
 			//Le pasa el -1 a la otra fila para que muera
 			int msj = -1;
-			pipe2.escribir(&msj, sizeof(int));
+			res = pipe2.escribir(&msj, sizeof(int));
+			if (res != sizeof(int)){
+				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
+			}
 		}
 	}
 
 	//para que muera el recaudador
 	int pago = 2;
-	fifoRecaudador.escribir( &pago, sizeof(int));
+	res = fifoRecaudador.escribir( &pago, sizeof(int));
+	if (res != sizeof(int)){
+		logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
+	}
 
 	fifoRecaudador.cerrar();
 	fifoRecaudador.eliminar();

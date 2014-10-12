@@ -11,7 +11,7 @@ class Fifo {
 public:
 	Fifo(const std::string nombre);
 	virtual ~Fifo();
-	virtual void abrir() = 0;
+	virtual int abrir() = 0;
 	void cerrar();
 	void eliminar() const;
 

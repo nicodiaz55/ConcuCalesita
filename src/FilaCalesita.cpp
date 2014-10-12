@@ -10,6 +10,7 @@
 #include "Pipes_y_Fifos/FifoEscritura.h"
 #include "Pipes_y_Fifos/Pipe.h"
 #include "Semaforos/Semaforo.h"
+#include <signal.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -44,13 +45,17 @@ int main ( int argc, char** argv){
 
 	//agarra semaforo
 	Semaforo semColaCal("/etc", 25);
-	semColaCal.crear();
+	int res = semColaCal.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	bool seguir = true;
 
 	while (seguir){
 		int pidKid;
-		pipeEntrePuertas.leer(&pidKid, sizeof(int));
+		res = pipeEntrePuertas.leer(&pidKid, sizeof(int));
+		if (res != sizeof(int)){
+			logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
+		}
 
 		if (pidKid != -1) {
 			string ruta = "Cola" + toString(pidKid);
@@ -59,13 +64,19 @@ int main ( int argc, char** argv){
 			//le dice al chico que pase. No hay problema con usar el mismo fifo en ambas filas.
 
 			//para que no deje pasar a mas de los que pueden subir le "pregunta" a la calesita cunatos quiere
-			semColaCal.p(-1);
+			res = semColaCal.p(-1);
+			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 			FifoEscritura fifoAKid(ruta + "C");
-			fifoAKid.abrir();
+			res = fifoAKid.abrir();
+			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 			logger->log("Pasa el chico: " + toString(pidKid),info);
+
 			fifoAKid.escribir( &VALOR_PASAR2, sizeof(int) );
+			if (res != sizeof(int)){
+				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
+			}
 
 			fifoAKid.cerrar();
 			fifoAKid.eliminar();

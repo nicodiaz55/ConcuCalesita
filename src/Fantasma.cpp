@@ -8,16 +8,10 @@
 
 #ifdef FANTASMA
 
-#include<iostream>
-#include <stdio.h>
-
 #include "Semaforos/Semaforo.h"
 #include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Locks/LockWrite.hpp"
-
-#include <stdlib.h>
-#include <errno.h>
-#include "string.h"
+#include <signal.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -44,39 +38,50 @@ int main ( int argc, char** argv){
 
 	//para la memoria compartida
 	MemoriaCompartida<int> continua;
-	continua.crear("/etc",55, PERMISOS_USER_RDWR);
+	int res = continua.crear("/etc",55, PERMISOS_USER_RDWR);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-
+	//semaforos
 	Semaforo semCalGira("/etc", 22);
-	semCalGira.crear();
+	res = semCalGira.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 	Semaforo semCalLug("/etc", 23);
-	semCalLug.crear();
+	res = semCalLug.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 
 	//prepara lock de kidsInPark
 	LockFile* lockWContinua = new LockWrite("archLockCont");
 
-	lockWContinua->tomarLock();
-	continua.escribir(1);
-	lockWContinua->liberarLock();
+	res = lockWContinua->tomarLock();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	//intenta subir a la calecita
+	continua.escribir(1);
+
+	res = lockWContinua->liberarLock();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	//intenta subir a la calesita
 
 
 	logger->log("Intento subir a la calesita", info);
 
-	semCalLug.p(-1);
-
+	res = semCalLug.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	logger->log("Subí a la calesita", info);
 
 	//espera que la calesita gire
-	semCalGira.p(-1);
+	res = semCalGira.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	logger->log("Me bajé de la calesita", info);
 
 
 	//libero memoria compartida
-	continua.liberar();
+	res = continua.liberar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	logger->log("Como mis deseos infantiles fueron satisfecho, me retiro de este mundo", info);
 

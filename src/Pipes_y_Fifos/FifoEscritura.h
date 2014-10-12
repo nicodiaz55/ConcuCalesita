@@ -8,7 +8,7 @@ public:
 	FifoEscritura(const std::string nombre);
 	~FifoEscritura();
 
-	void abrir();
+	int abrir();
 	ssize_t escribir(const void* buffer,const ssize_t buffsize) const;
 };
 

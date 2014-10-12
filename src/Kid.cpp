@@ -7,20 +7,13 @@
 
 #ifdef KID
 
-#include<iostream>
-#include <stdio.h>
-
-
 #include "Semaforos/Semaforo.h"
 #include "Memoria_Compartida/MemoriaCompartida.h"
 #include "Pipes_y_Fifos/Pipe.h"
 #include "Pipes_y_Fifos/FifoLectura.h"
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
-
-#include <stdlib.h>
-#include <errno.h>
-#include "string.h"
+#include <signal.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -60,17 +53,22 @@ int main ( int argc, char** argv){
 
 	//para la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR); //todo permisos!
-
+	int res = kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 //todo considerar permisos, hacerlos restrictivos
 
 	Semaforo semCalGira("/etc", 22); // para bajarse
-	semCalGira.crear();
+	res = semCalGira.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
 	Semaforo semMutexEntrada("/etc", 24); // puerta de entrada/salida
-	semMutexEntrada.crear();
+	res = semMutexEntrada.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
 	Semaforo semCalLug("/etc", 23); // para subirse
-	semCalLug.crear();
+	res = semCalLug.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//prepara lock de kidsInPark
 	LockFile* lockW = new LockWrite("archLockKids");
@@ -78,20 +76,23 @@ int main ( int argc, char** argv){
 	//aca consideramos que entro a la calesita
 
 	//para que entre "de a uno" uso semaforo binario para seccion critica
-	semMutexEntrada.p(-1);
+	res = semMutexEntrada.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	logger->log("Entré al parque", info);
 
 	//como entro aumenta cantidad de chicos presentes...
 	lockW->tomarLock();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	kidsInPark.escribir(kidsInPark.leer()+1);
 	logger->log("Aumento en uno la cantidad de chicos en el parque", info);
 
 	lockW->liberarLock();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
-	semMutexEntrada.v(1);
-
+	res = semMutexEntrada.v(1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//se mete en la cola de boletos
 
@@ -99,40 +100,52 @@ int main ( int argc, char** argv){
 //Meterse es pasarle a la puerta por donde le tiene que escribir para desbloquearlo
 	int pid = getpid();
 	pipePuerta1.escribir( &pid, sizeof(int) );
-
+	if (res != sizeof(int)){
+		logger->log("Atencion: se escribieron en el pipe solo: " + toString(res), info);
+	}
 //Espera que la puerta le escriba "pasa" por el fifo corresponidente
 	int permisoPasar = 0;
 
 	string ruta = "Cola" + toString(getpid());
 	FifoLectura fila(ruta);
-	fila.abrir();
-	fila.leer(&permisoPasar, sizeof(int) );
+	res = fila.abrir();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
+	fila.leer(&permisoPasar, sizeof(int) );
+	if (res != sizeof(int)){
+		logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
+	}
 //todo sacar TODOS los numeros magicos, pasar a constantes.h
 
-	logger->log("Obtuve mi boleto " + toString(permisoPasar), info);
+	logger->log("Obtuve mi boleto ", info);
 
 //Espera que la segunda puerta le escriba "pasa"
 	FifoLectura fila2(ruta + "C");
-	fila2.abrir();
-	int leer = fila2.leer(&permisoPasar, sizeof(int) );
+	res = fila2.abrir();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	res = fila2.leer(&permisoPasar, sizeof(int) );
+	if (res != sizeof(int)){
+		logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
+	}
 
-	cout << leer << endl;
-
-	logger->log("Pasé la cola para subir a la calesita " + toString(permisoPasar), info);
+	logger->log("Pasé la cola para subir a la calesita ", info);
 
 	//intenta subir a la calecita
-	semCalLug.p(-1);
+	res = semCalLug.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 
 	logger->log("Me subí a la calesita :D", info);
 
 	//espera que la calesita gire
-	semCalGira.p(-1);
+	res = semCalGira.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	logger->log("Me bajé de la calesita :(", info);
 
 	//libero memoria compartida
-	kidsInPark.liberar();
+	res = kidsInPark.liberar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
   	//cierro pipe a las puerta y fifo de la cola
 	pipePuerta1.cerrar();
@@ -145,12 +158,14 @@ int main ( int argc, char** argv){
 	//para que salga "de a uno" uso semaforo binario para seccion critica, uso el mismo de la entrada
 	// por fiaca de no crear otro mas, a lo sumo no hay chicos entrando al mismo tiempo que otros salen
 
-	semMutexEntrada.p(-1);
+	res = semMutexEntrada.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	logger->log("Me fui del parque", info);
 	//todo preguntar si habria que hacer algo particular aca...
 
-	semMutexEntrada.v(1);
+	res = semMutexEntrada.v(1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	if (logger != NULL) {
 		delete logger;

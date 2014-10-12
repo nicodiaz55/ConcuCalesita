@@ -13,12 +13,19 @@
 #include <vector>
 #include <errno.h>
 #include <string.h>
+
 using namespace std;
 
 template <typename T>
 string toString(T number) {
 	ostringstream ss;
 	ss << number;
+	return ss.str();
+}
+
+string toString(char* c_string) {
+	stringstream ss;
+	ss << c_string;
 	return ss.str();
 }
 
@@ -45,11 +52,11 @@ vector<string> glob(const string& pat){
 }
 
 int controlErrores1(int res, Logger* logger, Info* info) {
-	if (res != RES_OK) {
+	if (res == -1) {
 		logger->log(
 				"Error: " + toString(res) + ". Strerr: "
 				+ toString(strerror(errno)), info);
-		return MUERTE_POR_ERROR;
+		kill(getppid(),SIGINT);
 	}
 	return RES_OK;
 }

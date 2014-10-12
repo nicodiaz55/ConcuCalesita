@@ -11,6 +11,7 @@
 #include "Pipes_y_Fifos/FifoLectura.h"
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
+#include <signal.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -37,12 +38,14 @@ int main ( int argc, char** argv){
 	logger->log("Entré a trabajar", info);
 
 	FifoLectura fifo("FifoRecaudador");
-	fifo.abrir();
+	int res = fifo.abrir();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 
 	//pide memoria comp. para caja
 	Caja caja;
-	int res = caja.init();
-	controlErrores1(res, logger, info);
+	res = caja.init();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//prepara lock de caja recaudacion
 	LockFile* lockW = new LockWrite("archLockCaja");
@@ -51,15 +54,21 @@ int main ( int argc, char** argv){
 
 		int avisoPago;
 		fifo.leer(&avisoPago , sizeof(int));
+		if (res != sizeof(int)){
+			logger->log("Atencion: se leyeron del fifo solo: " + toString(res),info);
+		}
 
 		if (avisoPago == 2) { break; }
 		lockW->tomarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		res = caja.aumentarRecaudacion(precio);
-		controlErrores1(res, logger, info); //todo revisar
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 		logger->log("Coloqué $" + toString(precio) + "en la caja", info);
 
 		lockW->liberarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	}
 
@@ -69,12 +78,16 @@ int main ( int argc, char** argv){
 
 	//para que muera el administrador
 	lockW->tomarLock();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 	caja.setearEstado(false);
+
 	lockW->liberarLock();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//libero memoria compartida
 	res = caja.terminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
  	delete lockW;
 

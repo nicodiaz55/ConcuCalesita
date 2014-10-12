@@ -8,6 +8,8 @@
 #ifdef ADMIN
 
 #include "Locks/LockRead.hpp"
+#include <signal.h>
+
 #include "utils/Random.hpp"
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -33,22 +35,23 @@ int main ( int argc, char** argv){
 	//pide memoria comp. para caja
 	Caja caja;
 	int res = caja.init();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//prepara lock de caja recaudacion
 	LockFile* lockR = new LockRead("archLockCaja");
 
 	while (true){
 
-		lockR->tomarLock();
+		res = lockR->tomarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		logger->log("En la caja hay: $" + toString(caja.obtenerRecaudacion()), info);
 		if (caja.obtenerEstado() == false) {
 			break;
 		}
 
-		lockR->liberarLock();
-
+		res = lockR->liberarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 		//este sleep esta para que no llene el log solo con sus lecturas
 		sleep(uniform(1,2));
 
@@ -56,7 +59,7 @@ int main ( int argc, char** argv){
 
 	//libero memoria compartida
 	res = caja.terminar();
-	controlErrores1(res, logger, info);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	delete lockR;
 

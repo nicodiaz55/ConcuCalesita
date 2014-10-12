@@ -12,8 +12,7 @@
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
 #include "Semaforos/Semaforo.h"
-
-#include <errno.h>
+#include <signal.h>
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
@@ -26,7 +25,7 @@ using namespace std;
  * */
 
 
-static const int CANTPARAM = -1;
+
 
 //todo Control de errores!!
 
@@ -47,7 +46,7 @@ int main(int argc, char** argv) {
 	//todo extraer a funcion
 	if ( argc != 4 ){
 		logger->log("Cantidad de parámetros incorrectos, especifique duración y cantidad de lugares máxima y usados",info);
-		return CANTPARAM;
+		kill(getppid(),SIGINT);
 	}
 
 	lugaresLibres = toInt(argv[1]);
@@ -60,21 +59,27 @@ int main(int argc, char** argv) {
 
 	//obtiene la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
+	int res = kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	MemoriaCompartida<int> continua;
-	continua.crear("/etc",55, PERMISOS_USER_RDWR);
+	res = continua.crear("/etc",55, PERMISOS_USER_RDWR);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//obtiene los semaforos para sincronizarse
-
 	Semaforo semCalGira("/etc", 22);
-	semCalGira.crear();
-	Semaforo semCalLug("/etc", 23);
-	semCalLug.crear();
-	Semaforo semColaCal("/etc", 25);
-	semColaCal.crear();
+	res = semCalGira.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-		//prepara locks de kidsInPark
+	Semaforo semCalLug("/etc", 23);
+	res = semCalLug.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	Semaforo semColaCal("/etc", 25);
+	res = semColaCal.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	//prepara locks de kidsInPark
 	LockFile* lockWKidsinPark = new LockWrite("archLockKids");
 	LockFile* lockRKidsInPark = new LockRead("archLockKids");
 	LockFile* lockRContinua = new LockRead("archLockCont");
@@ -83,7 +88,16 @@ int main(int argc, char** argv) {
 
 	while (seguir == 0){
 
-		semCalLug.zero();//arranca cuando no hay mas lugares
+		res = semCalLug.zero();//arranca cuando no hay mas lugares
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+		res = lockRContinua->tomarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+		seguir = continua.leer();
+
+		res = lockRContinua->liberarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		if (seguir == 0){
 			//no duerme con el fantasma
@@ -93,23 +107,31 @@ int main(int argc, char** argv) {
 		}
 
 		//avisa a los chicos que termino la vuelta
-		semCalGira.v(lugaresLibres);
+		res = semCalGira.v(lugaresLibres);
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		//Despues de girar baja la cantidad de chicos esperando
-		lockWKidsinPark->tomarLock();
+		res = lockWKidsinPark->tomarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		int chicosRestantes = kidsInPark.leer() - lugaresLibres;
 		kidsInPark.escribir(chicosRestantes);
 
-		lockWKidsinPark->liberarLock();
+		res = lockWKidsinPark->liberarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		//primero se fija que todos los niños hayan bajado
-		semCalGira.zero();
+		res = semCalGira.zero();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		//segundo, se bajan los chicos -> abre lugares para los que queden y avisa a puerta que los deje pasar
-		lockRKidsInPark->tomarLock();
+		res = lockRKidsInPark->tomarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 		int kidsWaiting = kidsInPark.leer();
-		lockRKidsInPark->liberarLock();
+
+		res = lockRKidsInPark->liberarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		//segun cuantos chicos estan esperando es la cantidad de lugares que abre
 		if (kidsWaiting >= cantMaxLugares){
@@ -123,18 +145,20 @@ int main(int argc, char** argv) {
 			lugaresLibres = 1;
 		}
 
-		semCalLug.v(lugaresLibres);
-		semColaCal.v(lugaresLibres);
-
-		lockRContinua->tomarLock();
-		seguir = continua.leer();
-		lockRContinua->liberarLock();
+		res = semCalLug.v(lugaresLibres);
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		res = semColaCal.v(lugaresLibres);
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	}
 
 	//libero memoria compartida y demas cosas
-	kidsInPark.liberar();
-	continua.liberar();
+	res = kidsInPark.liberar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	res = continua.liberar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
 
 	delete lockWKidsinPark;
 	delete lockRKidsInPark;
