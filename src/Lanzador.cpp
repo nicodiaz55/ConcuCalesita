@@ -10,24 +10,33 @@
 
 using namespace std;
 
-Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta) {
+Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio) {
 	logger = new Logger();
 	info = new Info(getpid(), "Lanzador");
 	this->cantNinios = cantNinios;
 	this->lugaresCalesita = lugaresCalesita;
 	this->tiempoVuelta = tiempoVuelta;
+	this->precio = precio;
 	auxLugares = 0;
 	sigint_handler = NULL;
 	semCalLug = NULL;
 	semColaCal = NULL;
 	semCalGira = NULL;
 	semMutexEntrada = NULL;
+	semAdminRec = NULL;
 	fdWrPuerta1 = 0;
 	pipeAKids = NULL;
+	pidCal = 0;
+	pidPuerta1 = 0;
+	pidPuerta2 = 0;
+	pidFantasma = 0;
+	pidAdmin = 0;
+	pidRec = 0;
 	logger->start();
 	logger->log("El tiempo de vuelta es de: " + toString(tiempoVuelta)	+ " segundos", info);
 	logger->log("La cantidad de lugares es: " + toString(lugaresCalesita),	info);
 	logger->log("La cantidad de niños en el barrio es: " + toString(cantNinios), info);
+	logger->log("El precio de la vuelta es de: " + toString(precio), info);
 }
 
 void Lanzador::iniciar() {
@@ -69,6 +78,9 @@ void Lanzador::iniciar() {
 
 	res = semColaCal->crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
+
+	semAdminRec = new Semaforo("/etc", SEM_ADMIN_REC, 0); //para sincronizar con el administrador (caso especial 0 chicos)
+	res = semAdminRec->crear();
 }
 
 void Lanzador::lanzarAdministradorYRecaudador() {
@@ -98,7 +110,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 		raise (SIGINT);
 	}
 	if (pidRec == 0) {
-		res = execl("Recaudador", "Recaudador", (char*) 0);
+		res = execl("Recaudador", "Recaudador", toString(precio).c_str(), (char*) 0);
 		if (res != RES_OK) {
 			logger->log("Error: Falla en exec del recaudador. Strerr: " + toString(strerror(errno)), info);
 			raise (SIGINT);
@@ -344,43 +356,18 @@ void Lanzador::terminar() {
 	res = semColaCal->eliminar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 	delete semColaCal;
+	res = semAdminRec->eliminar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+	delete semAdminRec;
 
 	//Si le llega SIGINT llega hasta aca, controlo si llego la señal
 	if (sigint_handler->getGracefulQuit() == CERRAR) {
 		logger->log("MUERTE POR SIGINT", info);
-
-		//Limpio cosas
-		//borro archivos de fifos
-		string patron = "cola*";
-		/* todo, gran todo
-		vector<string> colas = glob(patron);
-
-		vector<string>::iterator it;
-		for ( it = colas.begin(); it != colas.end(); it++){
-
-			cout << (*it) << endl;
-
-			//remover arch
-			string  com = "rm " + (*it);
-			system(com.c_str());
-
-		}
-		 */
-		//restituyo handler original y me suicido por SIGINT
-		SignalHandler::destruir ();
-
-		//todo meter o a sig handler.h o algo
-		struct sigaction sa;
-		memset(&sa, 0, sizeof(sa));
-		sa.sa_handler = SIG_DFL;
-		sigaction ( SIGINT,&sa,0 );	// cambiar accion de la senial
-
-		raise(SIGINT);
+	}else{
+		logger->log("Terminó la simulación", info);
 	}
 
-	logger->log("Terminó la simulación", info);
 	logger->end();
-
 	SignalHandler::destruir();
 	delete sigint_handler;
 }

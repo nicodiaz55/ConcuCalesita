@@ -43,8 +43,7 @@ static const int RES_ERROR_SEMOP = -14;
 
 
 static const int MUERTE_POR_ERROR = -99;
-
-
+static const int MUERTE_POR_SIGINT = -100;
 
 
 static const int VALOR_PASAR = 5;
@@ -62,5 +61,7 @@ static const int PERMISOS_USER_RDWR = 0600;
 
 static const std::string ARCH_LOCK_LOG = "archlocklog";
 static const std::string ARCH_LOCK_LUGARES = "archlocklugares";
+
+static const int SEM_ADMIN_REC = 28;
 
 #endif /* CONSTANTES_H_ */

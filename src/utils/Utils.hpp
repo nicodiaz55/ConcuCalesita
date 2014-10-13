@@ -30,8 +30,6 @@ string toString(char* c_string);
 
 int toInt(string str);
 
-vector<string> glob(const string& pat);
-
 int controlErrores1(int res, Logger* logger, Info* info);
 
 int controlErrores2(int res, Logger* logger, Info* info);

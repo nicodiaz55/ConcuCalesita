@@ -8,6 +8,7 @@
 #ifdef ADMIN
 
 #include "Locks/LockRead.hpp"
+#include "Semaforos/Semaforo.h"
 #include <signal.h>
 
 #include "utils/Random.hpp"
@@ -31,11 +32,19 @@ int main ( int argc, char** argv){
 	Logger* logger = new Logger();
 	Info* info = new Info(getpid(), "Administrador");
 
+	//Semaforo para sincronizar con el recaudador (caso especial 0 chicos)
+	Semaforo semAdminRec("/etc", SEM_ADMIN_REC);
+	int res = semAdminRec.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
+
 	logger->log("Entré a trabajar", info);
 	//pide memoria comp. para caja
 	Caja caja;
-	int res = caja.init();
+	res = caja.init();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	//ahora puede terminar el recaudador
+	semAdminRec.v(1);
 
 	//prepara lock de caja recaudacion
 	LockFile* lockR = new LockRead("archLockCaja");

@@ -11,6 +11,7 @@
 #include "Pipes_y_Fifos/FifoLectura.h"
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
+#include "Semaforos/Semaforo.h"
 #include <signal.h>
 
 #include "logger/Logger.hpp"
@@ -27,9 +28,6 @@ using namespace std;
 //todo Control de errores!!
 
 
-//todo cambiar a pasado por parametro
-static const int precio = 2;
-
 int main ( int argc, char** argv){
 	//Abro el logger
 	Logger* logger = new Logger();
@@ -37,15 +35,21 @@ int main ( int argc, char** argv){
 
 	logger->log("Entré a trabajar", info);
 
+	int precio = toInt(argv[1]);
+
 	FifoLectura fifo("FifoRecaudador");
 	int res = fifo.abrir();
-	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
+	//Semaforo para sincronizar con el administrador (caso especial 0 chicos)
+	Semaforo semAdminRec("/etc", SEM_ADMIN_REC);
+	res = semAdminRec.crear();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//pide memoria comp. para caja
 	Caja caja;
 	res = caja.init();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//prepara lock de caja recaudacion
 	LockFile* lockW = new LockWrite("archLockCaja");
@@ -57,34 +61,33 @@ int main ( int argc, char** argv){
 
 		if (avisoPago == 2) { break; }
 		res = lockW->tomarLock();
-		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 		res = caja.aumentarRecaudacion(precio);
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		controlErrores1(res, logger, info);
 
-		logger->log("Coloqué $" + toString(precio) + "en la caja", info);
+		logger->log("Coloqué $" + toString(precio) + " en la caja", info);
 
 		res = lockW->liberarLock();
-		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	}
 
-	//todo IMP!!!
-	//todo Que no pase de aca hasta que el administrador tenga tomada la memoria compartida
-	//todo (semaforo wait aca y signal en admin)
+	//Para que no pase de aca hasta que el administrador tenga tomada la memoria compartida
+	semAdminRec.p(-1);
 
 	//para que muera el administrador
 	res = lockW->tomarLock();
-	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	caja.setearEstado(false);
 
 	res = lockW->liberarLock();
-	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//libero memoria compartida
 	res = caja.terminar();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
  	delete lockW;
 
