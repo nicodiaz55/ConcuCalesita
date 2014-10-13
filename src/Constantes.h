@@ -40,6 +40,9 @@ static const int RES_ERROR_SEMCTL = -13;
 
 static const int RES_ERROR_SEMOP = -14;
 
+static const int RES_ERROR_VALOR_P_V = -15;
+
+
 
 
 static const int MUERTE_POR_ERROR = -99;

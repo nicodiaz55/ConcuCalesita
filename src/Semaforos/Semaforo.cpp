@@ -47,6 +47,8 @@ int Semaforo :: p (int cant) const {
 
 	struct sembuf operacion;
 
+	if (cant >= 0){return RES_ERROR_VALOR_P_V;}
+
 	operacion.sem_num = 0;	// numero de semaforo
 	operacion.sem_op  = cant;	// intentar restar cant al semaforo
 	operacion.sem_flg = 0;
@@ -78,8 +80,9 @@ int Semaforo :: zero () const {
 }
 
 int Semaforo :: v (int cant) const {
-//todo cntrolar cant sea positiva o negativa en p y v
 	struct sembuf operacion;
+
+	if (cant <= 0){return RES_ERROR_VALOR_P_V;}
 
 	operacion.sem_num = 0;	// numero de semaforo
 	operacion.sem_op  = cant;	// sumar cant al semaforo

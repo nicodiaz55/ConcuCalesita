@@ -22,10 +22,6 @@
 
 using namespace std;
 
-//todo Control de errores!!
-
-
-
 int main ( int argc, char** argv){
 
 	//Abro el logger

@@ -45,9 +45,7 @@ bool Output::init() {
 
 /**
  * Loggea un mensaje en la salida.
- *
- * TODO: manejar acceso entre procesos con un... Lock
- */
+*/
 void Output::log(LogMessage* message) {
 	if (lseek(file,0,SEEK_END) == -1) {
 		// string err = "No se pudo escribir en el archivo: " + string(strerror(errno));

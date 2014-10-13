@@ -20,6 +20,7 @@ Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int pr
 	auxLugares = 0;
 	sigint_handler = NULL;
 	semCalLug = NULL;
+	semCalSubir = NULL;
 	semColaCal = NULL;
 	semCalGira = NULL;
 	semMutexEntrada = NULL;
@@ -72,6 +73,10 @@ void Lanzador::iniciar() {
 
 	semCalLug = new Semaforo("/etc", 23, auxLugares); //indica la cantidad de lugares disponibles en calesita
 	semColaCal = new Semaforo("/etc", 25, auxLugares); //indica cuantos niños pueden pasar la cola para subir a la calesita
+	semCalSubir =new Semaforo("/etc", 29, auxLugares); //indica cuantos niños pueden subir a la calesita
+
+	res = semCalSubir->crear();
+	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	res = semCalLug->crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
@@ -359,7 +364,9 @@ void Lanzador::terminar() {
 	res = semAdminRec->eliminar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 	delete semAdminRec;
-
+	res = semCalSubir->eliminar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+	delete semCalSubir;
 	//Si le llega SIGINT llega hasta aca, controlo si llego la señal
 	if (sigint_handler->getGracefulQuit() == CERRAR) {
 		logger->log("MUERTE POR SIGINT", info);

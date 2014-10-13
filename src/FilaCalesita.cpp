@@ -22,10 +22,6 @@
 
 using namespace std;
 
-
-//todo Control de errores!!
-
-
 int main ( int argc, char** argv){
 
 	//Abro el logger
@@ -57,11 +53,9 @@ int main ( int argc, char** argv){
 
 		if (pidKid != -1) {
 			string ruta = "Cola" + toString(pidKid);
-			//todo ver que pasaba si se llena un pipe
 
 			//le dice al chico que pase. No hay problema con usar el mismo fifo en ambas filas.
-
-			//para que no deje pasar a mas de los que pueden subir le "pregunta" a la calesita cunatos quiere
+			//para que no deje pasar a mas de los que pueden subir "considera" cuantos quiere la calesita
 			res = semColaCal.p(-1);
 			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 

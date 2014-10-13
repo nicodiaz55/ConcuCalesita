@@ -9,6 +9,7 @@
 #ifdef CALESITA
 
 #include "Memoria_Compartida/MemoriaCompartida.h"
+#include "Memoria_Compartida/VectorMemoCompartida.h"
 #include "Locks/LockWrite.hpp"
 #include "Locks/LockRead.hpp"
 #include "Semaforos/Semaforo.h"
@@ -24,12 +25,6 @@ using namespace std;
  *
  * */
 
-
-
-
-//todo Control de errores!!
-
-//todo que no loggee si muero == true!
 int main(int argc, char** argv) {
 
 	//Abro el logger
@@ -43,7 +38,6 @@ int main(int argc, char** argv) {
 	//lugaresLibres: cuantos lugares abre para la proxima vuelta
 	int tiempoVuelta, cantMaxLugares, lugaresLibres;
 
-	//todo extraer a funcion
 	if ( argc != 4 ){
 		logger->log("Cantidad de parámetros incorrectos, especifique duración y cantidad de lugares máxima y usados",info);
 		kill(getppid(),SIGINT);
@@ -66,6 +60,11 @@ int main(int argc, char** argv) {
 	res = continua.crear("/etc",55, PERMISOS_USER_RDWR);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
+	VectorMemoCompartida<bool> lugares;
+
+	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR, cantMaxLugares);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
+
 	//obtiene los semaforos para sincronizarse
 	Semaforo semCalGira("/etc", 22);
 	res = semCalGira.crear();
@@ -74,6 +73,10 @@ int main(int argc, char** argv) {
 	Semaforo semCalLug("/etc", 23);
 	res = semCalLug.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	Semaforo semCalSubir("/etc", 29);
+	res = semCalSubir.crear();
+	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	Semaforo semColaCal("/etc", 25);
 	res = semColaCal.crear();
@@ -84,6 +87,9 @@ int main(int argc, char** argv) {
 	LockFile* lockRKidsInPark = new LockRead("archLockKids");
 	LockFile* lockRContinua = new LockRead("archLockCont");
 
+	//prepara el lock de los lugares
+	LockFile* lockSpots = new LockWrite(ARCH_LOCK_LUGARES);
+
 	int seguir = 0;
 
 	while (seguir == 0){
@@ -91,6 +97,7 @@ int main(int argc, char** argv) {
 		res = semCalLug.zero();//arranca cuando no hay mas lugares
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
+		//se fija si tiene que dar otra vuelta
 		res = lockRContinua->tomarLock();
 		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
@@ -100,7 +107,6 @@ int main(int argc, char** argv) {
 		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		if (seguir == 0){
-			//no duerme con el fantasma
 			logger->log("Arranca una vuelta",info);
 			sleep(tiempoVuelta);
 			logger->log("Termina la vuelta",info);
@@ -120,11 +126,22 @@ int main(int argc, char** argv) {
 		res = lockWKidsinPark->liberarLock();
 		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-		//primero se fija que todos los niños hayan bajado
+		//primero, se fija que todos los niños hayan bajado
 		res = semCalGira.zero();
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-		//segundo, se bajan los chicos -> abre lugares para los que queden y avisa a puerta que los deje pasar
+		//segundo, pone todos los lugares en "libre"
+		for (int i = 0 ; i < cantMaxLugares; i++){
+			lockSpots->tomarLock();
+			if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
+
+			lugares.escribir(LUGAR_LIBRE,i);
+
+			lockSpots->liberarLock();
+			if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
+		}
+
+		//tercero, se bajan los chicos -> abre lugares para los que queden y avisa a puerta que los deje pasar
 		res = lockRKidsInPark->tomarLock();
 		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
@@ -149,6 +166,8 @@ int main(int argc, char** argv) {
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 		res = semColaCal.v(lugaresLibres);
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		res = semCalSubir.v(lugaresLibres);
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	}
 
@@ -159,10 +178,13 @@ int main(int argc, char** argv) {
 	res = continua.liberar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
+	res = lugares.liberar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	delete lockWKidsinPark;
 	delete lockRKidsInPark;
 	delete lockRContinua;
+	delete lockSpots;
 
 	logger->log("Se detiene la calesita",info);
 

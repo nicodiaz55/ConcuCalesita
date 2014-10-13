@@ -37,6 +37,7 @@ private:
 	std::vector< MemoriaCompartida<bool>* > memLugares;
 
 	SIGINT_Handler* sigint_handler;
+	Semaforo* semCalSubir;
 	Semaforo* semCalLug;
 	Semaforo* semColaCal;
 	Semaforo* semCalGira;
@@ -53,7 +54,6 @@ public:
 	void lanzarAdministradorYRecaudador();
 	void lanzarCalesita();
 	void lanzarFilasYNinios();
-	//void esperarFin();
 	void terminar();
 	~Lanzador();
 };

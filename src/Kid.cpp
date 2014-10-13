@@ -31,8 +31,6 @@
 
 using namespace std;
 
-//todo Control de errores!!
-
 int main ( int argc, char** argv){
 
 	//Abro el logger
@@ -74,6 +72,10 @@ int main ( int argc, char** argv){
 	Semaforo semCalLug("/etc", 23); // para subirse
 	res = semCalLug.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
+
+	Semaforo semCalSubir("/etc", 29);
+	res = semCalSubir.crear();
+	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	//prepara lock de kidsInPark
 	LockFile* lockKids = new LockWrite("archLockKids");
@@ -130,6 +132,12 @@ int main ( int argc, char** argv){
 
 	logger->log("Pasé la cola para subir a la calesita ", info);
 
+	//trata de subir
+	res = semCalSubir.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+
+	logger->log("Me subí a la calesita :D", info);
+
 	//Cuando puede subirse intenta ir al lugar que quiere
 	bool libre;
 
@@ -155,12 +163,12 @@ int main ( int argc, char** argv){
 		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 	}
 
-	//termina de subir a la calecita
+	//termina de subir a la calesita (lleno su lugar)
 	res = semCalLug.p(-1);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 
-	logger->log("Me subí a la calesita :D", info);
+	logger->log("Obtuve lugar.", info);
 
 	//espera que la calesita gire
 	res = semCalGira.p(-1);

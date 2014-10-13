@@ -72,7 +72,6 @@ int main ( int argc, char** argv) {
 	lanzador.lanzarCalesita();
 	lanzador.lanzarFilasYNinios();
 
-	//lanzador.esperarFin(); todo estaba en el header, pero no definida la comente ahi tambien
 	lanzador.terminar();
 
 	return RES_OK;
