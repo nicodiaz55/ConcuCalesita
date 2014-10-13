@@ -14,7 +14,7 @@
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
-#include "Constantes.h"
+
 
  /*
   * Controla las colas de chicos con pipes
@@ -44,7 +44,7 @@ int main ( int argc, char** argv){
 	Pipe pipe2(fdReadPuerta,fdWritePuerta);
 	pipe2.setearModo(Pipe::ESCRITURA);
 
-	FifoEscritura fifoRecaudador("FifoRecaudador");
+	FifoEscritura fifoRecaudador(FIFORECAUDADOR);
 	int res = fifoRecaudador.abrir();
 	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
@@ -58,9 +58,9 @@ int main ( int argc, char** argv){
 			logger->log("Atencion: se leyeron del pipe solo: " + toString(res), info);
 		}
 
-		if (pidKid != -1){//-1 llega para que muera la puerta
+		if (pidKid != CERRAR_FILA){//-1 llega para que muera la puerta
 
-			string ruta = "Cola" + toString(pidKid);
+			string ruta = PREFIJO_FIFO_FILA_KIDS + toString(pidKid);
 
 			//le dice al chico que pase
 			FifoEscritura fifoAKid(ruta);
@@ -78,7 +78,7 @@ int main ( int argc, char** argv){
 			fifoAKid.eliminar();
 
 			//le avisa al recaudador que pago un chico
-			int pago = 1;
+			int pago = AVISO_DE_PAGO;
 			logger->log("Le dice al recaudador que pasó el chico: " + toString(pidKid),info);
 			res = fifoRecaudador.escribir( &pago, sizeof(int));
 			if (res != sizeof(int)){
@@ -93,7 +93,7 @@ int main ( int argc, char** argv){
 		}else{
 			seguir=false;
 			//Le pasa el -1 a la otra fila para que muera
-			int msj = -1;
+			int msj = CERRAR_FILA;
 			res = pipe2.escribir(&msj, sizeof(int));
 			if (res != sizeof(int)){
 				logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);
@@ -102,7 +102,7 @@ int main ( int argc, char** argv){
 	}
 
 	//para que muera el recaudador
-	int pago = 2;
+	int pago = FIN_PAGOS;
 	res = fifoRecaudador.escribir( &pago, sizeof(int));
 	if (res != sizeof(int)){
 		logger->log("Atencion: se escribieron al pipe solo: " + toString(res), info);

@@ -20,7 +20,6 @@
 #include <cstdlib>
 #include <cerrno>
 
-#include "Constantes.h"
 #include "Caja.h"
 #include "utils/Utils.hpp"
 #include "utils/Random.hpp"

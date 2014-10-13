@@ -8,7 +8,6 @@
 #ifdef MAIN
 
 #include "Lanzador.h"
-#include "Constantes.h"
 #include <cstdlib>
 #include <cerrno>
 

@@ -13,6 +13,7 @@
 
 #include "utils/Random.hpp"
 #include "logger/Logger.hpp"
+
 #include "utils/Utils.hpp"
 #include "Caja.h"
 
@@ -29,7 +30,7 @@ int main ( int argc, char** argv){
 	Info* info = new Info(getpid(), "Administrador");
 
 	//Semaforo para sincronizar con el recaudador (caso especial 0 chicos)
-	Semaforo semAdminRec("/etc", SEM_ADMIN_REC);
+	Semaforo semAdminRec(ARCH_SEM, SEM_ADMIN_REC);
 	int res = semAdminRec.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
@@ -39,11 +40,11 @@ int main ( int argc, char** argv){
 	res = caja.init();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	//ahora puede terminar el recaudador
+	//ahora puede terminar el recaudador, si no sigue de largo y nunca me dice que termine
 	semAdminRec.v(1);
 
 	//prepara lock de caja recaudacion
-	LockFile* lockR = new LockRead("archLockCaja");
+	LockFile* lockR = new LockRead(ARCH_LOCK_CAJA);
 
 	while (true){
 

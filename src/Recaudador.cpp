@@ -33,12 +33,12 @@ int main ( int argc, char** argv){
 
 	int precio = toInt(argv[1]);
 
-	FifoLectura fifo("FifoRecaudador");
+	FifoLectura fifo(FIFORECAUDADOR);
 	int res = fifo.abrir();
 	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//Semaforo para sincronizar con el administrador (caso especial 0 chicos)
-	Semaforo semAdminRec("/etc", SEM_ADMIN_REC);
+	Semaforo semAdminRec(ARCH_SEM, SEM_ADMIN_REC);
 	res = semAdminRec.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
@@ -48,14 +48,14 @@ int main ( int argc, char** argv){
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//prepara lock de caja recaudacion
-	LockFile* lockW = new LockWrite("archLockCaja");
+	LockFile* lockW = new LockWrite(ARCH_LOCK_CAJA);
 
 	while (true){
 
 		int avisoPago;
 		fifo.leer(&avisoPago , sizeof(int));
 
-		if (avisoPago == 2) { break; }
+		if (avisoPago == FIN_PAGOS) { break; }
 		res = lockW->tomarLock();
 		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 

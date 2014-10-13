@@ -34,33 +34,31 @@ int main ( int argc, char** argv){
 
 	//para la memoria compartida
 	MemoriaCompartida<int> continua;
-	int res = continua.crear("/etc",55, PERMISOS_USER_RDWR);
+	int res = continua.crear(ARCH_SEM,MEM_CONTINUA, PERMISOS_USER_RDWR);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//semaforos
-	Semaforo semCalGira("/etc", 22);
+	Semaforo semCalGira(ARCH_SEM, SEM_CAL_GIRA);
 	res = semCalGira.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	Semaforo semCalLug("/etc", 23);
+	Semaforo semCalLug(ARCH_SEM, SEM_CAL_LUG);
 	res = semCalLug.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 
-	//prepara lock de kidsInPark
-	LockFile* lockWContinua = new LockWrite("archLockCont");
+	//prepara lock de continua
+	LockFile* lockWContinua = new LockWrite(ARCH_LOCK_CONTINUA);
 
 	res = lockWContinua->tomarLock();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	continua.escribir(1);
+	continua.escribir(CERRAR);
 
 	res = lockWContinua->liberarLock();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//intenta subir a la calesita
-
-
 	logger->log("Intento subir a la calesita", info);
 
 	res = semCalLug.p(-1);

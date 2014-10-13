@@ -7,7 +7,6 @@
 
 #include "Lanzador.h"
 
-
 using namespace std;
 
 Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio) {
@@ -54,11 +53,11 @@ void Lanzador::iniciar() {
 	//INICIALIZAR IPC mechanisms
 
 	//INICIALIZA SEMAFOROS
-	semCalGira = new Semaforo("/etc", 22, 0); //indica si la calesita esta girando, 0 esta girando, >0 cant gente que puede bajar
+	semCalGira = new Semaforo(ARCH_SEM, SEM_CAL_GIRA, 0); //indica si la calesita esta girando, 0 esta girando, >0 cant gente que puede bajar
 	res = semCalGira->crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
-	semMutexEntrada = new Semaforo("/etc", 24, 1); //indica si se puede entrar o no al parque (para que los niños "entren y salgan de a uno")
+	semMutexEntrada = new Semaforo(ARCH_SEM, SEM_MUTEX_ENTR, 1); //indica si se puede entrar o no al parque (para que los niños "entren y salgan de a uno")
 	res = semMutexEntrada->crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
@@ -71,9 +70,9 @@ void Lanzador::iniciar() {
 		auxLugares = lugaresCalesita;
 	}
 
-	semCalLug = new Semaforo("/etc", 23, auxLugares); //indica la cantidad de lugares disponibles en calesita
-	semColaCal = new Semaforo("/etc", 25, auxLugares); //indica cuantos niños pueden pasar la cola para subir a la calesita
-	semCalSubir =new Semaforo("/etc", 29, auxLugares); //indica cuantos niños pueden subir a la calesita
+	semCalLug = new Semaforo(ARCH_SEM, SEM_CAL_LUG, auxLugares); //indica la cantidad de lugares disponibles en calesita
+	semColaCal = new Semaforo(ARCH_SEM, SEM_COLA_CAL, auxLugares); //indica cuantos niños pueden pasar la cola para subir a la calesita
+	semCalSubir =new Semaforo(ARCH_SEM, SEM_CAL_SUBIR, auxLugares); //indica cuantos niños pueden subir a la calesita
 
 	res = semCalSubir->crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
@@ -84,7 +83,7 @@ void Lanzador::iniciar() {
 	res = semColaCal->crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
-	semAdminRec = new Semaforo("/etc", SEM_ADMIN_REC, 0); //para sincronizar con el administrador (caso especial 0 chicos)
+	semAdminRec = new Semaforo(ARCH_SEM, SEM_ADMIN_REC, 0); //para sincronizar con el administrador (caso especial 0 chicos)
 	res = semAdminRec->crear();
 }
 
@@ -131,7 +130,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 void Lanzador::lanzarCalesita() {
 	//Memoria compartida para la calesita
 	MemoriaCompartida<int> continua;
-	int res = continua.crear("/etc", 55, PERMISOS_USER_RDWR);
+	int res = continua.crear(ARCH_SEM, MEM_CONTINUA, PERMISOS_USER_RDWR);
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	continua.escribir(0);
@@ -214,7 +213,7 @@ void Lanzador::lanzarFilasYNinios() {
 	pipeEntrePuertas.cerrar();
 
 	MemoriaCompartida<int> kidsInPark;
-	res = kidsInPark.crear("/etc", 33, PERMISOS_USER_RDWR);
+	res = kidsInPark.crear(ARCH_SEM, MEM_KIDS, PERMISOS_USER_RDWR);
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	//Memoria compartida de cantidad de chicos en parque
@@ -224,7 +223,7 @@ void Lanzador::lanzarFilasYNinios() {
 
 	VectorMemoCompartida<bool> lugares;
 
-	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,this->lugaresCalesita);
+	res = lugares.crear(ARCH_SEM,INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,this->lugaresCalesita);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//lanza niños
@@ -272,7 +271,7 @@ void Lanzador::terminar() {
 
 	//espera a las puertas
 
-	int aux = -1;
+	int aux = CERRAR_FILA;
 	res = write(fdWrPuerta1, &aux, sizeof(int));
 	if (res == -1){
 		logger->log("Error: en un write. Strerr: " + toString(strerror(errno)), info);

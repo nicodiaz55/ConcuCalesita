@@ -51,34 +51,34 @@ int main ( int argc, char** argv){
 
 	//para la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	int res = kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
+	int res = kidsInPark.crear(ARCH_SEM,MEM_KIDS, PERMISOS_USER_RDWR);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	VectorMemoCompartida<bool> lugares;
 
-	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,cantlugares);
+	res = lugares.crear(ARCH_SEM,INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,cantlugares);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//Semaforos
 
-	Semaforo semCalGira("/etc", 22); // para bajarse
+	Semaforo semCalGira(ARCH_SEM, SEM_CAL_GIRA); // para bajarse
 	res = semCalGira.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
-	Semaforo semMutexEntrada("/etc", 24); // puerta de entrada/salida
+	Semaforo semMutexEntrada(ARCH_SEM, SEM_MUTEX_ENTR); // puerta de entrada/salida
 	res = semMutexEntrada.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
-	Semaforo semCalLug("/etc", 23); // para subirse
+	Semaforo semCalLug(ARCH_SEM, SEM_CAL_LUG); // para subirse
 	res = semCalLug.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
-	Semaforo semCalSubir("/etc", 29);
+	Semaforo semCalSubir(ARCH_SEM, SEM_CAL_SUBIR);
 	res = semCalSubir.crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
 	//prepara lock de kidsInPark
-	LockFile* lockKids = new LockWrite("archLockKids");
+	LockFile* lockKids = new LockWrite(ARCH_LOCK_KIDS);
 
 	//prepara el lock de los lugares
 	LockFile* lockSpots = new LockWrite(ARCH_LOCK_LUGARES);
@@ -95,7 +95,7 @@ int main ( int argc, char** argv){
 	lockKids->tomarLock();
 	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
-	kidsInPark.escribir(kidsInPark.leer()+1);
+	kidsInPark.escribir(kidsInPark.leer() + 1);
 	logger->log("Aumento en uno la cantidad de chicos en el parque", info);
 
 	lockKids->liberarLock();
@@ -114,7 +114,7 @@ int main ( int argc, char** argv){
 //Espera que la puerta le escriba "pasa" por el fifo corresponidente
 	int permisoPasar = 0;
 
-	string ruta = "Cola" + toString(getpid());
+	string ruta = PREFIJO_FIFO_FILA_KIDS + toString(getpid());
 	FifoLectura fila(ruta);
 	res = fila.abrir();
 	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
@@ -125,7 +125,7 @@ int main ( int argc, char** argv){
 	logger->log("Obtuve mi boleto ", info);
 
 	//Espera que la segunda puerta le escriba "pasa"
-	FifoLectura fila2(ruta + "C");
+	FifoLectura fila2(ruta + SUFIJO_FIFO_FILA_KIDS);
 	res = fila2.abrir();
 	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 	res = fila2.leer(&permisoPasar, sizeof(int) );

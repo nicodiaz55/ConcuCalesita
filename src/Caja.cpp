@@ -14,8 +14,8 @@ Caja::Caja() {
 }
 
 int Caja::init() {
-	int res = recaudado.crear("/etc", 44, PERMISOS_USER_RDWR);
-	int res2 = estado.crear("/etc", 19, PERMISOS_USER_RDWR);
+	int res = recaudado.crear(ARCH_SEM, SEM_CAJA_REC, PERMISOS_USER_RDWR);
+	int res2 = estado.crear(ARCH_SEM, SEM_CAJA_ESTADO, PERMISOS_USER_RDWR);
 
 	if (res != RES_OK ){
 		return res;
@@ -64,7 +64,7 @@ int Caja::aumentarRecaudacion(int valor) {
 	if (valor < 0)
 		return valor;
 	if (estado.leer() == false) {
-		return -1;
+		return RES_ERROR_VALOR_CAJA;
 	}
 	recaudado.escribir(recaudado.leer() + valor);
 	return RES_OK;

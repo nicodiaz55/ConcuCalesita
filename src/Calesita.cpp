@@ -53,41 +53,41 @@ int main(int argc, char** argv) {
 
 	//obtiene la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
-	int res = kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
+	int res = kidsInPark.crear(ARCH_SEM,MEM_KIDS, PERMISOS_USER_RDWR);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	MemoriaCompartida<int> continua;
-	res = continua.crear("/etc",55, PERMISOS_USER_RDWR);
+	res = continua.crear(ARCH_SEM,MEM_CONTINUA, PERMISOS_USER_RDWR);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	VectorMemoCompartida<bool> lugares;
 
-	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR, cantMaxLugares);
+	res = lugares.crear(ARCH_SEM,INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR, cantMaxLugares);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { kill(getppid(),SIGINT);}
 
 	//obtiene los semaforos para sincronizarse
-	Semaforo semCalGira("/etc", 22);
+	Semaforo semCalGira(ARCH_SEM, SEM_CAL_GIRA);
 	res = semCalGira.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	Semaforo semCalLug("/etc", 23);
+	Semaforo semCalLug(ARCH_SEM, SEM_CAL_LUG);
 	res = semCalLug.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	Semaforo semCalSubir("/etc", 29);
+	Semaforo semCalSubir(ARCH_SEM, SEM_CAL_SUBIR);
 	res = semCalSubir.crear();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
-	Semaforo semColaCal("/etc", 25);
+	Semaforo semColaCal(ARCH_SEM, SEM_COLA_CAL);
 	res = semColaCal.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-	//prepara locks de kidsInPark
-	LockFile* lockWKidsinPark = new LockWrite("archLockKids");
-	LockFile* lockRKidsInPark = new LockRead("archLockKids");
-	LockFile* lockRContinua = new LockRead("archLockCont");
+	//prepara locks
+	LockFile* lockWKidsinPark = new LockWrite(ARCH_LOCK_KIDS);
+	LockFile* lockRKidsInPark = new LockRead(ARCH_LOCK_KIDS);
 
-	//prepara el lock de los lugares
+	LockFile* lockRContinua = new LockRead(ARCH_LOCK_CONTINUA);
+
 	LockFile* lockSpots = new LockWrite(ARCH_LOCK_LUGARES);
 
 	int seguir = 0;

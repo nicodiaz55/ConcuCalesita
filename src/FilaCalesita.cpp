@@ -14,7 +14,6 @@
 
 #include "logger/Logger.hpp"
 #include "utils/Utils.hpp"
-#include "Constantes.h"
 
  /*
   * Controla la cola de chicos despues de que tengan boleto
@@ -40,7 +39,7 @@ int main ( int argc, char** argv){
 	pipeEntrePuertas.setearModo(Pipe::LECTURA);
 
 	//agarra semaforo
-	Semaforo semColaCal("/etc", 25);
+	Semaforo semColaCal(ARCH_SEM, SEM_COLA_CAL);
 	int res = semColaCal.crear();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
@@ -52,14 +51,14 @@ int main ( int argc, char** argv){
 
 
 		if (pidKid != -1) {
-			string ruta = "Cola" + toString(pidKid);
+			string ruta = PREFIJO_FIFO_FILA_KIDS + toString(pidKid);
 
 			//le dice al chico que pase. No hay problema con usar el mismo fifo en ambas filas.
 			//para que no deje pasar a mas de los que pueden subir "considera" cuantos quiere la calesita
 			res = semColaCal.p(-1);
 			if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
-			FifoEscritura fifoAKid(ruta + "C");
+			FifoEscritura fifoAKid(ruta + SUFIJO_FIFO_FILA_KIDS);
 			res = fifoAKid.abrir();
 			if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
