@@ -56,16 +56,16 @@ int main ( int argc, char** argv){
 		fifo.leer(&avisoPago , sizeof(int));
 
 		if (avisoPago == 2) { break; }
-		lockW->tomarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		res = lockW->tomarLock();
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		res = caja.aumentarRecaudacion(precio);
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		logger->log("Coloqué $" + toString(precio) + "en la caja", info);
 
-		lockW->liberarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		res = lockW->liberarLock();
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	}
 
@@ -74,13 +74,13 @@ int main ( int argc, char** argv){
 	//todo (semaforo wait aca y signal en admin)
 
 	//para que muera el administrador
-	lockW->tomarLock();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	res = lockW->tomarLock();
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	caja.setearEstado(false);
 
-	lockW->liberarLock();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+	res = lockW->liberarLock();
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	//libero memoria compartida
 	res = caja.terminar();

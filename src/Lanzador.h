@@ -43,6 +43,8 @@ private:
 	Pipe* pipeAKids;
 	int fdWrPuerta1;
 
+	pid_t pidCal,pidPuerta1,pidPuerta2,pidFantasma,pidAdmin,pidRec;
+
 public:
 	Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta);
 	void iniciar();

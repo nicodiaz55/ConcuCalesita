@@ -43,7 +43,7 @@ int main ( int argc, char** argv){
 	while (true){
 
 		res = lockR->tomarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		logger->log("En la caja hay: $" + toString(caja.obtenerRecaudacion()), info);
 		if (caja.obtenerEstado() == false) {
@@ -51,7 +51,7 @@ int main ( int argc, char** argv){
 		}
 
 		res = lockR->liberarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 		//este sleep esta para que no llene el log solo con sus lecturas
 		sleep(uniform(1,2));
 

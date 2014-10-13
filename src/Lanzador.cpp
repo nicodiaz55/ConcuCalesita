@@ -78,7 +78,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 	caja.iniciarRecaudacion();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
-	pid_t pidAdmin = fork();
+	pidAdmin = fork();
 	if (pidAdmin == -1) {
 		logger->log("Error: Falla en fork del administrador. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
@@ -92,7 +92,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 	}
 	logger->log("Se lanzó el administrador", info);
 
-	pid_t pidRec = fork();
+	pidRec = fork();
 	if (pidRec == -1) {
 		logger->log("Error: Falla fork de recaudador. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
@@ -123,7 +123,6 @@ void Lanzador::lanzarCalesita() {
 	string arg2 = toString(lugaresCalesita);
 	string arg3 = toString(tiempoVuelta);
 
-	pid_t pidCal;
 	pidCal = fork();
 	if (pidCal == -1){
 		logger->log("Error: Falla en fork de la calesita. Strerr: " + toString(strerror(errno)), info);
@@ -154,7 +153,7 @@ void Lanzador::lanzarFilasYNinios() {
 	int fdRdPuerta2 = pipeEntrePuertas.getFdLectura(); // puerta de la calesita
 	int fdWrPuerta2 = pipeEntrePuertas.getFdEscritura(); //para escribirle a la puerta 2
 
-	pid_t pidPuerta2 = fork();
+	pidPuerta2 = fork();
 	if (pidPuerta2 == -1) {
 		logger->log("Error: Falla en fork de la fila de la calesita. Strerr: " + toString(strerror(errno)), info);
 		raise(SIGINT);
@@ -177,7 +176,7 @@ void Lanzador::lanzarFilasYNinios() {
 	int fdRdPuerta1 = pipeAKids->getFdLectura();
 	fdWrPuerta1 = pipeAKids->getFdEscritura(); //para escribirle a la puerta 1
 
-	pid_t pidPuerta1 = fork();
+	pidPuerta1 = fork();
 	if (pidPuerta1 == -1) {
 		logger->log("Error: Falla en fork de la fila de boletos. Strerr: " + toString(strerror(errno)), info);
 		raise(SIGINT);
@@ -269,7 +268,7 @@ void Lanzador::terminar() {
 	pipeAKids->cerrar();
 	delete pipeAKids;
 
-	res = wait(&status); //todo waitpid
+	res = waitpid(pidPuerta1, &status, 0);
 	if (res == -1){
 		logger->log("Error: en el wait puerta 1. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
@@ -279,7 +278,7 @@ void Lanzador::terminar() {
 	res = semColaCal->v(1);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
-	res = wait(&status);
+	res = waitpid(pidPuerta2, &status, 0);
 	if (res == -1){
 		logger->log("Error: en el wait puerta 2. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
@@ -288,7 +287,7 @@ void Lanzador::terminar() {
 	//puede que la calesita quede bloqueada esperando a un ultimo niño-> mando un fantasma
 
 	//hace que un "chico fantasma" de la ultima vuelta
-	pid_t pidFantasma = fork();
+	pidFantasma = fork();
 	if (pidFantasma == -1){
 		logger->log("Error: Falla en fork del fantasma. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
@@ -303,30 +302,29 @@ void Lanzador::terminar() {
 	}
 	logger->log("Se lanzó el niño fantasma", info);
 
-	//todo cambiar por waitpid de calesita
+
 	logger->log("Espero a que muera la calesita", info);
-	res = wait(&status);
+	res = waitpid(pidCal, &status, 0);
 	if (res == -1){
-		logger->log("Error: en el wait de calesita. Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: en el wait de la calesita. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
 	}
 
 	logger->log("Espero a que muera el recaudador y el admin", info);
-	//espera al recaudador y admin todo waitpid
-	wait(&status);
+	waitpid(pidRec, &status, 0);
 	if (res == -1){
-		logger->log("Error: en el wait del administrador o recaudador. Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: en el wait del recaudador. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
 	}
-	wait(&status);
+	waitpid(pidAdmin, &status, 0);
 	if (res == -1){
-		logger->log("Error: en el wait del administrador o recaudador. Strerr: " + toString(strerror(errno)), info);
+		logger->log("Error: en el wait del administrador. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
 	}
 
 	// Espera al fantasma
 	logger->log("Espero a que muera el fantasma", info);
-	wait(&status);
+	waitpid(pidFantasma, &status, 0);
 	if (res == -1){
 		logger->log("Error: en el wait del fantasma. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);

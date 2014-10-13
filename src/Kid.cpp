@@ -61,7 +61,7 @@ int main ( int argc, char** argv){
 	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,cantlugares);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
-//todo considerar permisos, hacerlos restrictivos
+	//Semaforos
 
 	Semaforo semCalGira("/etc", 22); // para bajarse
 	res = semCalGira.crear();
@@ -91,13 +91,13 @@ int main ( int argc, char** argv){
 
 	//como entro aumenta cantidad de chicos presentes...
 	lockKids->tomarLock();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	kidsInPark.escribir(kidsInPark.leer()+1);
 	logger->log("Aumento en uno la cantidad de chicos en el parque", info);
 
 	lockKids->liberarLock();
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = semMutexEntrada.v(1);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
@@ -122,7 +122,7 @@ int main ( int argc, char** argv){
 
 	logger->log("Obtuve mi boleto ", info);
 
-//Espera que la segunda puerta le escriba "pasa"
+	//Espera que la segunda puerta le escriba "pasa"
 	FifoLectura fila2(ruta + "C");
 	res = fila2.abrir();
 	if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
@@ -130,21 +130,21 @@ int main ( int argc, char** argv){
 
 	logger->log("Pasé la cola para subir a la calesita ", info);
 
-	//intenta subir a la calecita
-	res = semCalLug.p(-1);
-	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
-
-	//Cuando logra subirse intenta ir al lugar que quiere
+	//Cuando puede subirse intenta ir al lugar que quiere
 	bool libre;
 
 	for (int i = 0 ; i < cantlugares; i++){
 		lockSpots->tomarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 		libre = lugares.leer(i);
 		if (libre == LUGAR_LIBRE){
 			logger->log("Me senté en el lugar: " + toString(i), info);
 			lugares.escribir(LUGAR_OCUPADO,i);
+
+			lockSpots->liberarLock();
+			if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
 			break;
 		}else{
 			string msj = "Quize el lugar: " + toString(i) + " ,pero estaba ocupado.";
@@ -152,9 +152,12 @@ int main ( int argc, char** argv){
 		}
 
 		lockSpots->liberarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 	}
 
+	//termina de subir a la calecita
+	res = semCalLug.p(-1);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 
 	logger->log("Me subí a la calesita :D", info);
@@ -187,7 +190,6 @@ int main ( int argc, char** argv){
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 	logger->log("Me fui del parque", info);
-	//todo preguntar si habria que hacer algo particular aca...
 
 	res = semMutexEntrada.v(1);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}

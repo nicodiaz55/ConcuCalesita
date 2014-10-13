@@ -92,12 +92,12 @@ int main(int argc, char** argv) {
 		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		res = lockRContinua->tomarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		seguir = continua.leer();
 
 		res = lockRContinua->liberarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		if (seguir == 0){
 			//no duerme con el fantasma
@@ -112,13 +112,13 @@ int main(int argc, char** argv) {
 
 		//Despues de girar baja la cantidad de chicos esperando
 		res = lockWKidsinPark->tomarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		int chicosRestantes = kidsInPark.leer() - lugaresLibres;
 		kidsInPark.escribir(chicosRestantes);
 
 		res = lockWKidsinPark->liberarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		//primero se fija que todos los niños hayan bajado
 		res = semCalGira.zero();
@@ -126,12 +126,12 @@ int main(int argc, char** argv) {
 
 		//segundo, se bajan los chicos -> abre lugares para los que queden y avisa a puerta que los deje pasar
 		res = lockRKidsInPark->tomarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		int kidsWaiting = kidsInPark.leer();
 
 		res = lockRKidsInPark->liberarLock();
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
+		if ( controlErrores2(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
 		//segun cuantos chicos estan esperando es la cantidad de lugares que abre
 		if (kidsWaiting >= cantMaxLugares){
