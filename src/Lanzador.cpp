@@ -119,23 +119,6 @@ void Lanzador::lanzarCalesita() {
 
 	continua.escribir(0);
 
-	//Memoria compartida para identificar los lugares de la calesita
-	int claveAux = INICIO_CLAVES_LUGARES;
-
-	std::vector<MemoriaCompartida<bool> > memLugares;
-
-	for (int i = 0; i < lugaresCalesita; i++){
-		MemoriaCompartida<bool> lugar;
-		res = lugar.crear("/home/juan/git/ConcuCalesita/src/Constantes.h", claveAux, PERMISOS_USER_RDWR);
-		if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
-
-		lugar.escribir(LUGAR_LIBRE);
-
-		claveAux++;
-		cout << "Creo y meto: " << lugar.shmId << endl;
-		memLugares.push_back(lugar);
-	}
-
 	string arg1 = toString(auxLugares);
 	string arg2 = toString(lugaresCalesita);
 	string arg3 = toString(tiempoVuelta);
@@ -161,14 +144,6 @@ void Lanzador::lanzarCalesita() {
 	res = continua.liberar();
 	if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {raise(SIGINT);}
 
-	//desattacheo tambien de la de los lugares
-	vector<MemoriaCompartida<bool> >::iterator it ;
-
-	for ( it = memLugares.begin(); it != memLugares.end(); it++) {
-		res = (*it).liberar();
-		cout << "Libero: " << (*it).shmId << endl;
-		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
-	}
 }
 
 void Lanzador::lanzarFilasYNinios() {
@@ -229,6 +204,13 @@ void Lanzador::lanzarFilasYNinios() {
 	//Memoria compartida de cantidad de chicos en parque
 	kidsInPark.escribir(0);
 
+	//Memoria compartida para cada lugar
+
+	VectorMemoCompartida<bool> lugares;
+
+	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,this->lugaresCalesita);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
 	//lanza niños
 	for (int i = 0; i < cantNinios; i++) {
 
@@ -251,8 +233,11 @@ void Lanzador::lanzarFilasYNinios() {
 		usleep((int) exponentialTime(2));
 	}
 
-	//se desattachea esta shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
+	//se desattachea de estas shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 	res = kidsInPark.liberar();
+
+	res = lugares.liberar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 }
 

@@ -70,7 +70,6 @@ template <class T> int MemoriaCompartida<T> :: crear ( const std::string& archiv
 	}
 }
 
-
 template <class T> int MemoriaCompartida<T> :: liberar () {
 	// detach del bloque de memoria
 	int res = shmdt ( static_cast<void*> (this->ptrDatos) );
@@ -83,7 +82,6 @@ template <class T> int MemoriaCompartida<T> :: liberar () {
 		res = shmctl ( this->shmId,IPC_RMID,NULL );
 		if (res != 0){ return RES_ERROR_SHMCTL;}
 	}
-
 	return RES_OK;
 }
 

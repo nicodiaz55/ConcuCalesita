@@ -15,7 +15,7 @@ Caja::Caja() {
 
 int Caja::init() {
 	int res = recaudado.crear("/etc", 44, PERMISOS_USER_RDWR);
-	int res2 = estado.crear("/etc", 10000, PERMISOS_USER_RDWR);
+	int res2 = estado.crear("/etc", 19, PERMISOS_USER_RDWR);
 
 	if (res != RES_OK ){
 		return res;
@@ -24,8 +24,6 @@ int Caja::init() {
 		return res2;
 	}
 
-	cout << "recaudado: " << recaudado.shmId << endl;
-	cout << "estado: " << estado.shmId << endl;
 	estado.escribir(true);
 
 	return RES_OK;
@@ -46,12 +44,12 @@ int Caja::obtenerRecaudacion() {
 int Caja::terminar() {
 
 	int res = recaudado.liberar();
-	if (res == RES_OK){
+	if (res != RES_OK){
 		return res;
 	}
 
 	res =  estado.liberar();
-	if (res == RES_OK){
+	if (res != RES_OK){
 		return res;
 	}
 
@@ -69,7 +67,7 @@ int Caja::aumentarRecaudacion(int valor) {
 		return -1;
 	}
 	recaudado.escribir(recaudado.leer() + valor);
-	return 0;
+	return RES_OK;
 }
 
 

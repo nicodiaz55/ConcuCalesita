@@ -9,6 +9,7 @@
 
 #include "Semaforos/Semaforo.h"
 #include "Memoria_Compartida/MemoriaCompartida.h"
+#include "Memoria_Compartida/VectorMemoCompartida.h"
 #include "Pipes_y_Fifos/Pipe.h"
 #include "Pipes_y_Fifos/FifoLectura.h"
 #include "Locks/LockWrite.hpp"
@@ -44,7 +45,7 @@ int main ( int argc, char** argv){
 
 	fdRdPuerta1 = toInt(argv[1]);
 	fdWrPuerta1  = toInt(argv[2]);
-	int lugares = toInt(argv[3]);
+	int cantlugares = toInt(argv[3]);
 
 	Pipe pipePuerta1(fdRdPuerta1,fdWrPuerta1);
 
@@ -53,6 +54,11 @@ int main ( int argc, char** argv){
 	//para la memoria compartida
 	MemoriaCompartida<int> kidsInPark;
 	int res = kidsInPark.crear("/etc",33, PERMISOS_USER_RDWR);
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
+	VectorMemoCompartida<bool> lugares;
+
+	res = lugares.crear("/etc",INICIO_CLAVES_LUGARES,PERMISOS_USER_RDWR,cantlugares);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 //todo considerar permisos, hacerlos restrictivos
@@ -70,7 +76,10 @@ int main ( int argc, char** argv){
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	//prepara lock de kidsInPark
-	LockFile* lockW = new LockWrite("archLockKids");
+	LockFile* lockKids = new LockWrite("archLockKids");
+
+	//prepara el lock de los lugares
+	LockFile* lockSpots = new LockWrite(ARCH_LOCK_LUGARES);
 
 	//aca consideramos que entro a la calesita
 
@@ -81,13 +90,13 @@ int main ( int argc, char** argv){
 	logger->log("Entré al parque", info);
 
 	//como entro aumenta cantidad de chicos presentes...
-	lockW->tomarLock();
+	lockKids->tomarLock();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	kidsInPark.escribir(kidsInPark.leer()+1);
 	logger->log("Aumento en uno la cantidad de chicos en el parque", info);
 
-	lockW->liberarLock();
+	lockKids->liberarLock();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
 
 	res = semMutexEntrada.v(1);
@@ -125,6 +134,28 @@ int main ( int argc, char** argv){
 	res = semCalLug.p(-1);
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
+	//Cuando logra subirse intenta ir al lugar que quiere
+	bool libre;
+
+	for (int i = 0 ; i < cantlugares; i++){
+		lockSpots->tomarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+
+		libre = lugares.leer(i);
+		if (libre == LUGAR_LIBRE){
+			logger->log("Me senté en el lugar: " + toString(i), info);
+			lugares.escribir(LUGAR_OCUPADO,i);
+			break;
+		}else{
+			string msj = "Quize el lugar: " + toString(i) + " ,pero estaba ocupado.";
+			logger->log(msj, info);
+		}
+
+		lockSpots->liberarLock();
+		if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}
+	}
+
+
 
 	logger->log("Me subí a la calesita :D", info);
 
@@ -138,13 +169,16 @@ int main ( int argc, char** argv){
 	res = kidsInPark.liberar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
 
+	res = lugares.liberar();
+	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR) { kill(getppid(),SIGINT);}
   	//cierro pipe a las puerta y fifo de la cola
 	pipePuerta1.cerrar();
 
 	fila.cerrar();
 	fila.eliminar();
 
-	delete lockW;
+	delete lockKids;
+	delete lockSpots;
 
 	//para que salga "de a uno" uso semaforo binario para seccion critica, uso el mismo de la entrada
 	// por fiaca de no crear otro mas, a lo sumo no hay chicos entrando al mismo tiempo que otros salen

@@ -24,7 +24,7 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1806828731" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.651366237" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.40540702" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="MAIN"/>
+									<listOptionValue builtIn="false" value="KID"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.547090962" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

@@ -51,7 +51,7 @@ int leerParametros(const int argc, char** argv, int& cantNinios, int& lugaresCal
 
 int main ( int argc, char** argv) {
 	int cantNinios = 0;
-	int lugaresCalesita = 0;
+	int lugaresCalesita =0;
 	int tiempoVuelta = 0;
 	int res = leerParametros(argc, argv, cantNinios, lugaresCalesita, tiempoVuelta);
 	if (res != RES_OK) {

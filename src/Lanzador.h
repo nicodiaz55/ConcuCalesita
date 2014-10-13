@@ -14,6 +14,7 @@
 #include "Seniales/SIGINT_Handler.h"
 #include "Semaforos/Semaforo.h"
 #include "Pipes_y_Fifos/Pipe.h"
+#include "Memoria_Compartida/VectorMemoCompartida.h"
 #include <sys/wait.h>
 
 #include <cstdlib>
@@ -32,6 +33,7 @@ private:
 	int lugaresCalesita;
 	int tiempoVuelta;
 	int auxLugares;
+	std::vector< MemoriaCompartida<bool>* > memLugares;
 
 	SIGINT_Handler* sigint_handler;
 	Semaforo* semCalLug;

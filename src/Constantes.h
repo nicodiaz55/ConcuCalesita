@@ -61,5 +61,6 @@ static const int INICIO_CLAVES_LUGARES = 500;
 static const int PERMISOS_USER_RDWR = 0600;
 
 static const std::string ARCH_LOCK_LOG = "archlocklog";
+static const std::string ARCH_LOCK_LUGARES = "archlocklugares";
 
 #endif /* CONSTANTES_H_ */

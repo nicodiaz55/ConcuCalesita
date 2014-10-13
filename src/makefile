@@ -6,6 +6,7 @@ INC = $(.) $(./Locks) $(./logger) $(./Memoria_Compartida) $(./Pipes_y_Fifos) $(.
 INC_PARAMS = $(foreach d, $(INC), -I$d)
 
 MEM = ./Memoria_Compartida/MemoriaCompartida.h
+VMEM = ./Memoria_Compartida/VectorMemoCompartida.h
 PIPE = ./Pipes_y_Fifos/Pipe.h
 CONST = Constantes.h
 LOG = ./logger/Logger.hpp
@@ -19,10 +20,10 @@ LOCKWR = ./Locks/LockWrite.hpp
 SEM = ./Semaforos/Semaforo.h
 RANDOM = ./utils/Random.hpp
 
-DEPS_LANZADOR = $(MEM) $(PIPE) $(CONST) $(LOG) $(UTILS) $(SEM) $(SIG) $(RANDOM) $(CAJA)
+DEPS_LANZADOR = $(MEM) $(PIPE) $(CONST) $(LOG) $(UTILS) $(SEM) $(SIG) $(RANDOM) $(CAJA) $(VMEM)
 DEPS_ADMINISTRADOR = $(CONST) $(LOG) $(UTILS) $(MEM) $(LOCKRD) $(RANDOM) $(CAJA)
 DEPS_CALESITA = $(CONST) $(LOG) $(UTILS) $(MEM) $(LOCKWR) $(LOCKRD) $(SEM)
-DEPS_KID = $(CONST) $(LOG) $(UTILS) $(MEM) $(PIPE) $(FIFORD) $(LOCKWR) $(LOCKRD) $(SEM)
+DEPS_KID = $(CONST) $(LOG) $(UTILS) $(MEM) $(PIPE) $(FIFORD) $(LOCKWR) $(LOCKRD) $(SEM) $(VMEM)
 DEPS_RECAUDADOR = $(MEM) $(FIFORD) $(LOCKWR) $(LOCKRD) $(CONST) $(LOG) $(UTILS) $(CAJA)
 DEPS_FILACALESITA = $(CONST) $(LOG) $(UTILS) $(SIG) $(FIFOWR) $(PIPE)
 DEPS_FILABOLETO = $(CONST) $(LOG) $(UTILS) $(SIG) $(FIFOWR) $(PIPE) $(SEM)
