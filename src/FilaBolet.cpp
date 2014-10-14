@@ -5,6 +5,8 @@
  *      Author: nicolas
  */
 
+#ifdef FILA1
+
 #include "Pipes_y_Fifos/FifoEscritura.h"
 #include "Pipes_y_Fifos/Pipe.h"
 #include <signal.h>
@@ -155,4 +157,4 @@ int main ( int argc, char** argv){
 	return 0;
 }
 
-
+#endif
