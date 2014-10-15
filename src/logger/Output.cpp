@@ -29,8 +29,10 @@ void Output::log(LogMessage* message) {
 		return;
 	}
 	string m = message->toString();
+#ifndef DEBUG
 	file << m.c_str();
-	// tiro por cout tambien:
+#else
 	cout << m;
+#endif
 	file.close();
 }
