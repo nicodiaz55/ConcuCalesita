@@ -36,6 +36,9 @@ EJEC = ConcuCalesita Administrador Calesita Kid Recaudador FilaCalesita FilaBole
 #all: de que depende, que tiene que existir o no haber sido modificado... 
 all: $(EJEC) cleanO
 
+debug: CFLAGS += -DDEBUG
+debug: $(EJEC) cleanO
+
 ConcuCalesita: ConcuCalesita.o $(OBJ)
 	$(CC) $(CFLAGS) $< $(OBJ) -o $@ $(INC_PARAMS)
 

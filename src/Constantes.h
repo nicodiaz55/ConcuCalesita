@@ -45,6 +45,8 @@ static const int RES_ERROR_VALOR_P_V = -15;
 
 static const int RES_ERROR_VALOR_CAJA = -16;
 
+static const int RES_ERROR_CANT_PROC_ADOSADOS = -17;
+
 
 
 static const int MUERTE_POR_ERROR = -99;

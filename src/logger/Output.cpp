@@ -56,6 +56,10 @@ void Output::log(LogMessage* message) {
 	const void* buffer = m.c_str();
 	const ssize_t buffer_size = m.size();
 
+#ifndef DEBUG
 	write(file, buffer, buffer_size);
+#else
+	cout << m << endl;
+#endif
 
 }

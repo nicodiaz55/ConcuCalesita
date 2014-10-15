@@ -78,6 +78,8 @@ template <class T> int MemoriaCompartida<T> :: liberar () {
 
 	long unsigned int procAdosados = this->cantidadProcesosAdosados ();
 
+	if (procAdosados == -1){return RES_ERROR_CANT_PROC_ADOSADOS;}
+
 	if ( procAdosados == 0 ) {
 		res = shmctl ( this->shmId,IPC_RMID,NULL );
 		if (res != 0){ return RES_ERROR_SHMCTL;}
@@ -95,7 +97,8 @@ template <class T> T MemoriaCompartida<T> :: leer () const {
 
 template <class T> long unsigned int MemoriaCompartida<T> :: cantidadProcesosAdosados () const {
 	shmid_ds estado;
-	shmctl ( this->shmId,IPC_STAT,&estado );
+	int res = shmctl ( this->shmId,IPC_STAT,&estado );
+	if (res == -1) { return res;}
 	return estado.shm_nattch;
 }
 
