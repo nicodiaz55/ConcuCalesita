@@ -33,6 +33,8 @@ private:
 	int tiempoVuelta;
 	int auxLugares;
 	int precio;
+	int adminTMax;
+	int mediaKid;
 	std::vector< MemoriaCompartida<bool>* > memLugares;
 
 	SIGINT_Handler* sigint_handler;
@@ -48,7 +50,7 @@ private:
 	pid_t pidCal,pidPuerta1,pidPuerta2,pidFantasma,pidAdmin,pidRec;
 
 public:
-	Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio);
+	Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio, int tiempoAdmin, int mediaKid);
 	void iniciar();
 	void lanzarAdministradorYRecaudador();
 	void lanzarCalesita();

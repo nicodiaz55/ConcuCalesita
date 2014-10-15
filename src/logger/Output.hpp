@@ -10,18 +10,18 @@
 
 using namespace std;
 
+#include <iostream>
+#include <fstream>
 #include "LogMessage.hpp"
 
 
 class Output {
 	private:
 		string output;
-		int file; // file descriptor
 
 	public:
 		Output(const string output);
 		virtual ~Output();
-		bool init();
 		void log(LogMessage* message);
 };
 

@@ -9,13 +9,15 @@
 
 using namespace std;
 
-Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio) {
+Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio, int tiempoAdmin, int mediaKid) {
 	logger = new Logger();
 	info = new Info(getpid(), "Lanzador");
 	this->cantNinios = cantNinios;
 	this->lugaresCalesita = lugaresCalesita;
 	this->tiempoVuelta = tiempoVuelta;
 	this->precio = precio;
+	this->adminTMax = tiempoAdmin;
+	this->mediaKid = mediaKid;
 	auxLugares = 0;
 	sigint_handler = NULL;
 	semCalLug = NULL;
@@ -37,6 +39,8 @@ Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int pr
 	logger->log("La cantidad de lugares es: " + toString(lugaresCalesita),	info);
 	logger->log("La cantidad de niños en el barrio es: " + toString(cantNinios), info);
 	logger->log("El precio de la vuelta es de: " + toString(precio), info);
+	logger->log("El administrador consultara la caja cada Uniforme[1," + toString(adminTMax) + "] seg", info);
+	logger->log("Los niños llegan con una distribución Poisson de media " + toString(mediaKid) + " seg", info);
 }
 
 void Lanzador::iniciar() {
@@ -100,7 +104,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 		raise (SIGINT);
 	}
 	if (pidAdmin == 0) {
-		res = execl("Administrador", "Administrador", (char*) 0);
+		res = execl("Administrador", "Administrador", toString(adminTMax).c_str(), (char*) 0);
 		if (res != RES_OK) {
 			logger->log("Error: Falla en exec del administrador. Strerr: " + toString(strerror(errno)), info);
 			raise (SIGINT);
@@ -245,7 +249,7 @@ void Lanzador::lanzarFilasYNinios() {
 		}
 
 		logger->log("Se lanzó un niño", info);
-		usleep((int) exponentialTime(2));
+		sleep((int) exponentialTime(mediaKid));
 	}
 
 	//se desattachea de estas shared mem. despues de crear los hijos, asi siempre hay alguien usandola.
@@ -267,10 +271,11 @@ void Lanzador::terminar() {
 		}
 	}
 
+	logger->log("Todos los niños salieron del parque. Comienzo a terminar la simulación", info);
+
 	//Le dice a las puertas que mueran
-
 	//espera a las puertas
-
+	logger->log("Informo a la fila que debe terminar...", info);
 	int aux = CERRAR_FILA;
 	res = write(fdWrPuerta1, &aux, sizeof(int));
 	if (res == -1){
@@ -283,7 +288,7 @@ void Lanzador::terminar() {
 	//y porque lo necesito para matar la puerta
 	pipeAKids->cerrar();
 	delete pipeAKids;
-
+	logger->log("Cerrando puertas...", info);
 	res = waitpid(pidPuerta1, &status, 0);
 	if (res == -1){
 		logger->log("Error: en el wait puerta 1. Strerr: " + toString(strerror(errno)), info);
@@ -319,34 +324,35 @@ void Lanzador::terminar() {
 	logger->log("Se lanzó el niño fantasma", info);
 
 
-	logger->log("Espero a que muera la calesita", info);
+	logger->log("Espero a que muera la calesita [" + toString(pidCal) + "]", info);
 	res = waitpid(pidCal, &status, 0);
 	if (res == -1){
 		logger->log("Error: en el wait de la calesita. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
 	}
 
-	logger->log("Espero a que muera el recaudador y el admin", info);
-	waitpid(pidRec, &status, 0);
-	if (res == -1){
-		logger->log("Error: en el wait del recaudador. Strerr: " + toString(strerror(errno)), info);
-		raise (SIGINT);
-	}
-	waitpid(pidAdmin, &status, 0);
-	if (res == -1){
-		logger->log("Error: en el wait del administrador. Strerr: " + toString(strerror(errno)), info);
-		raise (SIGINT);
-	}
-
 	// Espera al fantasma
-	logger->log("Espero a que muera el fantasma", info);
+	logger->log("Espero a que muera el fantasma [" + toString(pidFantasma) + "]", info);
 	waitpid(pidFantasma, &status, 0);
 	if (res == -1){
 		logger->log("Error: en el wait del fantasma. Strerr: " + toString(strerror(errno)), info);
 		raise (SIGINT);
 	}
 
-	logger->log("Ok ahora mato semaforos", info);
+	logger->log("Espero a que muera el recaudador [" + toString(pidRec) + "]", info);
+	waitpid(pidRec, &status, 0);
+	if (res == -1){
+		logger->log("Error: en el wait del recaudador. Strerr: " + toString(strerror(errno)), info);
+		raise (SIGINT);
+	}
+	logger->log("Espero a que muera el administrador [" + toString(pidAdmin) + "]", info);
+	waitpid(pidAdmin, &status, 0);
+	if (res == -1){
+		logger->log("Error: en el wait del administrador. Strerr: " + toString(strerror(errno)), info);
+		raise (SIGINT);
+	}
+
+	logger->log("Libero recursos", info);
 	//mato semaforos
 	res = semCalGira->eliminar();
 	if ( controlErrores1(res, logger, info) == MUERTE_POR_ERROR ) { raise (SIGINT);}

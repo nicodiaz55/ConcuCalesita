@@ -115,6 +115,8 @@ public:
 	}
 
 	void terminar() {
+		logger->log("Se cierra la fila de venta de boletos",info);
+		logger->log("Informo al Recaudador que debe terminar", info);
 		//para que muera el recaudador
 		int pago = FIN_PAGOS;
 		int res = fifoRecaudador->escribir( &pago, sizeof(int));
@@ -127,8 +129,6 @@ public:
 
 		pipe1->cerrar();
 		pipe2->cerrar();
-
-		logger->log("Se cierra la fila de venta de boletos",info);
 	}
 
 	~FilaBoleto() {

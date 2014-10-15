@@ -32,10 +32,6 @@ void Logger::stop() {
  */
 void Logger::setOutput(string output) {
 	this->output = new Output(output);
-	if (!this->output->init()) {
-		this->output = 0;
-		canLog = false;
-	}
 }
 
 /**

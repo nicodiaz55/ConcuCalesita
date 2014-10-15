@@ -92,7 +92,7 @@ public:
 		int res = continua->liberar();
 		if (controlErrores1(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
-		logger->log("Como mis deseos infantiles fueron satisfecho, me retiro de este mundo", info);
+		logger->log("Como mis deseos infantiles fueron satisfechos, me retiro de este mundo", info);
 	}
 
 	~Fantasma() {

@@ -94,6 +94,7 @@ public:
 		semAdminRec->p(-1);
 
 		//para que muera el administrador
+		logger->log("Cierro la caja, asi el Administrador sabe que debe terminar", info);
 		int res = lockW->tomarLock();
 		if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 

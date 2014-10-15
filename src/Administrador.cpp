@@ -27,13 +27,15 @@ class Administrador {
 		pid_t ppid;
 		Caja* caja;
 		LockFile* lockR;
+		int tiempo;
 	public:
-		Administrador(pid_t ppid, pid_t pid) {
+		Administrador(pid_t ppid, pid_t pid, int tiempo) {
 			logger = new Logger();
 			info = new Info(pid, "Administrador");
 			this->ppid = ppid;
 			caja = NULL;
 			lockR = NULL;
+			this->tiempo = tiempo;
 		}
 
 		void iniciar() {
@@ -56,7 +58,7 @@ class Administrador {
 			lockR = new LockRead(ARCH_LOCK_CAJA);
 		}
 
-		void trabajar(int min, int max) {
+		void trabajar() {
 			int res;
 			while (true){
 				res = lockR->tomarLock();
@@ -64,13 +66,14 @@ class Administrador {
 
 				logger->log("En la caja hay: $" + toString(caja->obtenerRecaudacion()), info);
 				if (caja->obtenerEstado() == false) {
+					logger->log("Oh! La caja esta cerrada", info);
 					break;
 				}
 				res = lockR->liberarLock();
 				if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 				//este sleep esta para que no llene el log solo con sus lecturas
-				sleep(uniform(min,max));
+				sleep(uniform(1,tiempo)); // entre 1 seg y tiempo seg
 			}
 		}
 
@@ -103,10 +106,10 @@ class Administrador {
 };
 
 int main(int argc, char** argv) {
-	Administrador* admin = new Administrador(getppid(), getpid());
+	Administrador* admin = new Administrador(getppid(), getpid(), toInt(argv[1]));
 	admin->iniciar();
 	// Trabaja viendo la caja cada Uniforme[1,2] segundos
-	admin->trabajar(1,2);  // TODO: jugar con esto
+	admin->trabajar();
 	admin->terminar();
 	delete admin;
 	return 0;

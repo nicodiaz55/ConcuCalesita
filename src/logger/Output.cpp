@@ -15,51 +15,22 @@ using namespace std;
 
 Output::Output(string output) {
 	this->output = output;
-	this->file = 0;
-
 }
 
-Output::~Output() {
-	if (file != 0) {
-		close(file);
-		file = 0;
-	}
-
-}
-
-/**
- * Inicializa la salida (la crea, la deja lista para escribir)
- */
-bool Output::init() {
-	file = open(output.c_str(), O_CREAT | O_WRONLY, 0777);
-
-	if (file == -1) {
-		// string err = "No se pudo abrir el archivo: " + string(strerror(errno));
-		// throw err;
-		file = 0;
-		return false;
-	}
-
-	return true;
-}
+Output::~Output() {}
 
 /**
  * Loggea un mensaje en la salida.
 */
 void Output::log(LogMessage* message) {
-	if (lseek(file,0,SEEK_END) == -1) {
-		// string err = "No se pudo escribir en el archivo: " + string(strerror(errno));
-		// throw err;
+	ofstream file(output.c_str(), ios::app | ios::out);
+	if (!file.is_open()) {
+		cout << "No se pudo escribir en el archivo!!!!!" << endl;
 		return;
 	}
 	string m = message->toString();
-	const void* buffer = m.c_str();
-	const ssize_t buffer_size = m.size();
-
-#ifndef DEBUG
-	write(file, buffer, buffer_size);
-#else
-	cout << m << endl;
-#endif
-
+	file << m.c_str();
+	// tiro por cout tambien:
+	cout << m;
+	file.close();
 }
