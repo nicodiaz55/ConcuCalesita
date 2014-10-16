@@ -50,6 +50,7 @@ static const int RES_ERROR_CANT_PROC_ADOSADOS = -17;
 
 
 static const int MUERTE_POR_ERROR = -99;
+
 static const int MUERTE_POR_SIGINT = -100;
 
 
@@ -96,4 +97,8 @@ static const int MEM_KIDS = 33;
 static const int SEM_CAJA_REC = 44;
 static const int MEM_CONTINUA = 55;
 static const int SEM_CAJA_ESTADO = 66;
+
+static const int adminTMax = 2;
+static const int mediaKid = 1;
+
 #endif /* CONSTANTES_H_ */

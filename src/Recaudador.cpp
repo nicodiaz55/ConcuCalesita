@@ -114,7 +114,7 @@ public:
 	}
 
 	~Recaudador() {
-		if (caja != NULL) { // TODO: Si se rompe por culpa de caja, es aca.
+		if (caja != NULL) {
 			delete caja;
 			caja = NULL;
 		}

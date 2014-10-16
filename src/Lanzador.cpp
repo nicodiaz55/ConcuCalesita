@@ -9,15 +9,13 @@
 
 using namespace std;
 
-Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio, int tiempoAdmin, int mediaKid) {
+Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int precio) {
 	logger = new Logger();
 	info = new Info(getpid(), "Lanzador");
 	this->cantNinios = cantNinios;
 	this->lugaresCalesita = lugaresCalesita;
 	this->tiempoVuelta = tiempoVuelta;
 	this->precio = precio;
-	this->adminTMax = tiempoAdmin;
-	this->mediaKid = mediaKid;
 	auxLugares = 0;
 	sigint_handler = NULL;
 	semCalLug = NULL;
@@ -39,6 +37,7 @@ Lanzador::Lanzador(int cantNinios, int lugaresCalesita, int tiempoVuelta, int pr
 	logger->log("La cantidad de lugares es: " + toString(lugaresCalesita),	info);
 	logger->log("La cantidad de niños en el barrio es: " + toString(cantNinios), info);
 	logger->log("El precio de la vuelta es de: " + toString(precio), info);
+	//Estos 2 ultimos pueden modificarse desde Constantes.h
 	logger->log("El administrador consultara la caja cada Uniforme[1," + toString(adminTMax) + "] seg", info);
 	logger->log("Los niños llegan con una distribución Poisson de media " + toString(mediaKid) + " seg", info);
 }
@@ -104,7 +103,7 @@ void Lanzador::lanzarAdministradorYRecaudador() {
 		raise (SIGINT);
 	}
 	if (pidAdmin == 0) {
-		res = execl("Administrador", "Administrador", toString(adminTMax).c_str(), (char*) 0);
+		res = execl("Administrador", "Administrador", (char*) 0);
 		if (res != RES_OK) {
 			logger->log("Error: Falla en exec del administrador. Strerr: " + toString(strerror(errno)), info);
 			raise (SIGINT);

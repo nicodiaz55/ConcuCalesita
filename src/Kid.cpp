@@ -125,13 +125,13 @@ public:
 		logger->log("Entré al parque", info);
 
 		//como entro aumenta cantidad de chicos presentes...
-		lockKids->tomarLock();
+		res = lockKids->tomarLock();
 		if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 		kidsInPark->escribir(kidsInPark->leer() + 1);
 		logger->log("Aumento en uno la cantidad de chicos en el parque", info);
 
-		lockKids->liberarLock();
+		res = lockKids->liberarLock();
 		if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 		res = semMutexEntrada->v(1);
@@ -152,7 +152,6 @@ public:
 		if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 		fila->leer(&permisoPasar, sizeof(int));
-	//todo sacar TODOS los numeros magicos, pasar a constantes.h
 
 		logger->log("Obtuve mi boleto ", info);
 
@@ -174,7 +173,7 @@ public:
 		bool libre;
 
 		for (int i = 0 ; i < cantlugares; i++) {
-			lockSpots->tomarLock();
+			res = lockSpots->tomarLock();
 			if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 			libre = lugares->leer(i);
@@ -182,7 +181,7 @@ public:
 				logger->log("Me senté en el lugar: " + toString(i), info);
 				lugares->escribir(LUGAR_OCUPADO,i);
 
-				lockSpots->liberarLock();
+				res = lockSpots->liberarLock();
 				if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 				break;
@@ -191,7 +190,7 @@ public:
 				logger->log(msj, info);
 			}
 
-			lockSpots->liberarLock();
+			res = lockSpots->liberarLock();
 			if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 		}
 

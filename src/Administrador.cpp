@@ -18,7 +18,7 @@
 using namespace std;
 
 /*
- * Mira la caja de boletos e imprime por pantalla o al log o whatever
+ * Mira la caja de boletos e imprime por pantalla o al log
  */
 class Administrador {
 	private:
@@ -27,15 +27,13 @@ class Administrador {
 		pid_t ppid;
 		Caja* caja;
 		LockFile* lockR;
-		int tiempo;
 	public:
-		Administrador(pid_t ppid, pid_t pid, int tiempo) {
+		Administrador(pid_t ppid, pid_t pid) {
 			logger = new Logger();
 			info = new Info(pid, "Administrador");
 			this->ppid = ppid;
 			caja = NULL;
 			lockR = NULL;
-			this->tiempo = tiempo;
 		}
 
 		void iniciar() {
@@ -73,7 +71,7 @@ class Administrador {
 				if (controlErrores2(res, logger, info) == MUERTE_POR_ERROR) {kill(ppid,SIGINT);}
 
 				//este sleep esta para que no llene el log solo con sus lecturas
-				sleep(uniform(1,tiempo)); // entre 1 seg y tiempo seg
+				sleep(uniform(1,adminTMax)); // entre 1 seg y tiempo seg
 			}
 		}
 
@@ -98,7 +96,7 @@ class Administrador {
 				delete info;
 				info = NULL;
 			}
-			if (caja != NULL) { // todo: si algo llega a romper con caja, es esto.
+			if (caja != NULL) {
 				delete caja;
 				caja = NULL;
 			}
@@ -106,7 +104,7 @@ class Administrador {
 };
 
 int main(int argc, char** argv) {
-	Administrador* admin = new Administrador(getppid(), getpid(), toInt(argv[1]));
+	Administrador* admin = new Administrador(getppid(), getpid());
 	admin->iniciar();
 	// Trabaja viendo la caja cada Uniforme[1,2] segundos
 	admin->trabajar();

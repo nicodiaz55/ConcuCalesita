@@ -25,14 +25,14 @@ Output::~Output() {}
 void Output::log(LogMessage* message) {
 	ofstream file(output.c_str(), ios::app | ios::out);
 	if (!file.is_open()) {
-		cout << "No se pudo escribir en el archivo!!!!!" << endl;
+		cout << "No se pudo escribir en el archivo." << endl;
 		return;
 	}
 	string m = message->toString();
-#ifndef DEBUG
+#ifdef DEBUG
 	file << m.c_str();
 #else
-	cout << m;
+	cout << m << endl;
 #endif
 	file.close();
 }
